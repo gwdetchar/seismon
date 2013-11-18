@@ -1,0 +1,11 @@
+/build
+/seismon.egg-info
+/dist
+/docs/_build
+/docs/_generated
+/seismon/version.py
+*.pyx
+*.so
+*.swp
+/.idea
+.DS_store
