@@ -114,6 +114,8 @@ def parse_commandline():
     parser.add_option("--doWienerSummary",  action="store_true", default=False)
     parser.add_option("--noFrames",  action="store_true", default=False)
 
+    parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
+
     parser.add_option("--doFlagsDatabase",  action="store_true", default=False)
     parser.add_option("--doFlagsTextFile",  action="store_true", default=False)
     parser.add_option("--doFlagsChannel",  action="store_true", default=False)
@@ -208,6 +210,7 @@ def params_struct(opts):
     params["doWiener"] = opts.doWiener
     params["doWienerFFT"] = opts.doWienerFFT
     params["doWienerSummary"] = opts.doWienerSummary
+    params["wienerFilterOrder"] = opts.wienerFilterOrder
     params["noFrames"] = opts.noFrames
 
     params["doFlagsDatabase"] = opts.doFlagsDatabase
