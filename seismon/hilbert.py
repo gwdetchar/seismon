@@ -64,7 +64,7 @@ def hilbert(params, segment):
             print "timeseries too short for analysis... continuing\n"
             continue
 
-        cutoff = 0.3
+        cutoff = 0.01
         dataFull = dataFull.lowpass(cutoff, amplitude=0.9, order=3, method='scipy')
 
         dataAll.append(dataFull)
@@ -251,26 +251,49 @@ def hilbert(params, segment):
             plot.save(pngFile)
             plot.close()
 
-        dataRatio = dataHilbert / dataXY
+        dataHilbert = dataHilbert.resample(1.0)
+        dataXY = dataXY.resample(1.0)
+
+        dataHilbertAbs = np.absolute(dataHilbert)
+        dataXYAbs = np.absolute(dataXY)
+        dataRatio = dataXYAbs / dataHilbertAbs
 
         if params["doPlots"]:
 
             plotDirectory = params["path"] + "/Hilbert"
             seismon.utils.mkdir(plotDirectory)
 
+            pngFile = os.path.join(plotDirectory,"%s-max-abs.png"%(attributeDic["eventName"]))
+            plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+            kwargs = {"linestyle":"-","color":"b"}
+            plot.add_timeseries(dataHilbertAbs,label="Hilbert",**kwargs)
+            kwargs = {"linestyle":"-","color":"g"}
+            plot.add_timeseries(dataXYAbs,label="XY",**kwargs)
+            plot.ylabel = r"Velocity [$\mu$m/s]"
+            plot.add_legend(loc=1,prop={'size':10})
+
+            plot.save(pngFile)
+            plot.close()
+
             pngFile = os.path.join(plotDirectory,"%s-ratio.png"%(attributeDic["eventName"]))
             plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
 
             kwargs = {"linestyle":"-","color":"k"}
-            plot.add_timeseries(np.absolute(dataRatio),label="Hilbert",**kwargs)
-            plot.ylabel = r"Ratio [Hilbert / XY]"
-           
-            meanValue = np.mean(np.absolute(dataRatio))
-            plot.title = "Mean Ratio: %.3f"%(meanValue)
+            plot.add_timeseries(np.absolute(dataRatio),label="Ratio",**kwargs)
+            plot.ylabel = r"Ratio [XY / Hilbert(Z)]"
+          
+            xlim = [plot.xlim[0],plot.xlim[1]]
+            kwargs = {"linestyle":"-","color":"r"}
+            plot.add_line(xlim,[0.78,0.78],label="PREM",**kwargs)
+
+            meanValue = np.median(np.absolute(dataRatio))
+            plot.title = "Median Ratio: %.3f"%(meanValue)
 
             #plot.ylim = [0,100]
 
             plot.axes[0].set_yscale("log")
+            plot.add_legend(loc=1,prop={'size':10})
 
             plot.save(pngFile)
             plot.close()

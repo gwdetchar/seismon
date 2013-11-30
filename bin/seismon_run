@@ -38,6 +38,8 @@ import seismon.psd, seismon.utils
 import seismon.html, seismon.omicron
 import seismon.eqmon, seismon.eqmon_plot
 import seismon.coherence, seismon.hilbert
+import seismon.wiener, seismon.wiener_fft
+import seismon.trend, seismon.frame
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __version__ = 1.0
@@ -104,6 +106,7 @@ def parse_commandline():
     parser.add_option("--doSegmentsDatabase",  action="store_true", default=False)
     parser.add_option("--doSegmentsTextFile",  action="store_true", default=False)
     parser.add_option("--doPSD",  action="store_true", default=False)    
+    parser.add_option("--doTrend",  action="store_true", default=False)
     parser.add_option("--doSummary",  action="store_true", default=False)
     parser.add_option("--doCoherence",  action="store_true", default=False)
     parser.add_option("--doCoherenceSummary",  action="store_true", default=False)
@@ -113,8 +116,15 @@ def parse_commandline():
     parser.add_option("--doWienerFFT",  action="store_true", default=False)
     parser.add_option("--doWienerSummary",  action="store_true", default=False)
     parser.add_option("--noFrames",  action="store_true", default=False)
+    parser.add_option("--doMakeFrames",  action="store_true", default=False)
+    parser.add_option("--framesSampleRate", help="frames sample rate.", default=0,type=int)
+    parser.add_option("--framesFolder", help="frames folder.", 
+                     default="/home/mcoughlin/Seismon/frames")
 
     parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
+    parser.add_option("--wienerFilterSampleRate", help="Wiener filter sample rate.", default=0,type=int)
+    parser.add_option("--wienerFilterLowFreq", help="Wiener filter lowpass.", default=0,type=float)
+    parser.add_option("--wienerFilterHighFreq", help="Wiener filter highpass", default=0,type=float)
 
     parser.add_option("--doFlagsDatabase",  action="store_true", default=False)
     parser.add_option("--doFlagsTextFile",  action="store_true", default=False)
@@ -202,6 +212,7 @@ def params_struct(opts):
     params["doSegmentsDatabase"] = opts.doSegmentsDatabase
     params["doSegmentsTextFile"] = opts.doSegmentsTextFile
     params["doPSD"] = opts.doPSD
+    params["doTrend"] = opts.doTrend
     params["doSummary"] = opts.doSummary
     params["doCoherence"] = opts.doCoherence
     params["doCoherenceSummary"] = opts.doCoherenceSummary
@@ -211,7 +222,13 @@ def params_struct(opts):
     params["doWienerFFT"] = opts.doWienerFFT
     params["doWienerSummary"] = opts.doWienerSummary
     params["wienerFilterOrder"] = opts.wienerFilterOrder
+    params["wienerFilterSampleRate"] = opts.wienerFilterSampleRate
+    params["wienerFilterLowFreq"] = opts.wienerFilterLowFreq
+    params["wienerFilterHighFreq"] = opts.wienerFilterHighFreq
     params["noFrames"] = opts.noFrames
+    params["doMakeFrames"] = opts.doMakeFrames
+    params["framesSampleRate"] = opts.framesSampleRate
+    params["framesFolder"] = opts.framesFolder
 
     params["doFlagsDatabase"] = opts.doFlagsDatabase
     params["doFlagsTextFile"] = opts.doFlagsTextFile
@@ -305,6 +322,12 @@ for channel in params["channels"]:
             print "Plotting Omicron triggers for %s"%channel.station
             params = seismon.utils.setPath(params,segment)
             seismon.omicron.plot_triggers(params,channel,segment)
+    if params["doTrend"]:
+        print "Generating trend for %s"%channel.station
+        for segment in params["segments"]:
+            print "Segment: %d-%d"%(segment[0],segment[1])
+            params = seismon.utils.setPath(params,segment)
+            seismon.trend.trend(params,channel,segment)
     
 if params["doCoherence"]:
     for i in xrange(len(params["channels"])):
@@ -359,7 +382,6 @@ if params["doCoherenceSummary"]:
             seismon.coherence.coherence_summary(params,channel,segment)
 
 if params["doWiener"]:
-    import seismon.wiener
     for channel in params["channels"]:
         print "Running wiener filter for %s"%(channel.station)
         for segment in params["segments"]:
@@ -368,22 +390,27 @@ if params["doWiener"]:
             seismon.wiener.wiener(params,channel,segment)
 
 if params["doWienerFFT"]:
-    import gwpy.seismon.seismon_wiener_fft
     for channel in params["channels"]:
         print "Running wiener filter for %s"%(channel.station)
         for segment in params["segments"]:
             print "Segment: %d-%d"%(segment[0],segment[1])
-            params = gwpy.seismon.seismon_utils.setPath(params,segment)
-            gwpy.seismon.seismon_wiener_fft.wiener(params,channel,segment)
+            params = seismon.utils.setPath(params,segment)
+            seismon.wiener_fft.wiener(params,channel,segment)
 
 if params["doWienerSummary"]:
-    import gwpy.seismon.seismon_wiener
     for channel in params["channels"]:
         print "Generating wiener summary for %s"%(channel.station)
         for segment in params["segments"]:
             print "Segment: %d-%d"%(segment[0],segment[1])
-            params = gwpy.seismon.seismon_utils.setPath(params,segment)
-            gwpy.seismon.seismon_wiener.wiener_summary(params,channel,segment)
+            params = seismon.utils.setPath(params,segment)
+            seismon.wiener.wiener_summary(params,channel,segment)
+
+if params["doMakeFrames"]:
+    for segment in params["segments"]:
+        print "Running frames for Segment: %d-%d"%(segment[0],segment[1])
+        params = seismon.utils.setPath(params,segment)
+        seismon.frame.make_frames(params, segment)
+    print "Frames complete!"    
 
 if params["doEarthquakesAnalysis"]:
     print "Running earthquake analysis"

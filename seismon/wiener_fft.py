@@ -41,9 +41,11 @@ def wiener(params, target_channel, segment):
 
     dataAll = []
 
-    samplef = target_channel.samplef
+    if params["wienerFilterSampleRate"] > 0:
+        samplef =params["wienerFilterSampleRate"]
+    else:
+        samplef = target_channel.samplef
     N = params["wienerFilterOrder"]
-    samplef = 256
 
     for channel in params["channels"]:
         # make timeseries
@@ -65,16 +67,15 @@ def wiener(params, target_channel, segment):
             print "timeseries too short for analysis... continuing\n"
             continue
 
-        dataFull = dataFull.resample(samplef)
+        if params["wienerFilterSampleRate"] > 0:
+            dataFull = dataFull.resample(params["wienerSampleRate"])
 
-        cutoff = 10.0
-        cutoff = 65.0
-        cutoff_low = 300.0
-        cutoff_high = 350.0
-        dataFull = dataFull.lowpass(cutoff, amplitude=0.9, order=3, method='scipy')
-        #print np.sum(dataFull)
-        #dataFull = dataFull.bandpass(cutoff_low,cutoff_high, amplitude=0.9, order=6, method='scipy')
-        #print dataFull
+        if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] == 0):
+            dataFull = dataFull.highpass(params["wienerFilterLowFreq"], amplitude=0.9, order=3, method='scipy')
+        elif (params["wienerFilterLowFreq"] == 0) and (params["wienerFilterHighFreq"] > 0):
+            dataFull = dataFull.lowpass(params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
+        elif (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] > 0):
+            dataFull = dataFull.bandpass(params["wienerFilterLowFreq"],params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
 
         indexes = np.where(np.isnan(dataFull.data))[0]
         meanSamples = np.mean(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
@@ -108,7 +109,9 @@ def wiener(params, target_channel, segment):
     for i in xrange(len(gpss)):
 
         if create_filter:
-            indexes = np.arange(i,i+10)
+            indexes = np.arange(i,i+N)
+        elif i<N:
+            continue
         else:
             indexes = np.arange(i,i+1)
 
@@ -320,7 +323,7 @@ def wiener_summary(params, target_channel, segment):
     gpsStart = segment[0]
     gpsEnd = segment[1]
 
-    psdDirectory = params["dirPath"] + "/Text_Files/Wiener/" + target_channel.station_underscore + "/" + str(params["fftDuration"])
+    psdDirectory = params["dirPath"] + "/Text_Files/WienerFFT/" + target_channel.station_underscore + "/" + str(params["fftDuration"])
 
     directories = glob.glob(os.path.join(psdDirectory,"*"))
 

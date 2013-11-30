@@ -524,31 +524,34 @@ def channel_struct(params,channelList):
                channelSplit = station.split(":")
 
                calibration = 1
-               response = client.station(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime=tstart,endtime=tend,level="resp")
+               try:
+                   response = client.station(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime=tstart,endtime=tend,level="resp")
+               except:
+                   print "No response data available... continuing"
                responseLines = response.split("\n")
                for line in responseLines:
-                   index = line.find("SensitivityValue")
+                   index = line.find("<SensitivityValue>")
                    if not index == -1:
                        lineSplit = line.split("<")
                        lineSplit = lineSplit[1].split(">")
                        calibration = float(lineSplit[1])
                        break
                for line in responseLines:
-                   index = line.find("SampleRate")
+                   index = line.find("<SampleRate>")
                    if not index == -1:
                        lineSplit = line.split("<")
                        lineSplit = lineSplit[1].split(">")
                        samplef = float(lineSplit[1])
                        break
                for line in responseLines:
-                   index = line.find("Lat")
+                   index = line.find("<Lat>")
                    if not index == -1:
                        lineSplit = line.split("<")
                        lineSplit = lineSplit[1].split(">")
                        latitude = float(lineSplit[1])
                        break
                for line in responseLines:
-                   index = line.find("Lon")
+                   index = line.find("<Lon>")
                    if not index == -1:
                        lineSplit = line.split("<")
                        lineSplit = lineSplit[1].split(">")
@@ -690,8 +693,7 @@ def GPSToUTCDateTime(gps):
 
     import obspy
     utc = lal.gpstime.gps_to_utc(int(gps))
-    tt = time.strftime("%Y-%jT%H:%M:%S", utc)
-    ttUTC = obspy.UTCDateTime(tt)
+    ttUTC = obspy.UTCDateTime(utc)
 
     return ttUTC
 

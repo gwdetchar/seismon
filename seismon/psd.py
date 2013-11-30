@@ -342,7 +342,7 @@ def spectra(params, channel, segment):
         pngFile = os.path.join(plotDirectory,"timeseries.png")
         plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
 
-        dataHighpass = data["dataHighpass"].resample(16,doDecimate=True)
+        dataHighpass = data["dataHighpass"].decimate(16)
         dataFull = data["dataFull"].resample(16)
         dataLowpass = data["dataLowpass"].resample(16)
       
@@ -928,7 +928,7 @@ def analysis(params, channel):
         plot.save(pngFile,dpi=200)
         plot.close()
 
-    htmlPage = seismon.html.seismon.page(channel,textDirectory)
+    htmlPage = seismon.html.seismon_page(channel,textDirectory)
     if htmlPage is not None:
         f = open(os.path.join(textDirectory,"psd.html"),"w")
         f.write(htmlPage)

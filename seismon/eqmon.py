@@ -911,6 +911,8 @@ def read_quakeml(file,eventName):
 
     if "origin" not in dic["eventParameters"]["event"]:
         return attributeDic
+    if "type" not in dic["eventParameters"]["event"]:
+        dic["eventParameters"]["event"]["type"] = "None"
 
     attributeDic["Longitude"] = float(dic["eventParameters"]["event"]["origin"]["longitude"]["value"])
     attributeDic["Latitude"] = float(dic["eventParameters"]["event"]["origin"]["latitude"]["value"])
