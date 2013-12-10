@@ -10,6 +10,8 @@ import gwpy.time, gwpy.timeseries
 import gwpy.spectrum, gwpy.spectrogram
 import gwpy.plotter, gwpy.table
 
+import laldetchar.triggers
+
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
 __version__ = "0.1"
@@ -34,31 +36,25 @@ def plot_triggers(params,channel,segment):
     gpsStart = segment[0]
     gpsEnd = segment[1]
 
-    columns = ["peak_time","peak_time_ns","start_time","start_time_ns","stop_time","stop_time_ns","duration","central_freq","flow","fhigh","bandwidth","amplitude","snr"]
-
-    trigger_threshold = 5
-
     omicronDirectory = os.path.join(params["path"],"omicron")
     omicronPath = os.path.join(omicronDirectory,channel.station)
     omicronXMLs = glob.glob(os.path.join(omicronPath,"*.xml"))
 
-    format = "sngl_burst"
-    table = []
-    for omicronXML in omicronXMLs:
-        table = gwpy.table.Table.read(omicronXML,format,columns=columns)
-        table.add_column(table.ColumnClass(
-            data=table['peak_time']+table['peak_time_ns']*1e-9,
-            name='time'))
+    table = laldetchar.triggers.from_files(omicronXMLs, "omicron")
 
     if table == []:
        return
-      
+   
+    peak_times = gwpy.plotter.table.get_table_column(table, "peak_time")
+    central_freqs = gwpy.plotter.table.get_table_column(table, "central_freq")
+    snrs = gwpy.plotter.table.get_table_column(table, "snr")
+ 
     textLocation = params["path"] + "/" + channel.station_underscore
     seismon.utils.mkdir(textLocation)
 
     f = open(os.path.join(textLocation,"triggers.txt"),"w")
-    for row in table:
-        f.write("%.1f %e %e\n"%(row["peak_time"],row["central_freq"],row["snr"]))
+    for peak_time,central_freq,snr in zip(peak_times,central_freqs,snrs):
+        f.write("%.1f %e %e\n"%(peak_time,central_freq,snr))
     f.close()
 
     if params["doPlots"]:
@@ -73,15 +69,12 @@ def plot_triggers(params,channel,segment):
 
         epoch = gwpy.time.Time(gpsStart, format='gps')
        
-        #plot = gwpy.plotter.Plot(auto_refresh=True,figsize=[14,8])
-        #plot.add_table(table, 'time', 'central_freq', colorcolumn='snr') 
-        plot = gwpy.plotter.TablePlot(table, 'time', 'central_freq', colorcolumn='snr', figsize=[12,6])
-        plot.add_colorbar(log=False, clim=[6, 20])
+        plot = gwpy.plotter.EventTablePlot(table, 'time', 'central_freq', 'snr', figsize=[14,8],epoch=gpsStart,size_by_log='snr', size_range=[6, 20],edgecolor='none')
+        plot.add_colorbar(log=True, clim=[6, 20],label='Signal-to-noise ratio (SNR)')
         plot.xlim = [gpsStart, gpsEnd]
-        plot.xlabel = 'Time'
         plot.ylabel = 'Frequency [Hz]'
-        plot.axes.set_yscale("log")
-        plot.colorlabel = r'Signal-to-noise ratio (SNR)'
+        plot.ylim = [params["fmin"],params["fmax"]]
+        plot.axes[0].set_yscale("log")
         plot.save(pngFile)
         plot.close()
 

@@ -2,6 +2,7 @@
 
 import sys, os, glob, matplotlib
 import numpy as np
+import scipy.spatial
 
 from mpl_toolkits.basemap import Basemap
 matplotlib.use("AGG")
@@ -81,6 +82,18 @@ def worldmap_channel_plot(params,plotName):
     plt.savefig(plotName,dpi=200)
     plt.close('all')
 
+def do_kdtree(combined_x_y_arrays,points):
+    """@calculate nearest points.
+
+    @param combined_x_y_arrays
+        list of x,y map points
+    @param points
+        list of x,y points
+    """
+
+    mytree = scipy.spatial.cKDTree(combined_x_y_arrays)
+    dist, indexes = mytree.query(points)
+    return indexes
 
 def make_frames(params, segment):
     """@calculates wiener filter for given channel and segment.
@@ -102,6 +115,18 @@ def make_frames(params, segment):
     out_dicts = []
     channels_keep = []
 
+    beta = 3200.0 
+    alpha = 6000.0
+
+    velocityFileR = '/home/mcoughlin/Seismon/velocity_maps/R025_1_GDM52.pix'
+    velocityFileL = '/home/mcoughlin/Seismon/velocity_maps/L025_0_GDM52.pix'
+    velocity_map_R = np.loadtxt(velocityFileR)
+    velocity_map_L = np.loadtxt(velocityFileL)
+    base_velocity_R = 3.85019
+    base_velocity_L = 4.23685
+    combined_x_y_arrays_R = np.dstack([velocity_map_R[:,0],velocity_map_R[:,1]])[0]
+    combined_x_y_arrays_L = np.dstack([velocity_map_L[:,0],velocity_map_L[:,1]])[0]
+
     for channel in params["channels"]:
         # make timeseries
         dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
@@ -109,6 +134,30 @@ def make_frames(params, segment):
             continue
 
         dataFull = dataFull / channel.calibration
+
+        points_list = np.dstack([channel.latitude, channel.longitude])
+        indexes = do_kdtree(combined_x_y_arrays_R,points_list)[0]
+        index_R = indexes[0]
+        indexes = do_kdtree(combined_x_y_arrays_L,points_list)[0]
+        index_L = indexes[0]
+
+        cR = 1000 * (1 + 0.01*velocity_map_R[index_R,3])*base_velocity_R
+        beta = 1000 * (1 + 0.01*velocity_map_L[index_L,3])*base_velocity_L
+        alpha = (4*(beta**3)*np.sqrt(beta**2 - cR**2))/np.sqrt(16*(beta**6) - 24*(beta**4)*(cR**2) + 8*(beta**2)*(cR**4) - (cR**6))
+
+        eps = 0.01
+        alpha = (1.7549+eps*2.25427)*cR
+        beta = (1.01319 - eps*0.049422)*cR
+
+        strain_calibration = alpha/(beta**2)
+
+        eps = 0
+        strain_calibration = 1.0/( cR*0.5682*(1-1.5377*eps))
+
+        print "%s, cR: %.3f, alpha: %.3f, beta: %.3f, calib: %.3e"%(channel.station,cR,alpha,beta,strain_calibration)
+
+        dataFull = dataFull * strain_calibration
+
         indexes = np.where(np.isnan(dataFull.data))[0]
         meanSamples = np.mean(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
         for index in indexes:
@@ -125,8 +174,7 @@ def make_frames(params, segment):
             samplef = channel.samplef
 
         dx = 1.0/samplef
-        dx = 1.0/len(np.array(dataFull.data))
-        out_dict = {'name'  : '%s:%s' %(params["ifo"],dataFull.name.replace(":","_")) ,
+        out_dict = {'name'  : '%s:%s' %(params["ifo"],dataFull.name) ,
             'data'  : np.array(dataFull.data),
             'start' : dataFull.epoch.vals[0],
             'dx'    : dx,

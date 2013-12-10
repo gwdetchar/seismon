@@ -1,0 +1,42 @@
+#!/usr/bin/python
+
+"""
+%prog
+
+Michael Coughlin (coughlim@carleton.edu)
+
+This program runs seismon_run.py.
+
+"""
+
+# =============================================================================
+#
+#                               PREAMBLE
+#
+# =============================================================================
+
+
+import os, time
+import numpy as np
+
+__author__ = "Michael Coughlin <coughlim@carleton.edu>"
+__date__ = "2012/2/7"
+__version__ = "0.1"
+
+gpsStart = 1009411215
+numFrames = 24*366
+#numFrames = 25*1
+#numFrames = 1
+frameDur = 3600
+gpsEnd = 1009411215 + (numFrames+1)*frameDur
+
+gpss = np.arange(gpsStart,gpsEnd,frameDur)
+
+framesFolder = "/home/mcoughlin/Stochastic/Seismic/frames/"
+
+for i in xrange(len(gpss)-1):
+
+   paramsFile = "/home/mcoughlin/Seismon/seismon/input/seismon_params_IRIS.txt"
+
+   os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8 --framesFolder %s"%(paramsFile,gpss[i],gpss[i+1],framesFolder))
+

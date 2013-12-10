@@ -503,12 +503,13 @@ def spectra(params, channel, segment):
         plot.close()
 
         pngFile = os.path.join(plotDirectory,"tf.png")
-
-        plot = medratio.plot()
+        plot = medratio.plot(figsize=[14,8])
         plot.add_colorbar(log=True, clim=[0.1, 10], label='ASD ratio to median average')
         plot.ylabel = "Frequency [Hz]"
         plot.ylim = [params["fmin"],params["fmax"]]
         plot.axes[0].set_yscale("log")
+        plot.xlim = [gpsStart,gpsEnd]
+        plot.axes[0].auto_gps_scale()
         plot.show()
         plot.save(pngFile,dpi=200)
         plot.close()                                       

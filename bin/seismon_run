@@ -114,12 +114,13 @@ def parse_commandline():
     parser.add_option("--doStrainz",  action="store_true", default=False)
     parser.add_option("--doWiener",  action="store_true", default=False)
     parser.add_option("--doWienerFFT",  action="store_true", default=False)
+    parser.add_option("--doWienerHilbert",  action="store_true", default=False)
     parser.add_option("--doWienerSummary",  action="store_true", default=False)
     parser.add_option("--noFrames",  action="store_true", default=False)
     parser.add_option("--doMakeFrames",  action="store_true", default=False)
     parser.add_option("--framesSampleRate", help="frames sample rate.", default=0,type=int)
     parser.add_option("--framesFolder", help="frames folder.", 
-                     default="/home/mcoughlin/Seismon/frames")
+                     default="/home/mcoughlin/Stochastic/Seismic/frames")
 
     parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
     parser.add_option("--wienerFilterSampleRate", help="Wiener filter sample rate.", default=0,type=int)
@@ -220,6 +221,7 @@ def params_struct(opts):
     params["doStrainz"] = opts.doStrainz
     params["doWiener"] = opts.doWiener
     params["doWienerFFT"] = opts.doWienerFFT
+    params["doWienerHilbert"] = opts.doWienerHilbert
     params["doWienerSummary"] = opts.doWienerSummary
     params["wienerFilterOrder"] = opts.wienerFilterOrder
     params["wienerFilterSampleRate"] = opts.wienerFilterSampleRate
@@ -396,6 +398,13 @@ if params["doWienerFFT"]:
             print "Segment: %d-%d"%(segment[0],segment[1])
             params = seismon.utils.setPath(params,segment)
             seismon.wiener_fft.wiener(params,channel,segment)
+
+if params["doWienerHilbert"]:
+    print "Running wiener / hilbert filter"
+    for segment in params["segments"]:
+        print "Segment: %d-%d"%(segment[0],segment[1])
+        params = seismon.utils.setPath(params,segment)
+        seismon.wiener.wiener_hilbert(params,segment)
 
 if params["doWienerSummary"]:
     for channel in params["channels"]:

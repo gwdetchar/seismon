@@ -528,6 +528,7 @@ def channel_struct(params,channelList):
                    response = client.station(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime=tstart,endtime=tend,level="resp")
                except:
                    print "No response data available... continuing"
+                   continue
                responseLines = response.split("\n")
                for line in responseLines:
                    index = line.find("<SensitivityValue>")

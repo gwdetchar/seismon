@@ -68,7 +68,7 @@ def wiener(params, target_channel, segment):
             continue
 
         if params["wienerFilterSampleRate"] > 0:
-            dataFull = dataFull.resample(params["wienerSampleRate"])
+            dataFull = dataFull.resample(params["wienerFilterSampleRate"])
 
         if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] == 0):
             dataFull = dataFull.highpass(params["wienerFilterLowFreq"], amplitude=0.9, order=3, method='scipy')
@@ -202,6 +202,291 @@ def wiener(params, target_channel, segment):
     if params["doPlots"]:
 
         plotDirectory = params["path"] + "/Wiener/" + target_channel.station_underscore + "/" + str(params["fftDuration"]) + "/" + str(params["wienerFilterOrder"])
+        seismon.utils.mkdir(plotDirectory)
+
+        fl, low, fh, high = seismon.NLNM.NLNM(2)
+
+        pngFile = os.path.join(plotDirectory,"psd.png")
+
+        plot = gwpy.plotter.Plot(figsize=[14,8])
+        kwargs = {"linestyle":"-","color":"b","label":"Original"}
+        plot.add_line(freq, original_spectral_variation_50per, **kwargs)
+        kwargs = {"linestyle":"-","color":"g","label":"Residual"}
+        plot.add_line(freq, residual_spectral_variation_50per, **kwargs)
+        kwargs = {"linestyle":"-","color":"r","label":"FF"}
+        plot.add_line(freq, FF_spectral_variation_50per, **kwargs)
+        kwargs = {"linestyle":"-.","color":"k"}
+        plot.add_line(fl, low, **kwargs)
+        plot.add_line(fh, high, **kwargs)
+        plot.axes[0].set_yscale("log")
+        plot.axes[0].set_xscale("log")
+        plot.xlim = [params["fmin"],params["fmax"]]
+        #plot.ylim = [np.min(bins), np.max(bins)]
+        plot.xlabel = "Frequency [Hz]"
+        plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+        plot.add_legend(loc=1,prop={'size':10})
+        plot.save(pngFile,dpi=200)
+        plot.close()
+
+def wiener_hilbert(params, segment):
+    """@calculates wiener filter for given channel and segment.
+
+    @param params
+        seismon params dictionary
+    @param target_channel
+        seismon channel structure
+    @param segment
+        [start,end] gps
+    """
+
+    ifo = seismon.utils.getIfo(params)
+
+    gpsStart = segment[0]
+    gpsEnd = segment[1]
+
+    # set the times
+    duration = np.ceil(gpsEnd-gpsStart)
+
+    dataAll = []
+
+    if params["wienerFilterSampleRate"] > 0:
+        samplef =params["wienerFilterSampleRate"]
+    else:
+        samplef = params["channels"][0].samplef
+    N = params["wienerFilterOrder"]
+
+    for channel in params["channels"]:
+        # make timeseries
+        dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
+        if dataFull == []:
+            continue
+
+        dataFull = dataFull / channel.calibration
+        indexes = np.where(np.isnan(dataFull.data))[0]
+        meanSamples = np.mean(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
+        for index in indexes:
+            dataFull[index] = meanSamples
+        dataFull -= np.mean(dataFull.data)
+
+        if np.mean(dataFull.data) == 0.0:
+            print "data only zeroes... continuing\n"
+            continue
+        if len(dataFull.data) < 2*channel.samplef:
+            print "timeseries too short for analysis... continuing\n"
+            continue
+
+        if params["wienerFilterSampleRate"] > 0:
+            dataFull = dataFull.resample(samplef)
+
+        if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] == 0):
+            dataFull = dataFull.highpass(params["wienerFilterLowFreq"], amplitude=0.9, order=3, method='scipy')
+        if (params["wienerFilterLowFreq"] == 0) and (params["wienerFilterHighFreq"] > 0):
+            dataFull = dataFull.lowpass(params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
+        if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] > 0):
+            dataFull = dataFull.bandpass(params["wienerFilterLowFreq"],params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
+
+        indexes = np.where(np.isnan(dataFull.data))[0]
+        meanSamples = np.mean(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
+        for index in indexes:
+            dataFull[index] = meanSamples
+        dataFull -= np.mean(dataFull.data)
+
+        dataAll.append(dataFull)
+
+    for dataFull in dataAll:
+        if "X" in dataFull.channel.name:
+            tsx = dataFull.data
+        if "Y" in dataFull.channel.name:
+            tsy = dataFull.data
+        if "Z" in dataFull.channel.name:
+            tsz = dataFull.data
+
+    tt = np.array(dataAll[0].times)
+
+    tszhilbert = scipy.signal.hilbert(tsz).imag
+    tszhilbert = -tszhilbert
+
+    angles = np.linspace(0,2*np.pi,10)
+    xcorrs = []
+    for angle in angles:
+        rot = np.array([[np.cos(angle), -np.sin(angle)],[np.sin(angle),np.cos(angle)]])
+    
+        twodarray = np.vstack([tsx,tsy])
+        z = rot.dot(twodarray)
+        tsxy = np.sum(z.T,axis=1)
+    
+        tt = np.array(dataFull.times)
+        indexes = np.arange(0,len(tt))
+
+        indexMin = np.min(indexes)
+        indexMax = np.max(indexes)
+
+        tszhilbertCut = tszhilbert[indexMin:indexMax]
+        tsxyCut = tsxy[indexMin:indexMax]
+
+        xcorr,lags = seismon.utils.xcorr(tszhilbertCut,tsxyCut,maxlags=1)
+        xcorrs.append(xcorr[1])
+    xcorrs = np.array(xcorrs)
+
+    angleMax = angles[np.argmax(xcorrs)]
+    rot = np.array([[np.cos(angleMax), -np.sin(angleMax)],[np.sin(angleMax),np.cos(angleMax)]])
+
+    print "Using angle: %f"%(angleMax)
+
+    #angle = 0
+    #rot = np.array([[np.cos(angle), -np.sin(angle)],[np.sin(angle),np.cos(angle)]])
+
+    twodarray = np.vstack([tsx,tsy])
+    z = rot.dot(twodarray)
+    tsxy = np.sum(z.T,axis=1)
+
+    dataHilbert = tszhilbert.view(tsz.__class__)
+    dataHilbert = gwpy.timeseries.TimeSeries(dataHilbert)
+    dataHilbert.sample_rate = samplef 
+    dataHilbert.epoch = tt[0]
+    dataHilbert = dataHilbert.resample(1)
+
+    dataXY = tsxy.view(tsz.__class__)
+    dataXY = gwpy.timeseries.TimeSeries(tsxy)
+    dataXY.sample_rate = samplef
+    dataXY.epoch = tt[0]
+    dataXY = dataXY.resample(1)
+
+    dataZ = gwpy.timeseries.TimeSeries(tsz)
+    dataZ.sample_rate = samplef
+    dataZ.epoch = tt[0]
+    dataZ = dataZ.resample(1)
+
+    if params["doPlots"]:
+
+        plotDirectory = params["path"] + "/Wiener_Hilbert/" + params["channels"][0].station_underscore + "/" + str(params["fftDuration"]) + "/" + str(params["wienerFilterOrder"])
+        seismon.utils.mkdir(plotDirectory)
+
+        pngFile = os.path.join(plotDirectory,"timeseries.png")
+
+        dataHilbert *= 1e6
+        dataXY *= 1e6
+        dataZ *= 1e6
+
+        plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+        kwargs = {"linestyle":"-","color":"b"}
+        plot.add_timeseries(dataHilbert,label="Hilbert",**kwargs)
+        kwargs = {"linestyle":"-","color":"g"}
+        plot.add_timeseries(dataXY,label="XY",**kwargs)
+        kwargs = {"linestyle":"-","color":"r"}
+        #plot.add_timeseries(dataZ,label="Z",**kwargs)
+        plot.ylabel = r"Velocity [$\mu$m/s]"
+        plot.add_legend(loc=1,prop={'size':10})
+
+        plot.save(pngFile)
+        plot.close()
+
+    y = tsxy
+    X = np.vstack([tszhilbert,tsz])
+
+    if len(y) == 0:
+        print "No data for target channel... continuing"
+        return
+
+    originalASD = []
+    residualASD = []
+    FFASD = []
+
+    gpss = np.arange(gpsStart,gpsEnd,params["fftDuration"])
+    create_filter = True
+    for i in xrange(len(gpss)-2):
+        tt = np.array(dataFull.times)
+        indexes = np.intersect1d(np.where(tt >= gpss[i])[0],np.where(tt <= gpss[i+1]+params["fftDuration"])[0])
+
+        if len(indexes) == 0:
+            continue
+
+        indexMin = np.min(indexes)
+        indexMax = np.max(indexes)
+
+        ttCut = tt[indexMin:indexMax]
+        yCut = y[indexMin:indexMax]
+        XCut = X[:,indexMin:indexMax]
+
+        XCut = XCut.T
+        if create_filter:
+            print "Generating filter"
+            W,R,P = miso_firwiener(N,XCut,yCut)
+            create_filter = False
+            print "finished generating filter"
+            continue
+
+        residual, FF = subtractFF(W,XCut,yCut,samplef)
+
+        thisGPSStart = tt[indexMin]
+        dataOriginal = gwpy.timeseries.TimeSeries(yCut, epoch=thisGPSStart, sample_rate=samplef,name="Original")
+        dataResidual = gwpy.timeseries.TimeSeries(residual, epoch=thisGPSStart, sample_rate=samplef,name="Residual")
+        dataFF = gwpy.timeseries.TimeSeries(FF, epoch=thisGPSStart, sample_rate=samplef,name="FF")
+
+        # calculate spectrum
+        NFFT = params["fftDuration"]
+        #window = None
+        dataOriginalASD = dataOriginal.asd(NFFT,NFFT,'welch')
+        dataResidualASD = dataResidual.asd(NFFT,NFFT,'welch')
+        dataFFASD = dataFF.asd(NFFT,NFFT,'welch')
+
+        freq = np.array(dataOriginalASD.frequencies)
+        indexes = np.where((freq >= params["fmin"]) & (freq <= params["fmax"]))[0]
+        freq = freq[indexes]
+
+        dataOriginalASD = np.array(dataOriginalASD.data)
+        dataOriginalASD = dataOriginalASD[indexes]
+        dataOriginalASD = gwpy.spectrum.Spectrum(dataOriginalASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+
+        dataResidualASD = np.array(dataResidualASD.data)
+        dataResidualASD = dataResidualASD[indexes]
+        dataResidualASD = gwpy.spectrum.Spectrum(dataResidualASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+
+        dataFFASD = np.array(dataFFASD.data)
+        dataFFASD = dataFFASD[indexes]
+        dataFFASD = gwpy.spectrum.Spectrum(dataFFASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+
+        originalASD.append(dataOriginalASD)
+        residualASD.append(dataResidualASD)
+        FFASD.append(dataFFASD)
+
+    dt = gpss[1] - gpss[0]
+    epoch = gwpy.time.Time(gpss[0], format='gps')
+    originalSpecgram = gwpy.spectrogram.Spectrogram.from_spectra(*originalASD, dt=dt,epoch=epoch)
+    residualSpecgram = gwpy.spectrogram.Spectrogram.from_spectra(*residualASD, dt=dt,epoch=epoch)
+    FFSpecgram = gwpy.spectrogram.Spectrogram.from_spectra(*FFASD, dt=dt,epoch=epoch)
+
+    freq = np.array(originalSpecgram.frequencies)
+
+    kwargs = {'log':True,'nbins':500,'norm':True}
+    originalSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(originalSpecgram,**kwargs)
+    bins = originalSpecvar.bins[:-1]
+    originalSpecvar = originalSpecvar * 100
+    original_spectral_variation_50per = originalSpecvar.percentile(50)
+    residualSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(residualSpecgram,**kwargs)
+    bins = residualSpecvar.bins[:-1]
+    residualSpecvar = residualSpecvar * 100
+    residual_spectral_variation_50per = residualSpecvar.percentile(50)
+    FFSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(FFSpecgram,**kwargs)
+    bins = FFSpecvar.bins[:-1]
+    FFSpecvar = FFSpecvar * 100
+    FF_spectral_variation_50per = FFSpecvar.percentile(50)
+
+    psdDirectory = params["dirPath"] + "/Text_Files/Wiener_Hilbert/" + params["channels"][0].station_underscore + "/" + str(params["fftDuration"]) + "/" + str(params["wienerFilterOrder"])
+    seismon.utils.mkdir(psdDirectory)
+
+    freq = np.array(residual_spectral_variation_50per.frequencies)
+
+    psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+    f = open(psdFile,"wb")
+    for i in xrange(len(freq)):
+        f.write("%e %e\n"%(freq[i],residual_spectral_variation_50per[i]))
+    f.close()
+
+    if params["doPlots"]:
+
+        plotDirectory = params["path"] + "/Wiener_Hilbert/" + params["channels"][0].station_underscore + "/" + str(params["fftDuration"]) + "/" + str(params["wienerFilterOrder"])
         seismon.utils.mkdir(plotDirectory)
 
         fl, low, fh, high = seismon.NLNM.NLNM(2)

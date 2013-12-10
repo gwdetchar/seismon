@@ -122,12 +122,6 @@ def hilbert(params, segment):
         tszhilbert = scipy.signal.hilbert(tsz).imag
         tszhilbert = -tszhilbert
 
-        N = len(tsz)
-        n = np.arange(0,N)
-        #print N, len(n)
-        coefficients = (1/(2*np.pi*(n-(N-1)/2))) * (1-np.cos(np.pi*(n-(N-1)/2)))
-        #coefficients = (2.0/N) * (np.sin(np.pi*n/2.0)**2) * 1.0/np.tan(np.pi*n/N)
-
         dataHilbert = tszhilbert.view(tsz.__class__)
         dataHilbert = gwpy.timeseries.TimeSeries(dataHilbert)
         dataHilbert.sample_rate =  dataFull.sample_rate
