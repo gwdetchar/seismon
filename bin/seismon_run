@@ -118,9 +118,12 @@ def parse_commandline():
     parser.add_option("--doWienerSummary",  action="store_true", default=False)
     parser.add_option("--noFrames",  action="store_true", default=False)
     parser.add_option("--doMakeFrames",  action="store_true", default=False)
+    parser.add_option("--doMakeFramesCalibrated",  action="store_true", default=False)
     parser.add_option("--framesSampleRate", help="frames sample rate.", default=0,type=int)
     parser.add_option("--framesFolder", help="frames folder.", 
                      default="/home/mcoughlin/Stochastic/Seismic/frames")
+    parser.add_option("--framesFolderCalibrated", help="frames folder.",
+                     default="/home/mcoughlin/Stochastic/Seismic/frames_calibrated")
 
     parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
     parser.add_option("--wienerFilterSampleRate", help="Wiener filter sample rate.", default=0,type=int)
@@ -229,8 +232,10 @@ def params_struct(opts):
     params["wienerFilterHighFreq"] = opts.wienerFilterHighFreq
     params["noFrames"] = opts.noFrames
     params["doMakeFrames"] = opts.doMakeFrames
+    params["doMakeFramesCalibrated"] = opts.doMakeFramesCalibrated
     params["framesSampleRate"] = opts.framesSampleRate
     params["framesFolder"] = opts.framesFolder
+    params["framesFolderCalibrated"] = opts.framesFolderCalibrated
 
     params["doFlagsDatabase"] = opts.doFlagsDatabase
     params["doFlagsTextFile"] = opts.doFlagsTextFile
@@ -420,6 +425,13 @@ if params["doMakeFrames"]:
         params = seismon.utils.setPath(params,segment)
         seismon.frame.make_frames(params, segment)
     print "Frames complete!"    
+
+if params["doMakeFramesCalibrated"]:
+    for segment in params["segments"]:
+        print "Calibrating frames for Segment: %d-%d"%(segment[0],segment[1])
+        params = seismon.utils.setPath(params,segment)
+        seismon.frame.make_frames_calibrated(params, segment)
+    print "Frames complete!"
 
 if params["doEarthquakesAnalysis"]:
     print "Running earthquake analysis"
