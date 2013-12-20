@@ -354,7 +354,7 @@ def iris_events(params):
         seismon params structure
     """
 
-    import obspy.iris, obspy.core
+    import obspy.fdsn, obspy.core
 
     starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
     endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
@@ -362,11 +362,11 @@ def iris_events(params):
     starttime = obspy.core.UTCDateTime(starttime)
     endtime = obspy.core.UTCDateTime(endtime)
 
-    client = obspy.iris.Client()
-    events = client.getEvents(minmag=params["minMagnitude"],starttime=starttime,endtime=endtime)
+    client = obspy.fdsn.client.Client("IRIS")
+    events = client.get_events(minmagnitude=params["minMagnitude"],starttime=starttime,endtime=endtime)
 
     numEventsAdded = 0
-    for event in events:
+    for event in events.events:
         attributeDic = eqmon.irisread(event)
         if not "GPS" in attributeDic:
             continue

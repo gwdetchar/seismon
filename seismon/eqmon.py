@@ -1061,7 +1061,7 @@ def irisread(event):
 
     attributeDic["Longitude"] = event.origins[0].longitude
     attributeDic["Latitude"] = event.origins[0].latitude
-    attributeDic["Depth"] = event.origins[0].depth
+    attributeDic["Depth"] = event.origins[0].depth / 1000.0
     attributeDic["eventID"] = event.origins[0].region
 
     attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
