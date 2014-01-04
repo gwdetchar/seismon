@@ -223,6 +223,7 @@ def make_frames_calibrated(params, segment):
 
     out_dicts = []
     channels_keep = []
+    channels_calibration = []
 
     beta = 3200.0
     alpha = 6000.0
@@ -293,6 +294,7 @@ def make_frames_calibrated(params, segment):
 
         out_dicts.append(out_dict)
         channels_keep.append(channel)
+        channels_calibration.append(strain_calibration)
 
     frameFile = "%s/%s-%s-%d-%d.gwf"%(params["framesFolderCalibrated"],params["ifo"],params["ifo"],gpsStart,duration)
     seismon.utils.mkdir(params["framesFolderCalibrated"])
@@ -304,8 +306,8 @@ def make_frames_calibrated(params, segment):
 
     channelFile = os.path.join(frameDirectory,"channels.txt")
     f = open(channelFile,"wb")
-    for channel in channels_keep:
-        f.write("%s %.10f %.10f\n"%(channel.station,channel.latitude,channel.longitude))
+    for channel,strain_calibration in zip(channels_keep,channels_calibration):
+        f.write("%s %.10f %.10f %.10e\n"%(channel.station,channel.latitude,channel.longitude,strain_calibration))
     f.close()
 
     if params["doPlots"]:

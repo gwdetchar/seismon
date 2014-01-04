@@ -519,45 +519,32 @@ def channel_struct(params,channelList):
                import obspy.iris
                client = obspy.iris.Client()
 
-               tstart = GPSToUTCDateTime(params["gpsStart"])
-               tend = GPSToUTCDateTime(params["gpsEnd"])
+               import obspy.iris, obspy.core, obspy.fdsn
+
                channelSplit = station.split(":")
 
-               calibration = 1
+               starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+               endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+
+               starttime = obspy.core.UTCDateTime(starttime)
+               endtime = obspy.core.UTCDateTime(endtime)
+
+               client = obspy.fdsn.client.Client("IRIS")
+
                try:
-                   response = client.station(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime=tstart,endtime=tend,level="resp")
+                   response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level="resp")
+                   channel_response = response.get_response(station.replace(":","."),starttime)
+                   calibration = channel_response.instrument_sensitivity.value
+
+                   response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level='channel')
+
+                   latitude = response[0].stations[0].channels[0].latitude
+                   longitude = response[0].stations[0].channels[0].longitude
+                   samplef = response[0].stations[0].channels[0].sample_rate
+
                except:
                    print "No response data available... continuing"
                    continue
-               responseLines = response.split("\n")
-               for line in responseLines:
-                   index = line.find("<SensitivityValue>")
-                   if not index == -1:
-                       lineSplit = line.split("<")
-                       lineSplit = lineSplit[1].split(">")
-                       calibration = float(lineSplit[1])
-                       break
-               for line in responseLines:
-                   index = line.find("<SampleRate>")
-                   if not index == -1:
-                       lineSplit = line.split("<")
-                       lineSplit = lineSplit[1].split(">")
-                       samplef = float(lineSplit[1])
-                       break
-               for line in responseLines:
-                   index = line.find("<Lat>")
-                   if not index == -1:
-                       lineSplit = line.split("<")
-                       lineSplit = lineSplit[1].split(">")
-                       latitude = float(lineSplit[1])
-                       break
-               for line in responseLines:
-                   index = line.find("<Lon>")
-                   if not index == -1:
-                       lineSplit = line.split("<")
-                       lineSplit = lineSplit[1].split(">")
-                       longitude = float(lineSplit[1])
-                       break
 
            channel.append( structproxy_channel(station,station_underscore,samplef,calibration,latitude,longitude))
 
@@ -731,18 +718,23 @@ def retrieve_timeseries(params,channel,segment):
     dataFull = []
     if params["ifo"] == "IRIS":
         import obspy.iris
-        client = obspy.iris.Client()
-        tstart = seismon.utils.GPSToUTCDateTime(gpsStart)
-        tend = seismon.utils.GPSToUTCDateTime(gpsEnd)
 
         channelSplit = channel.station.split(":")
+
+        starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+        endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+
+        starttime = obspy.core.UTCDateTime(starttime)
+        endtime = obspy.core.UTCDateTime(endtime)
+
+        client = obspy.fdsn.client.Client("IRIS")
+
         try:
-            st = client.getWaveform(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],\
-                tstart, tend)
+            st = client.get_waveform(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],\
+                starttime,endtime)
         except:
             print "data read from IRIS failed... continuing\n"
             return dataFull
-
         data = np.array(st[0].data)
         data = data.astype(float)
 

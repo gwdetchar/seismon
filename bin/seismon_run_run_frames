@@ -34,9 +34,14 @@ gpss = np.arange(gpsStart,gpsEnd,frameDur)
 framesFolder = "/home/mcoughlin/Stochastic/Seismic/frames/"
 paramsFile = "/home/mcoughlin/Seismon/seismon/input/seismon_params_IRIS.txt"
 
-for i in xrange(len(gpss)-1):
+#for i in xrange(len(gpss)-1):
+#   frameFile = "%s/IRIS-IRIS-%d-%d.gwf"%(framesFolder,gpss[i],gpss[i+1]-gpss[i])
+#
+#   if not os.path.isfile(frameFile):
+#       os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
+
+for i in xrange(1):
    frameFile = "%s/IRIS-IRIS-%d-%d.gwf"%(framesFolder,gpss[i],gpss[i+1]-gpss[i])
 
-   if not os.path.isfile(frameFile):
-       os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
+   os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
 
