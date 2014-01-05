@@ -531,9 +531,12 @@ def channel_struct(params,channelList):
 
                client = obspy.fdsn.client.Client("IRIS")
 
+               if channelSplit[2] == "--":
+                   channelSplit[2] = "*"
+
                try:
                    response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level="resp")
-                   channel_response = response.get_response(station.replace(":","."),starttime)
+                   channel_response = response.get_response(station.replace(":",".").replace("--",""),starttime)
                    calibration = channel_response.instrument_sensitivity.value
 
                    response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level='channel')

@@ -267,7 +267,6 @@ def make_frames_calibrated(params, segment):
         strain_calibration = 1.0/( cR*0.5682*(1-1.5377*eps))
 
         print "%s, cR: %.3f, alpha: %.3f, beta: %.3f, calib: %.3e"%(channel.station,cR,alpha,beta,strain_calibration)
-
         dataFull = dataFull * strain_calibration
 
         indexes = np.where(np.isnan(dataFull.data))[0]
