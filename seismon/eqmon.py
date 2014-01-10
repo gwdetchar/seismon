@@ -1088,7 +1088,7 @@ def irisread(event):
     attributeDic['SentUTC'] = time.time()
     attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
 
-    attributeDic = calculate_traveltimes(attributeDic)
+    #attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
     dt = datetime.fromtimestamp(time.mktime(tm))
 

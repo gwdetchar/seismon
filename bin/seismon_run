@@ -121,9 +121,9 @@ def parse_commandline():
     parser.add_option("--doMakeFramesCalibrated",  action="store_true", default=False)
     parser.add_option("--framesSampleRate", help="frames sample rate.", default=0,type=int)
     parser.add_option("--framesFolder", help="frames folder.", 
-                     default="/home/mcoughlin/Stochastic/Seismic/frames")
+                     default="/home/mcoughlin/STAMP/Seismic/frames")
     parser.add_option("--framesFolderCalibrated", help="frames folder.",
-                     default="/home/mcoughlin/Stochastic/Seismic/frames_calibrated")
+                     default="/home/mcoughlin/STAMP/Seismic/frames_calibrated")
 
     parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
     parser.add_option("--wienerFilterSampleRate", help="Wiener filter sample rate.", default=0,type=int)
