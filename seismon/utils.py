@@ -4,10 +4,12 @@ import os, sys, code, glob, optparse, shutil, warnings, matplotlib, pickle, math
 import numpy as np
 import scipy.signal, scipy.stats, scipy.fftpack
 from collections import namedtuple
-from datetime import datetime
+from datetime import datetime, timedelta
 from lxml import etree
 
 import lal.gpstime
+
+import __future__
 
 import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 import seismon.NLNM, seismon.html
@@ -438,6 +440,36 @@ def frame_struct(params):
         datacache = []
         for frame in frameList:
             datacache.append(frame)
+    elif params["ifo"] == "CZKHC": 
+        frameDir = "/home/mcoughlin/Stochastic/Lunar/Seismometer/data/"
+        frameList = [os.path.join(root, name)
+            for root, dirs, files in os.walk(frameDir)
+            for name in files]
+
+        datacache = []
+        for frame in frameList:
+            datacache.append(frame)
+
+    elif params["ifo"] == "SR":
+        frameDir = "/home/mcoughlin/Stochastic/Lunar/seismic_data/data/"
+        frameList = [os.path.join(root, name)
+            for root, dirs, files in os.walk(frameDir)
+            for name in files]
+
+        datacache = []
+        for frame in frameList:
+            datacache.append(frame)
+
+    elif params["ifo"] == "Gravimeter":
+        frameDir = "/home/mcoughlin/Gravimeter/minute/"
+        frameList = [os.path.join(root, name)
+            for root, dirs, files in os.walk(frameDir)
+            for name in files]
+
+        datacache = []
+        for frame in frameList:
+            datacache.append(frame)
+
     elif params["ifo"] == "IRIS":
         datacache = "IRIS"
     else:
@@ -487,7 +519,8 @@ def channel_struct(params,channelList):
            station = line_split[0]
            station_underscore = station.replace(":","_")
 
-           samplef = float(line_split[1])
+           #samplef = float(line_split[1])
+           samplef = eval(compile(line_split[1], '<string>', 'eval', __future__.division.compiler_flag))
            calibration = float(line_split[2])
 
            latitude,longitude = getLatLon(params)
@@ -510,21 +543,68 @@ def channel_struct(params,channelList):
            elif all(x in station for x in ["L1","ETMY"]):
                latitude = 30.52854703505914
                longitude = -90.76152205811134
+           elif station == "XA:S12::MHZ":
+               latitude = -3.04
+               longitude = -23.42
+           elif station == "XA:S15::MHZ":
+               latitude = 26.08
+               longitude = 3.66
+           elif station == "XA:S16::MHZ":
+               latitude = -8.97
+               longitude = 15.51
 
            if not params["channel"] == None:
                if not station in params["channel"]:
                    continue
 
-           if params["ifo"] == "IRIS":
-               import obspy.iris
-               client = obspy.iris.Client()
+           if params["ifo"] == "Gravimeter": 
+               stationSplit = station.split(":")
+               stationID = stationSplit[0]
 
+               latlonFile = "/home/mcoughlin/Seismon/seismon/input/seismon-Gravimeter-Gravimeter-channel_list_latlon.txt"
+               latlonlines = [line.strip() for line in open(latlonFile)]
+
+               for latlonline in latlonlines:
+                   
+                   latlonline_split = latlonline.split(" ")
+
+                   thisStationID = latlonline_split[0]
+                   thisLatitude = float(latlonline_split[1])
+                   thisLongitude = float(latlonline_split[2])
+
+                   if stationID == thisStationID:
+                       latitude = thisLatitude
+                       longitude = thisLongitude
+           elif params["ifo"] == "SR":
+               stationSplit = station.split(":")
+               stationID = station
+
+               latlonFile = "/home/mcoughlin/Seismon/seismon/input/seismon-SR-SR-channel_list_latlon.txt"
+               latlonlines = [line.strip() for line in open(latlonFile)]
+
+               for latlonline in latlonlines:
+
+                   latlonline_split = latlonline.split(" ")
+
+                   thisStationID = latlonline_split[0]
+                   thisLatitude = float(latlonline_split[1])
+                   thisLongitude = float(latlonline_split[2])
+
+                   if stationID == thisStationID:
+                       latitude = thisLatitude
+                       longitude = thisLongitude
+
+           elif params["ifo"] == "IRIS":
                import obspy.iris, obspy.core, obspy.fdsn
 
                channelSplit = station.split(":")
 
-               starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
-               endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+               if params["gpsStart"] < 300000000:
+                   starttime = UnixToUTCDateTime(params["gpsStart"])
+                   endtime = UnixToUTCDateTime(params["gpsEnd"])
+               else:
+                   starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+                   endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
 
                starttime = obspy.core.UTCDateTime(starttime)
                endtime = obspy.core.UTCDateTime(endtime)
@@ -614,6 +694,12 @@ def getIfo(params):
         ifo = "LHO"
     elif params["ifo"] == "LUNAR":
         ifo = "LHO"
+    elif params["ifo"] == "Gravimeter":
+        ifo = "LHO"
+    elif params["ifo"] == "CZKHC":
+        ifo = "LHO"
+    elif params["ifo"] == "SR":
+        ifo = "LHO"
 
     return ifo
 
@@ -643,6 +729,15 @@ def getLatLon(params):
     elif params["ifo"] == "LUNAR":
         latitude = 46.6475
         longitude = -119.5986
+    elif params["ifo"] == "Gravimeter":
+        latitude = 46.6475
+        longitude = -119.5986
+    elif params["ifo"] == "CZKHC":
+        latitude = 49.13
+        longitude = 13.58
+    elif params["ifo"] == "SR":
+        latitude = 49.13
+        longitude = 13.58
 
     return latitude,longitude
 
@@ -670,6 +765,15 @@ def getAzimuth(params):
         xazimuth = 0.0
         yazimuth = 0.0
     elif params["ifo"] == "LUNAR":
+        xazimuth = 0.0
+        yazimuth = 0.0
+    elif params["ifo"] == "Gravimeter":
+        xazimuth = 0.0
+        yazimuth = 0.0
+    elif params["ifo"] == "CZKHC":
+        xazimuth = 0.0
+        yazimuth = 0.0
+    elif params["ifo"] == "SR":
         xazimuth = 0.0
         yazimuth = 0.0
 
@@ -749,20 +853,308 @@ def retrieve_timeseries(params,channel,segment):
         for frame in params["frame"]:
             st = obspy.read(frame)
             for trace in st:
-                trace_station = "%s.%s.%s.%s"%(trace.stats["network"],trace.stats["station"],trace.stats["location"],trace.stats["channel"])
+                trace_station = "%s:%s:%s:%s"%(trace.stats["network"],trace.stats["station"],trace.stats["location"],trace.stats["channel"])
                 if trace_station == channel.station:
                     traces.append(trace)
         st = obspy.core.stream.Stream(traces=traces)
 
         starttime = UnixToUTCDateTime(gpsStart)
         endtime = UnixToUTCDateTime(gpsEnd)
+
         st = st.slice(starttime, endtime)
 
         data = st[0].data
         data = data.astype(float)
-        data = RunningMedian(data,701,2)
+        #data = RunningMedian(data,701,2)
 
         sample_rate = st[0].stats.sampling_rate
+        dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
+
+        dataFull.resample(channel.samplef)
+
+    elif params["ifo"] == "CZKHC":
+
+        stationSplit = channel.station.split(":")
+        stationID = stationSplit[0]
+        stationType = stationSplit[1]
+
+        tt = []
+        data = []
+
+        import obspy
+        for frame in params["frame"]:
+
+            frameSplit = frame.split("/")
+            frameName = frameSplit[-1]
+
+            datalines = [line.strip() for line in open(frame)]
+            #datalines = datalines[13:]
+            datalines = datalines[1:]
+
+            dataStart = False
+
+            for dataline in datalines:
+
+                year = int(dataline[0:4])
+                month = int(dataline[5:7])
+                day = int(dataline[8:10])
+                hour = int(dataline[11:13])
+                minute = int(dataline[14:16])
+                second = int(dataline[17:19])
+                subsecond = int(dataline[20:26])
+
+                thisDate = datetime(year, month, day, hour, minute, second, subsecond)
+
+                #thistime = lal.gpstime.utc_to_gps(thisDate)
+                td = thisDate - datetime(1970, 1, 1)
+                thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+
+                tt.append(thistime)
+
+                counts = int(dataline[26:])
+                data.append(counts)
+
+                if thistime > gpsEnd:
+                    break
+
+        tt, data = zip(*sorted(zip(tt, data)))
+
+        tt = np.array(tt)
+        data = np.array(data)
+
+        indexes = np.intersect1d(np.where(tt >= gpsStart)[0],np.where(tt <= gpsEnd)[0])
+        tt = tt[indexes]
+        data = data[indexes]
+
+        if len(data) == 0:
+            return []
+
+        sample_rate = channel.samplef
+
+        dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
+
+        dataFull.resample(channel.samplef)
+
+    elif params["ifo"] == "SR":
+
+        stationPeriod = channel.station.replace(":",".")
+
+        tt = []
+        data = []
+
+        import obspy
+        for frame in params["frame"]:
+
+            index = frame.find(stationPeriod)
+            if index < 0:
+                continue
+
+            datalines = [line.strip() for line in open(frame)]
+            #datalines = datalines[13:]
+            datalines = datalines[1:]
+
+            dataStart = False
+
+            for dataline in datalines:
+
+                year = int(dataline[0:4])
+                month = int(dataline[5:7])
+                day = int(dataline[8:10])
+                hour = int(dataline[11:13])
+                minute = int(dataline[14:16])
+                second = int(dataline[17:19])
+                subsecond = int(dataline[20:26])
+
+                thisDate = datetime(year, month, day, hour, minute, second, subsecond)
+
+                #thistime = lal.gpstime.utc_to_gps(thisDate)
+                td = thisDate - datetime(1970, 1, 1)
+                thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+
+                if thistime > gpsEnd:
+                    break
+
+                tt.append(thistime)
+                counts = int(dataline[26:])
+                data.append(counts)
+
+        tt, data = zip(*sorted(zip(tt, data)))
+        tt = np.array(tt)
+        data = np.array(data)
+
+        indexes = np.intersect1d(np.where(tt >= gpsStart)[0],np.where(tt <= gpsEnd)[0])
+        tt = tt[indexes]
+        data = data[indexes]
+
+        if len(data) == 0:
+            return []
+
+        sample_rate = channel.samplef
+
+        sts2 = {'gain': 6.66831e9,
+        'poles': [(-4.54+3.3j),
+                  (-4.54-3.3j),
+                  (-.117),(-40.9),
+                  (-100.0),(-.16),
+                  (-264.0),
+                  (-16.7+3.4j),
+                  (-16.7-3.4j),
+                  (-6.33),(-6.33)],
+        'zeros': [0j,0j,0j,0j,-.126,-50.1],
+        'sensitivity': 1}
+        #'sensitivity': 2.00000e12}
+
+        from obspy.signal import seisSim
+        data = seisSim(data, sample_rate, paz_remove=sts2)
+
+        dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
+
+        dataFull.resample(channel.samplef)
+
+        print len(dataFull)
+
+    elif params["ifo"] == "Gravimeter":
+
+        stationSplit = channel.station.split(":")
+        stationID = stationSplit[0]
+        stationType = stationSplit[1]
+
+        tt = []
+        data = []
+
+        import obspy
+        for frame in params["frame"]:
+
+            frameSplit = frame.split("/")
+            frameName = frameSplit[-1]
+
+            frameNameSplit = frameName.split("+")
+            frameNameSplit = frameNameSplit[1]
+            frameID = frameNameSplit[:2]
+            frameDate = frameNameSplit[2:8]
+
+            if not stationID.lower() == frameID.lower():
+                continue
+
+            year = int(frameDate[0:2])
+            if year < 20:
+                year = year + 2000
+            else:
+                year = year + 1900
+ 
+            month = int(frameDate[2:4])
+            day = int(frameDate[4:6])
+            if day == 0:
+                day = 1
+
+            hour = 0
+            minute = 0
+            second = 0
+
+            thisDate = datetime(year, month, day, hour, minute, second)
+            thistime = lal.gpstime.utc_to_gps(thisDate)
+
+            if thistime.gpsSeconds > gpsEnd:
+                continue
+
+            if thistime.gpsSeconds + 31*86400 < gpsStart:
+                continue
+
+            print frame
+
+            datalines = [line.strip() for line in open(frame)]
+            #datalines = datalines[13:]
+            #datalines = datalines[1:]
+
+            dataStart = False
+
+            for dataline in datalines:
+
+                if len(dataline) == 0:
+                    continue
+
+                if dataline[0:5] == "77777":
+                    dataStart = True
+                    continue
+
+                if dataline[0:5] == "88888":
+                    dataStart = True
+                    continue
+
+                if dataline[0] == "#":
+                    continue
+
+                if dataline[0:5] == "99999":
+                    dataStart = False
+                    break
+ 
+                if dataStart == False:
+                    continue
+
+                year = int(dataline[0:4])
+                month = int(dataline[4:6])
+                day = int(dataline[6:8])
+
+                try:
+                    hour = int(dataline[9:11])
+                except:
+                    hour = 0
+                try:
+                    minute = int(dataline[11:13])
+                except:
+                    minute = 0
+                try:
+                    second = int(dataline[13:15])
+                except:
+                    second = 0
+
+                thisDate = datetime(year, month, day, hour, minute, second)
+                thistime = lal.gpstime.utc_to_gps(thisDate)
+
+                if thistime.gpsSeconds > gpsEnd:
+                    break
+
+                if thistime.gpsSeconds + 31*86400 < gpsStart:
+                    break
+
+                datalineSplit = dataline[15:].split(" ")
+                datalineSplit = filter(None, datalineSplit)
+
+                if len(datalineSplit) == 2:
+                    gravity = float(datalineSplit[0])
+                    pressure = float(datalineSplit[1])
+                elif len(datalineSplit) == 1:
+                    datalineSplit = datalineSplit[0]
+                    gravity = float(datalineSplit[0:10])
+                    pressure = float(datalineSplit[10:])
+                else:
+                    continue
+
+                if gravity == 99.0 or gravity > 9999.9:
+                    gravity = 0
+                    pressure = 0
+
+                tt.append(thistime.gpsSeconds)
+
+                if stationType == "PRESSURE":
+                    data.append(pressure)
+                elif stationType == "GRAVITY":
+                    data.append(gravity)
+
+        if len(data) == 0:
+            return []
+
+        tt, data = zip(*sorted(zip(tt, data)))
+
+        tt = np.array(tt)
+        data = np.array(data)
+
+        indexes = np.intersect1d(np.where(tt >= gpsStart)[0],np.where(tt <= gpsEnd)[0])
+        tt = tt[indexes]
+        data = data[indexes]
+
+        sample_rate = channel.samplef
+
         dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
 
         dataFull.resample(channel.samplef)

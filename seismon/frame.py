@@ -241,6 +241,7 @@ def make_frames_calibrated(params, segment):
 
         channel_station = '%s:%s' %(params["ifo"],channel.station)
         # make timeseries
+
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel_station, start=gpsStart, end=gpsEnd)
         except:
@@ -261,10 +262,15 @@ def make_frames_calibrated(params, segment):
         alpha = (1.7549+eps*2.25427)*cR
         beta = (1.01319 - eps*0.049422)*cR
 
-        strain_calibration = alpha/(beta**2)
-
         eps = 0
         strain_calibration = 1.0/( cR*0.5682*(1-1.5377*eps))
+
+        if params["ifo"] == "LUNAR":
+            alpha = 6000.0
+            beta = 3500.0
+            strain_calibration = alpha/(beta**2)
+        #elif params["ifo"] == "CZKHC":
+        #    strain_calibration = 1
 
         print "%s, cR: %.3f, alpha: %.3f, beta: %.3f, calib: %.3e"%(channel.station,cR,alpha,beta,strain_calibration)
         dataFull = dataFull * strain_calibration
@@ -285,8 +291,18 @@ def make_frames_calibrated(params, segment):
             samplef = channel.samplef
 
         dx = 1.0/samplef
+
+        if params["ifo"] == "LUNAR":
+            this_data = np.diff(dataFull.data) * samplef
+            this_data = np.append(this_data,this_data[-1])
+        elif params["ifo"] == "CZKHC":
+            this_data = np.diff(dataFull.data) * samplef
+            this_data = np.append(this_data,this_data[-1])
+        else:
+            this_data = np.array(dataFull.data)
+
         out_dict = {'name'  : '%s' %(dataFull.name) ,
-            'data'  : np.array(dataFull.data),
+            'data'  : this_data,
             'start' : dataFull.epoch.vals[0],
             'dx'    : dx,
             'kind'  : 'ADC'}

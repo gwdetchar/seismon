@@ -121,6 +121,7 @@ def coherence(params, channel1, channel2, segment):
 
     freq = np.array(specgram1.frequencies)
     coherence = []
+    coherence_phase = []
     for i in xrange(len(freq)):
         a1 = specgram1.data[:,i]
         psd1 = np.mean(a1 * np.conjugate(a1)).real
@@ -128,8 +129,11 @@ def coherence(params, channel1, channel2, segment):
         psd2 = np.mean(a2 * np.conjugate(a2)).real
         csd12 = np.mean(a1 * np.conjugate(a2))
         coh = np.absolute(csd12) / np.sqrt(psd1 * psd2)
+        phase = np.angle(csd12)
         coherence.append(coh)
+        coherence_phase.append(phase)
     coherence = np.array(coherence)
+    coherence_phase = np.array(coherence_phase)
 
     coherenceDirectory = params["dirPath"] + "/Text_Files/Coherence/" + channel1.station_underscore + "_" + channel2.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(coherenceDirectory)
@@ -161,6 +165,23 @@ def coherence(params, channel1, channel2, segment):
 
         plot.save(pngFile,dpi=200)
         plot.close()
+
+        pngFile = os.path.join(plotDirectory,"coh_phase.png")
+
+        plot = gwpy.plotter.Plot(figsize=[14,8])
+        kwargs = {"linestyle":"-","color":"b"}
+        plot.add_line(freq,coherence_phase,**kwargs)
+        plot.xlim = [params["fmin"],params["fmax"]]
+        #plot.ylim = [0,1]
+        plot.xlabel = "Frequency [Hz]"
+        plot.ylabel = "Coherence Phase"
+
+        if np.log10(params["fmax"]) - np.log10(params["fmin"]) > 1:
+            plot.axes[0].set_xscale("log")
+
+        plot.save(pngFile,dpi=200)
+        plot.close()
+
 
 def coherence_summary(params, channel1, segment):
     """@summary of channels of spectral data.

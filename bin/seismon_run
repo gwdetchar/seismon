@@ -119,11 +119,11 @@ def parse_commandline():
     parser.add_option("--noFrames",  action="store_true", default=False)
     parser.add_option("--doMakeFrames",  action="store_true", default=False)
     parser.add_option("--doMakeFramesCalibrated",  action="store_true", default=False)
-    parser.add_option("--framesSampleRate", help="frames sample rate.", default=0,type=int)
+    parser.add_option("--framesSampleRate", help="frames sample rate.", default='0')
     parser.add_option("--framesFolder", help="frames folder.", 
-                     default="/home/mcoughlin/STAMP/Seismic/frames")
+                     default="/home/mcoughlin/Gravimeter/frames")
     parser.add_option("--framesFolderCalibrated", help="frames folder.",
-                     default="/home/mcoughlin/STAMP/Seismic/frames_calibrated")
+                     default="/home/mcoughlin/Gravimeter/frames_calibrated")
 
     parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
     parser.add_option("--wienerFilterSampleRate", help="Wiener filter sample rate.", default=0,type=int)
@@ -233,7 +233,7 @@ def params_struct(opts):
     params["noFrames"] = opts.noFrames
     params["doMakeFrames"] = opts.doMakeFrames
     params["doMakeFramesCalibrated"] = opts.doMakeFramesCalibrated
-    params["framesSampleRate"] = opts.framesSampleRate
+    params["framesSampleRate"] = float(eval(opts.framesSampleRate))
     params["framesFolder"] = opts.framesFolder
     params["framesFolderCalibrated"] = opts.framesFolderCalibrated
 
