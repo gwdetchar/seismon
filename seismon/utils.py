@@ -17,6 +17,7 @@ import seismon.eqmon
 
 import gwpy.time, gwpy.timeseries, gwpy.spectrum, gwpy.plotter
 import gwpy.segments
+from gwpy.timeseries import StateVector
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -451,7 +452,8 @@ def frame_struct(params):
             datacache.append(frame)
 
     elif params["ifo"] == "SR":
-        frameDir = "/home/mcoughlin/Stochastic/Lunar/seismic_data/data/"
+        frameDir = "/home/mcoughlin/Stochastic/Lunar/seismic_data_corrected/data/"
+        frameDir = "/home/mcoughlin/Stochastic/Lunar/corrected/data/"
         frameList = [os.path.join(root, name)
             for root, dirs, files in os.walk(frameDir)
             for name in files]
@@ -469,6 +471,34 @@ def frame_struct(params):
         datacache = []
         for frame in frameList:
             datacache.append(frame)
+    elif params["ifo"] == "Tiltmeter":
+        frameDir = "/home/mcoughlin/Tiltmeter/frames/"
+        frameList = [os.path.join(root, name)
+            for root, dirs, files in os.walk(frameDir)
+            for name in files]
+
+        datacache = []
+        for frame in frameList:
+            thisFrame = frame.replace("file://localhost","")
+            if thisFrame == "":
+                continue
+
+            thisFrameSplit = thisFrame.split(".")
+            if thisFrameSplit[-1] == "log":
+                continue
+
+            thisFrameSplit = thisFrame.split("-")
+            gps = float(thisFrameSplit[-2])
+            dur = float(thisFrameSplit[-1].replace(".gwf",""))
+
+            if gps+dur < gpsStart:
+                continue
+            if gps > gpsEnd:
+                continue
+
+            #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
+            datacache.append(frame)
+        datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
 
     elif params["ifo"] == "IRIS":
         datacache = "IRIS"
@@ -575,6 +605,25 @@ def channel_struct(params,channelList):
                    if stationID == thisStationID:
                        latitude = thisLatitude
                        longitude = thisLongitude
+           elif params["ifo"] == "Tiltmeter":
+               stationSplit = station.split(":")
+               stationID = station
+
+               latlonFile = "/home/mcoughlin/Seismon/seismon/input/seismon-Tiltmeter-Tiltmeter-channel_list_latlon.txt"
+               latlonlines = [line.strip() for line in open(latlonFile)]
+
+               for latlonline in latlonlines:
+
+                   latlonline_split = latlonline.split(" ")
+
+                   thisStationID = latlonline_split[0]
+                   thisLatitude = float(latlonline_split[1])
+                   thisLongitude = float(latlonline_split[2])
+
+                   if stationID == thisStationID:
+                       latitude = thisLatitude
+                       longitude = thisLongitude
+
            elif params["ifo"] == "SR":
                stationSplit = station.split(":")
                stationID = station
@@ -609,7 +658,8 @@ def channel_struct(params,channelList):
                starttime = obspy.core.UTCDateTime(starttime)
                endtime = obspy.core.UTCDateTime(endtime)
 
-               client = obspy.fdsn.client.Client("IRIS")
+               client = params["client"]
+               #client = obspy.fdsn.client.Client("IRIS")
 
                if channelSplit[2] == "--":
                    channelSplit[2] = "*"
@@ -671,6 +721,8 @@ def setPath(params,segment):
     else:
         params["path"] = params["dirPath"] + "/" + params["ifo"] + "/" + params["runName"] + "-" + "%.0f"%gpsStart + "-" + "%.0f"%gpsEnd
 
+        params["path"] = params["dirPath"] + "/" + params["ifo"] + "/" + params["runName"] + "/" + "%.0f"%gpsStart + "-" + "%.0f"%gpsEnd
+
     if params["doAnalysis"] or params["doPlots"] or params["doEarthquakesAnalysis"] or params["doEarthquakesOnline"]:
         seismon.utils.mkdir(params["path"])
 
@@ -695,6 +747,8 @@ def getIfo(params):
     elif params["ifo"] == "LUNAR":
         ifo = "LHO"
     elif params["ifo"] == "Gravimeter":
+        ifo = "LHO"
+    elif params["ifo"] == "Tiltmeter":
         ifo = "LHO"
     elif params["ifo"] == "CZKHC":
         ifo = "LHO"
@@ -730,6 +784,9 @@ def getLatLon(params):
         latitude = 46.6475
         longitude = -119.5986
     elif params["ifo"] == "Gravimeter":
+        latitude = 46.6475
+        longitude = -119.5986
+    elif params["ifo"] == "Tiltmeter":
         latitude = 46.6475
         longitude = -119.5986
     elif params["ifo"] == "CZKHC":
@@ -768,6 +825,9 @@ def getAzimuth(params):
         xazimuth = 0.0
         yazimuth = 0.0
     elif params["ifo"] == "Gravimeter":
+        xazimuth = 0.0
+        yazimuth = 0.0
+    elif params["ifo"] == "Tiltmeter":
         xazimuth = 0.0
         yazimuth = 0.0
     elif params["ifo"] == "CZKHC":
@@ -834,10 +894,11 @@ def retrieve_timeseries(params,channel,segment):
         starttime = obspy.core.UTCDateTime(starttime)
         endtime = obspy.core.UTCDateTime(endtime)
 
-        client = obspy.fdsn.client.Client("IRIS")
+        client = params["client"]
+        #client = obspy.fdsn.client.Client("IRIS")
 
         try:
-            st = client.get_waveform(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],\
+            st = client.get_waveforms(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],\
                 starttime,endtime)
         except:
             print "data read from IRIS failed... continuing\n"
@@ -938,6 +999,8 @@ def retrieve_timeseries(params,channel,segment):
     elif params["ifo"] == "SR":
 
         stationPeriod = channel.station.replace(":",".")
+        stationSplit = channel.station.split(":")
+        stationPeriod = "%s.%s.%s.%s"%(stationSplit[1],stationSplit[0],stationSplit[2],stationSplit[3])
 
         tt = []
         data = []
@@ -949,34 +1012,66 @@ def retrieve_timeseries(params,channel,segment):
             if index < 0:
                 continue
 
+            frameSplit = frame.split("/")
+            frameName = frameSplit[-1]
+            frameSplit = frameName.split("_")
+            frameDate = frameSplit[0]
+
+            #thisDate = datetime.strptime(frameDate, '%Y.%j.%H.%M.%S.%f')
+
+
+            #thistime = lal.gpstime.utc_to_gps(thisDate)
+            #td = thisDate - datetime(1970, 1, 1)
+            #thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+
+            #if thistime > gpsEnd:
+            #    continue
+
+            #if thistime + 86400 < gpsStart:
+            #    continue
+
             datalines = [line.strip() for line in open(frame)]
             #datalines = datalines[13:]
-            datalines = datalines[1:]
+            #datalines = datalines[1:]
 
             dataStart = False
+            thistime = []
 
             for dataline in datalines:
 
-                year = int(dataline[0:4])
-                month = int(dataline[5:7])
-                day = int(dataline[8:10])
-                hour = int(dataline[11:13])
-                minute = int(dataline[14:16])
-                second = int(dataline[17:19])
-                subsecond = int(dataline[20:26])
+                if dataline[0:4] == "TIME":
+                    thistime = []
+                    continue
 
-                thisDate = datetime(year, month, day, hour, minute, second, subsecond)
+                if not thistime:
+                    year = int(dataline[0:4])
+                    month = int(dataline[5:7])
+                    day = int(dataline[8:10])
+                    hour = int(dataline[11:13])
+                    minute = int(dataline[14:16])
+                    second = int(dataline[17:19])
+                    subsecond = int(dataline[20:26])
 
-                #thistime = lal.gpstime.utc_to_gps(thisDate)
-                td = thisDate - datetime(1970, 1, 1)
-                thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+                    thisDate = datetime(year, month, day, hour, minute, second, subsecond)
+
+                    #thistime = lal.gpstime.utc_to_gps(thisDate)
+                    td = thisDate - datetime(1970, 1, 1)
+                    thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+                else:
+                    thistime = thistime + 1.0/channel.samplef
 
                 if thistime > gpsEnd:
                     break
 
+                if thistime < gpsStart:
+                    continue
+
                 tt.append(thistime)
-                counts = int(dataline[26:])
+                counts = float(dataline[26:])
                 data.append(counts)
+
+        if len(data) == 0:
+            return []
 
         tt, data = zip(*sorted(zip(tt, data)))
         tt = np.array(tt)
@@ -991,27 +1086,39 @@ def retrieve_timeseries(params,channel,segment):
 
         sample_rate = channel.samplef
 
-        sts2 = {'gain': 6.66831e9,
-        'poles': [(-4.54+3.3j),
-                  (-4.54-3.3j),
-                  (-.117),(-40.9),
-                  (-100.0),(-.16),
-                  (-264.0),
-                  (-16.7+3.4j),
-                  (-16.7-3.4j),
-                  (-6.33),(-6.33)],
-        'zeros': [0j,0j,0j,0j,-.126,-50.1],
-        'sensitivity': 1}
-        #'sensitivity': 2.00000e12}
+        from obspy.signal import seisSim, pazToFreqResp
 
+        paz_remove = {'gain': 6.76557e9,
+             'poles': [(-4.65+3.46j),
+             (-4.65-3.46j),
+             (-.118),(-40.9),
+             (-100.0),(-.15),
+             (-264.0),
+             (-16.7+3.4j),
+             (-16.7-3.4j),
+             (-63.3),(-63.3)],
+             'zeros': [0j,0j,0j,0j,-.126,-50.1],
+             'sensitivity': 1}
+             #'sensitivity': 2.00000e12}
+             #'sensitivity': 1}
+
+
+        # Translated from PITSA: spr_resg.c
+        delta = 1.0 / sample_rate
+        #
+        ndat = len(data)
+        nfft = ndat
+
+        freq_response, freqs = pazToFreqResp(paz_remove['poles'],
+                                             paz_remove['zeros'],
+                                             paz_remove['gain'], delta, nfft,
+                                             freq=True)
         from obspy.signal import seisSim
-        data = seisSim(data, sample_rate, paz_remove=sts2)
+        #data = seisSim(data, sample_rate, paz_remove=paz_remove)
 
         dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
 
         dataFull.resample(channel.samplef)
-
-        print len(dataFull)
 
     elif params["ifo"] == "Gravimeter":
 
@@ -1059,8 +1166,6 @@ def retrieve_timeseries(params,channel,segment):
 
             if thistime.gpsSeconds + 31*86400 < gpsStart:
                 continue
-
-            print frame
 
             datalines = [line.strip() for line in open(frame)]
             #datalines = datalines[13:]
@@ -1119,14 +1224,26 @@ def retrieve_timeseries(params,channel,segment):
 
                 datalineSplit = dataline[15:].split(" ")
                 datalineSplit = filter(None, datalineSplit)
-
-                if len(datalineSplit) == 2:
+ 
+                if datalineSplit[0][0] == "*":
+                    gravity = 0
+                    pressure = 0
+                elif len(datalineSplit) == 2:
                     gravity = float(datalineSplit[0])
                     pressure = float(datalineSplit[1])
                 elif len(datalineSplit) == 1:
-                    datalineSplit = datalineSplit[0]
-                    gravity = float(datalineSplit[0:10])
-                    pressure = float(datalineSplit[10:])
+                    datalineSplit2 = datalineSplit[0].split("-")
+                    datalineSplit2 =  filter(None, datalineSplit2)
+                    if len(datalineSplit2) == 2:
+                        gravity = float(datalineSplit2[0])
+                        pressure = -float(datalineSplit2[1])
+                    else:
+                        datalineSplit = datalineSplit[0]
+                        gravity = float(datalineSplit[0:10])
+                        try:
+                            pressure = float(datalineSplit[10:])
+                        except:
+                            pressure = 0
                 else:
                     continue
 
@@ -1153,6 +1270,9 @@ def retrieve_timeseries(params,channel,segment):
         tt = tt[indexes]
         data = data[indexes]
 
+        if len(data) == 0:
+            return []
+
         sample_rate = channel.samplef
 
         dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
@@ -1170,6 +1290,8 @@ def retrieve_timeseries(params,channel,segment):
         #print "done"
 
         # make timeseries
+        #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd)
+
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd)
         except:
@@ -1177,6 +1299,32 @@ def retrieve_timeseries(params,channel,segment):
             return dataFull
 
     return dataFull
+
+def retrieve_bits(params,channel,segment):
+    """@retrieves timeseries for given channel and segment.
+
+    @param params
+        seismon params dictionary
+    @param channel
+        seismon channel structure
+    @param segment
+        [start,end] gps
+    """
+
+    gpsStart = segment[0]
+    gpsEnd = segment[1]
+
+    # set the times
+    duration = np.ceil(gpsEnd-gpsStart)
+
+    dataFull = []
+    
+    bitmask = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15']    
+    # make timeseries
+    dataFull = StateVector.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, bitmask=bitmask)
+
+    return dataFull
+
 
 def RunningMedian(data, M, factor):
 

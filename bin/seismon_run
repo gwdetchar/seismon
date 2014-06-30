@@ -40,6 +40,7 @@ import seismon.eqmon, seismon.eqmon_plot
 import seismon.coherence, seismon.hilbert
 import seismon.wiener, seismon.wiener_fft
 import seismon.trend, seismon.frame
+import seismon.bits
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __version__ = 1.0
@@ -98,6 +99,9 @@ def parse_commandline():
     parser.add_option("--doEarthquakesHilbert",  action="store_true", default=False)
     parser.add_option("--earthquakesTrainingFile", help="Earthquakes training file.",
                      default="/home/mcoughlin/Seismon/H1/H1S5-815097613-875145614/earthquakes_training/training.xml")
+    parser.add_option("--doEarthquakesTrips",  action="store_true", default=False)
+    parser.add_option("--tripsTextFile", help="Flags text file.",
+                     default="/home/mcoughlin/Seismon/Trips/L1_trips.txt")
 
     parser.add_option("--doOmicron",  action="store_true", default=False)
     parser.add_option("--doFreqAnalysis",  action="store_true", default=False)
@@ -106,6 +110,7 @@ def parse_commandline():
     parser.add_option("--doSegmentsDatabase",  action="store_true", default=False)
     parser.add_option("--doSegmentsTextFile",  action="store_true", default=False)
     parser.add_option("--doPSD",  action="store_true", default=False)    
+    parser.add_option("--doBits",  action="store_true", default=False)
     parser.add_option("--doTrend",  action="store_true", default=False)
     parser.add_option("--doSummary",  action="store_true", default=False)
     parser.add_option("--doCoherence",  action="store_true", default=False)
@@ -205,6 +210,8 @@ def params_struct(opts):
     params["doEarthquakesTraining"] = opts.doEarthquakesTraining
     params["doEarthquakesTesting"] = opts.doEarthquakesTesting
     params["doEarthquakesHilbert"] = opts.doEarthquakesHilbert
+    params["doEarthquakesTrips"] = opts.doEarthquakesTrips
+    params["tripsTextFile"] = opts.tripsTextFile
 
     params["userEmail"] = opts.userEmail
     params["earthquakesTrainingFile"] = opts.earthquakesTrainingFile
@@ -216,6 +223,7 @@ def params_struct(opts):
     params["doSegmentsDatabase"] = opts.doSegmentsDatabase
     params["doSegmentsTextFile"] = opts.doSegmentsTextFile
     params["doPSD"] = opts.doPSD
+    params["doBits"] = opts.doBits
     params["doTrend"] = opts.doTrend
     params["doSummary"] = opts.doSummary
     params["doCoherence"] = opts.doCoherence
@@ -245,6 +253,9 @@ def params_struct(opts):
     params["doKML"] = opts.doKML
     params["doviz"] = opts.doviz
 
+    if params["gpsStart"] == 1025136015:
+        params["gpsStart"] = params["gpsStart"] + 1
+
     params["date"] = lal.gpstime.gps_to_utc(params["gpsStart"])
     #params["date"] = XLALGPSToUTC(LIGOTimeGPS(params["gpsStart"]))
     params["dateString"] = params["date"].strftime("%Y-%m-%d %H:%M:%S")
@@ -254,6 +265,10 @@ def params_struct(opts):
        params["earthquakesMinMag"] = 5
     else:
        params["earthquakesMinMag"] = 0
+
+    if params["ifo"] == "IRIS":
+        import obspy.iris, obspy.core, obspy.fdsn
+        params["client"] = obspy.fdsn.client.Client("IRIS")
 
     return params
 
@@ -335,7 +350,13 @@ for channel in params["channels"]:
             print "Segment: %d-%d"%(segment[0],segment[1])
             params = seismon.utils.setPath(params,segment)
             seismon.trend.trend(params,channel,segment)
-    
+    if params["doBits"]:
+        print "Generating bits for %s"%channel.station
+        for segment in params["segments"]:
+            print "Segment: %d-%d"%(segment[0],segment[1])
+            params = seismon.utils.setPath(params,segment)
+            seismon.bits.bits(params,channel,segment)   
+ 
 if params["doCoherence"]:
     for i in xrange(len(params["channels"])):
         channel1 = params["channels"][i]

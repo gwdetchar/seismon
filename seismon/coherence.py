@@ -163,6 +163,7 @@ def coherence(params, channel1, channel2, segment):
         if np.log10(params["fmax"]) - np.log10(params["fmin"]) > 1:
             plot.axes[0].set_xscale("log")
 
+        plot.ylim = [np.min(coherence),1]
         plot.save(pngFile,dpi=200)
         plot.close()
 

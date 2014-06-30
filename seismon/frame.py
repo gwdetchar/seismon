@@ -126,7 +126,8 @@ def make_frames(params, segment):
         if dataFull == []:
             continue
 
-        dataFull = dataFull / channel.calibration
+        if not params["ifo"] == "SR":
+            dataFull = dataFull / channel.calibration
 
         indexes = np.where(np.isnan(dataFull.data))[0]
         meanSamples = np.mean(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
@@ -137,16 +138,16 @@ def make_frames(params, segment):
             print "data only zeroes... continuing\n"
             continue
 
+        samplef = channel.samplef
         if params["framesSampleRate"] > 0:
-            dataFull = dataFull.resample(params["framesSampleRate"])
-            samplef = params["framesSampleRate"]
-        else:
-            samplef = channel.samplef
+            if not params["framesSampleRate"] == channel.samplef:
+                dataFull = dataFull.resample(params["framesSampleRate"])
+                samplef = params["framesSampleRate"]
 
         dx = 1.0/samplef
         out_dict = {'name'  : '%s:%s' %(params["ifo"],dataFull.name) ,
             'data'  : np.array(dataFull.data),
-            'start' : dataFull.epoch.vals[0],
+            'start' : dataFull.epoch.vals,
             'dx'    : dx,
             'kind'  : 'ADC'}
 
@@ -225,8 +226,11 @@ def make_frames_calibrated(params, segment):
     channels_keep = []
     channels_calibration = []
 
-    beta = 3200.0
-    alpha = 6000.0
+    #beta = 3200.0
+    #alpha = 6000.0
+
+    beta = 1800.0
+    alpha = 3200.0
 
     velocityFileR = '/home/mcoughlin/Seismon/velocity_maps/R025_1_GDM52.pix'
     velocityFileL = '/home/mcoughlin/Seismon/velocity_maps/L025_0_GDM52.pix'
@@ -266,10 +270,12 @@ def make_frames_calibrated(params, segment):
         strain_calibration = 1.0/( cR*0.5682*(1-1.5377*eps))
 
         if params["ifo"] == "LUNAR":
-            alpha = 6000.0
-            beta = 3500.0
+            #alpha = 6000.0
+            #beta = 3500.0
+            beta = 1800.0
+            alpha = 3200.0
             strain_calibration = alpha/(beta**2)
-        #elif params["ifo"] == "CZKHC":
+        #elif params["ifo"] == "SR":
         #    strain_calibration = 1
 
         print "%s, cR: %.3f, alpha: %.3f, beta: %.3f, calib: %.3e"%(channel.station,cR,alpha,beta,strain_calibration)
@@ -292,18 +298,21 @@ def make_frames_calibrated(params, segment):
 
         dx = 1.0/samplef
 
+        if len(dataFull.data) == 0:
+            continue
+
         if params["ifo"] == "LUNAR":
             this_data = np.diff(dataFull.data) * samplef
             this_data = np.append(this_data,this_data[-1])
-        elif params["ifo"] == "CZKHC":
-            this_data = np.diff(dataFull.data) * samplef
-            this_data = np.append(this_data,this_data[-1])
+        #elif params["ifo"] == "SR":
+        #    this_data = np.diff(dataFull.data) * samplef
+        #    this_data = np.append(this_data,this_data[-1])
         else:
             this_data = np.array(dataFull.data)
 
         out_dict = {'name'  : '%s' %(dataFull.name) ,
             'data'  : this_data,
-            'start' : dataFull.epoch.vals[0],
+            'start' : dataFull.epoch.vals,
             'dx'    : dx,
             'kind'  : 'ADC'}
 

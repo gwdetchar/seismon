@@ -1207,6 +1207,84 @@ def worldmap_wavefronts(params,attributeDics,currentGPS,plotName):
     #savefig(plotNameCounter,dpi=200)
     plt.close('all')
 
+def trip_plot(params,attributeDics,data,type,plotName):
+    """@worldmap plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param data
+        channel data dictionary
+    @param type
+        type of worldmap plot
+    @param plotName
+        name of plot
+    """
+
+    trips = []
+    trip_lines = [line.strip() for line in open(params["tripsTextFile"])]
+    for line in trip_lines:
+        lineSplit = line.split(" ")
+        trips.append(float(lineSplit[0]))
+
+    ifo = seismon.utils.getIfo(params)
+
+    plot = gwpy.plotter.Plot(figsize=[14,8])
+
+    xs = []
+    ys = []
+
+    count = 0
+    keys = [key for key in data["earthquakes"].iterkeys()]
+    for key in keys:
+        attributeDic = data["earthquakes"][key]["attributeDic"]
+        earthquake_data = data["earthquakes"][key]["data"]
+
+        if len(earthquake_data["ampPrediction"]) == 0:
+            continue
+
+        if type == "amplitude":
+            x = earthquake_data["tt"][0]
+            y = earthquake_data["ampMax"][0] * 1e6
+        elif type == "time":
+            x = earthquake_data["tt"][0]
+            y = earthquake_data["ttDiff"][0]
+
+        print x, y
+
+        xs.append(x)
+        ys.append(y)
+
+        count = count + 1
+
+    if count == 0:
+        return
+
+    plot.add_scatter(xs,ys,marker='o', zorder=1000, color='b',label='predicted')
+
+    if type == "time":
+        ylabel = "dt [s]"
+    elif type == "amplitude":
+        xlabel = "time [s]"
+        ylabel = "Velocity [$\mu$m/s]"
+        plot.axes[0].set_yscale("log")
+        plot.ylim = [1,200]
+
+    plot.xlabel = xlabel
+    plot.ylabel = ylabel
+
+    xlim = [plot.xlim[0],plot.xlim[1]]
+    ylim = [plot.ylim[0],plot.ylim[1]]
+
+    for trip in trips:
+        kwargs = {"linestyle":"--","color":"k"}
+        plot.add_line([trip,trip],ylim,**kwargs)
+    plot.xlim = xlim
+
+    plot.save(plotName,dpi=200)
+    plot.close()
+
 def station_plot(params,attributeDics,data,type,plotName):
     """@worldmap plot
 
@@ -1243,7 +1321,6 @@ def station_plot(params,attributeDics,data,type,plotName):
             continue
 
         label = attributeDic["eventName"]
-
         xs, ys = zip(*sorted(zip(xs, ys)))
 
         color = colors[count]

@@ -91,9 +91,9 @@ def hilbert(params, segment):
             traveltimes = attributeDic["traveltimes"][ifo]
 
         for dataFull in dataAll:
-            if "X" in dataFull.channel.name:
+            if "X" in dataFull.channel.name or "E" == dataFull.channel.name[-1]:
                 tsx = dataFull.data
-            if "Y" in dataFull.channel.name:
+            if "Y" in dataFull.channel.name or "N" == dataFull.channel.name[-1]:
                 tsy = dataFull.data
             if "Z" in dataFull.channel.name:
                 tsz = dataFull.data
@@ -108,6 +108,7 @@ def hilbert(params, segment):
         distance = max(traveltimes["Distances"])
 
         indexes = np.intersect1d(np.where(tt >= Rfivetime)[0],np.where(tt <= Rtwotime)[0])
+        indexes = np.intersect1d(np.where(tt >= tt[0])[0],np.where(tt <= tt[-1])[0])
 
         if len(indexes) == 0:
             continue

@@ -72,9 +72,9 @@ def wiener(params, target_channel, segment):
 
         if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] == 0):
             dataFull = dataFull.highpass(params["wienerFilterLowFreq"], amplitude=0.9, order=3, method='scipy')
-        if (params["wienerFilterLowFreq"] == 0) and (params["wienerFilterHighFreq"] > 0):
+        elif (params["wienerFilterLowFreq"] == 0) and (params["wienerFilterHighFreq"] > 0):
             dataFull = dataFull.lowpass(params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
-        if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] > 0):
+        elif (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] > 0):
             dataFull = dataFull.bandpass(params["wienerFilterLowFreq"],params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
 
         indexes = np.where(np.isnan(dataFull.data))[0]
@@ -112,7 +112,7 @@ def wiener(params, target_channel, segment):
     create_filter = True
     for i in xrange(len(gpss)-1):
         tt = np.array(dataFull.times)
-        indexes = np.intersect1d(np.where(tt >= gpss[i])[0],np.where(tt <= gpss[i+1]+5)[0])
+        indexes = np.intersect1d(np.where(tt >= gpss[i])[0],np.where(tt <= gpss[i+1]+N)[0])
 
         if len(indexes) == 0:
             continue
@@ -122,9 +122,12 @@ def wiener(params, target_channel, segment):
 
         ttCut = tt[indexMin:indexMax] 
         yCut = y[indexMin:indexMax]
-        XCut = X[:,indexMin:indexMax]
 
-        XCut = XCut.T
+        if len(X.shape) == 1:
+            XCut = np.reshape(X[indexMin:indexMax],(-1,1))
+        else:
+            XCut = X[:,indexMin:indexMax]
+            XCut = XCut.T
         if create_filter:
             print "Generating filter"
             W,R,P = miso_firwiener(N,XCut,yCut)
@@ -228,6 +231,19 @@ def wiener(params, target_channel, segment):
         plot.save(pngFile,dpi=200)
         plot.close()
 
+        pngFile = os.path.join(plotDirectory,"ratio.png")
+
+        plot = gwpy.plotter.Plot(figsize=[14,8])
+        kwargs = {"linestyle":"-","color":"b"}
+        plot.add_line(freq, residual_spectral_variation_50per/original_spectral_variation_50per, **kwargs)
+        plot.axes[0].set_xscale("log")
+        plot.xlim = [params["fmin"],params["fmax"]]
+        #plot.ylim = [np.min(bins), np.max(bins)]
+        plot.xlabel = "Frequency [Hz]"
+        plot.ylabel = "Amplitude Ratio"
+        plot.save(pngFile,dpi=200)
+        plot.close()
+
 def wiener_hilbert(params, segment):
     """@calculates wiener filter for given channel and segment.
 
@@ -280,9 +296,9 @@ def wiener_hilbert(params, segment):
 
         if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] == 0):
             dataFull = dataFull.highpass(params["wienerFilterLowFreq"], amplitude=0.9, order=3, method='scipy')
-        if (params["wienerFilterLowFreq"] == 0) and (params["wienerFilterHighFreq"] > 0):
+        elif (params["wienerFilterLowFreq"] == 0) and (params["wienerFilterHighFreq"] > 0):
             dataFull = dataFull.lowpass(params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
-        if (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] > 0):
+        elif (params["wienerFilterLowFreq"] > 0) and (params["wienerFilterHighFreq"] > 0):
             dataFull = dataFull.bandpass(params["wienerFilterLowFreq"],params["wienerFilterHighFreq"], amplitude=0.9, order=3, method='scipy')
 
         indexes = np.where(np.isnan(dataFull.data))[0]
@@ -294,9 +310,9 @@ def wiener_hilbert(params, segment):
         dataAll.append(dataFull)
 
     for dataFull in dataAll:
-        if "X" in dataFull.channel.name:
+        if "X" in dataFull.channel.name or "E" == dataFull.channel.name[-1]:
             tsx = dataFull.data
-        if "Y" in dataFull.channel.name:
+        if "Y" in dataFull.channel.name or "N" == dataFull.channel.name[-1]:
             tsy = dataFull.data
         if "Z" in dataFull.channel.name:
             tsz = dataFull.data
@@ -306,7 +322,7 @@ def wiener_hilbert(params, segment):
     tszhilbert = scipy.signal.hilbert(tsz).imag
     tszhilbert = -tszhilbert
 
-    angles = np.linspace(0,2*np.pi,10)
+    angles = np.linspace(0,2*np.pi,60)
     xcorrs = []
     for angle in angles:
         rot = np.array([[np.cos(angle), -np.sin(angle)],[np.sin(angle),np.cos(angle)]])
@@ -560,6 +576,7 @@ def miso_firwiener(N,X,y):
     for i in xrange(M):
         top = i*(N+1)
         bottom = (i+1)*(N+1)
+
         p, lags = seismon.utils.xcorr(y-np.mean(y),X[:,i]-np.mean(X[:,i]),maxlags=N,normed=False)
 
         P[range(top,bottom)] = p[range(N,2*N+1)]
@@ -590,11 +607,11 @@ def subtractFF(W,SS,S,samplef):
         tmp = SS[k-N:k+1,:] * W
         FF[k-N] = np.sum(tmp)
 
-    cutoff = 65.0
+    cutoff = 1.0
     dataFF = gwpy.timeseries.TimeSeries(FF, sample_rate=samplef)
-    dataFFLowpass = dataFF.lowpass(cutoff, amplitude=0.9, order=12, method='scipy')
-    FF = np.array(dataFFLowpass)
-    #FF = np.array(dataFF)
+    #dataFFLowpass = dataFF.lowpass(cutoff, amplitude=0.9, order=3, method='scipy')
+    #FF = np.array(dataFFLowpass)
+    FF = np.array(dataFF)
 
     residual = S[range(ns-N)]-FF
     residual = residual - np.mean(residual)

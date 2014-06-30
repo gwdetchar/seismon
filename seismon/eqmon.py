@@ -171,6 +171,7 @@ def run_earthquakes_analysis(params,segment):
         data["channels"][channel.station_underscore]["psd"] = loadChannelPSD(params,channel,segment)
         data["channels"][channel.station_underscore]["timeseries"] = loadChannelTimeseries(params,channel,segment)
         data["channels"][channel.station_underscore]["earthquakes"] = loadChannelEarthquakes(params,channel,attributeDics)
+
     data["earthquakes"] = {}
     for attributeDic in attributeDics:
         data["earthquakes"][attributeDic["eventName"]] = {}
@@ -223,6 +224,10 @@ def run_earthquakes_analysis(params,segment):
         seismon.eqmon_plot.station_plot(params,attributeDics,data,"amplitude",plotName)
         plotName = os.path.join(earthquakesDirectory,"station_time.png")
         seismon.eqmon_plot.station_plot(params,attributeDics,data,"time",plotName)
+
+        if params["doEarthquakesTrips"]:
+            plotName = os.path.join(earthquakesDirectory,"trip_plot.png")
+            seismon.eqmon_plot.trip_plot(params,attributeDics,data,"amplitude",plotName)
 
         plotName = os.path.join(earthquakesDirectory,"worldmap_station_amplitude.png")
         seismon.eqmon_plot.worldmap_station_plot(params,attributeDics,data,"amplitude",plotName)
@@ -1061,10 +1066,20 @@ def irisread(event):
 
     attributeDic["Longitude"] = event.origins[0].longitude
     attributeDic["Latitude"] = event.origins[0].latitude
-    attributeDic["Depth"] = event.origins[0].depth / 1000.0
+    if not event.origins[0].depth == None:
+        attributeDic["Depth"] = event.origins[0].depth / 1000.0
+    else:
+        attributeDic["Depth"] = 0
     attributeDic["eventID"] = event.origins[0].region
 
-    attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
+    td = dt - datetime(1970, 1, 1)
+    thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+
+    if thistime < 300000000:
+        attributeDic['GPS'] = thistime
+    else:
+        attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
+
     attributeDic['UTC'] = float(dt.strftime("%s"))
 
     eventID = "%.0f"%attributeDic['GPS']
@@ -1088,7 +1103,7 @@ def irisread(event):
     attributeDic['SentUTC'] = time.time()
     attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
 
-    #attributeDic = calculate_traveltimes(attributeDic)
+    attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
     dt = datetime.fromtimestamp(time.mktime(tm))
 
