@@ -75,13 +75,34 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].data)],np.max(data["dataLowpass"].data)))
     f.close()
 
-    #timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
-    #f = open(timeseriesFile,"wb")
-    #for i in xrange(len(tt)):
-    #    f.write("%.10f %e\n"%(tt[i],data["dataLowpass"].data[i]))
-    #f.close()
+    if params["doEarthquakesTrips"]:
 
-    #print timeseriesFile
+        tripsDirectory = params["dirPath"] + "/Text_Files/Trips/" + channel.station_underscore + "/" + str(params["fftDuration"])
+        seismon.utils.mkdir(tripsDirectory)
+
+        trips = []
+        platforms = []
+        stages = []
+        trip_lines = [line.strip() for line in open(params["tripsTextFile"])]
+        for line in trip_lines:
+            lineSplit = line.split(" ")
+            trips.append(float(lineSplit[0]))
+            platforms.append(lineSplit[1])
+            stages.append(lineSplit[2])
+
+        count = 1
+        for trip,platform,stage in zip(trips,platforms,stages):
+            if (trip >= gpsStart) and (trip <= gpsEnd):
+                    tt_diff = np.absolute(tt - trip)
+                    index = np.argmin(tt_diff)
+
+                    tripsDirectory = params["dirPath"] + "/Text_Files/Trips/" + channel.station_underscore + "/" + str(params["fftDuration"]) + "/" + platform + "/" + stage
+                    seismon.utils.mkdir(tripsDirectory)
+
+                    tripsFile = os.path.join(tripsDirectory,"%d.txt"%(trip))
+                    f = open(tripsFile,"wb")
+                    f.write("%d %e\n"%(tt[index],data["dataLowpass"].data[index]))
+                    f.close()
 
     for attributeDic in attributeDics:
 
@@ -514,6 +535,32 @@ def spectra(params, channel, segment):
                 kwargs = {"linestyle":"-.","color":"b"}
                 plot.add_line([offtime,offtime],ylim,**kwargs)
             count = count + 1
+ 
+        if params["doEarthquakesTrips"]:    
+            trips = []
+            platforms = []
+            stages = [] 
+            trip_lines = [line.strip() for line in open(params["tripsTextFile"])]
+            for line in trip_lines:
+                lineSplit = line.split(" ")
+                trips.append(float(lineSplit[0]))
+                platforms.append(lineSplit[1])
+                stages.append(lineSplit[2])
+
+            ylim_diff = ylim[1] - ylim[0]
+            perc_diff = ylim_diff * 0.025
+
+            count = 1
+            for trip,platform,stage in zip(trips,platforms,stages):
+                if (trip >= xlim[0]) and (trip <= xlim[1]):
+                    if count ==  1:
+                        kwargs = {"linestyle":"-.","color":"m","linewidth":4}
+                        plot.add_line([trip,trip],ylim,label="Trip time",**kwargs)
+                    else:
+                        kwargs = {"linestyle":"-.","color":"m","linewidth":4}
+                        plot.add_line([trip,trip],ylim,**kwargs)
+                    plt.text(trip+15,ylim[1]-count*perc_diff,'%s %s'%(platform,stage),fontsize=12)
+                    count = count + 1
 
         plot.ylabel = r"Velocity [$\mu$m/s]"
         plot.title = channel.station.replace("_","\_")
@@ -521,7 +568,15 @@ def spectra(params, channel, segment):
         plot.ylim = ylim
         plot.add_legend(loc=1,prop={'size':10})
 
-        plot.save(pngFile)
+        try:
+            plot.save(pngFile)
+
+            pngFile = os.path.join(plotDirectory,"timeseries_30.png")
+            plot.ylim = [-30,30]
+            plot.save(pngFile)
+
+        except:
+            pass
         plot.close()
 
         if params["doEarthquakesHilbert"]:

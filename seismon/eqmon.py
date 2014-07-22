@@ -171,6 +171,7 @@ def run_earthquakes_analysis(params,segment):
         data["channels"][channel.station_underscore]["psd"] = loadChannelPSD(params,channel,segment)
         data["channels"][channel.station_underscore]["timeseries"] = loadChannelTimeseries(params,channel,segment)
         data["channels"][channel.station_underscore]["earthquakes"] = loadChannelEarthquakes(params,channel,attributeDics)
+        data["channels"][channel.station_underscore]["trips"] = loadChannelTrips(params,channel)
 
     data["earthquakes"] = {}
     for attributeDic in attributeDics:
@@ -226,8 +227,20 @@ def run_earthquakes_analysis(params,segment):
         seismon.eqmon_plot.station_plot(params,attributeDics,data,"time",plotName)
 
         if params["doEarthquakesTrips"]:
+            plotName = os.path.join(earthquakesDirectory,"trip_time_plot.png")
+            seismon.eqmon_plot.trip_time_plot(params,attributeDics,data,"amplitude",plotName)
+
             plotName = os.path.join(earthquakesDirectory,"trip_plot.png")
             seismon.eqmon_plot.trip_plot(params,attributeDics,data,"amplitude",plotName)
+
+            plotName = os.path.join(earthquakesDirectory,"trip_plot_diff.png")
+            seismon.eqmon_plot.trip_plot(params,attributeDics,data,"time",plotName)
+
+            plotName = os.path.join(earthquakesDirectory,"trip_amp_platform_plot.png")
+            seismon.eqmon_plot.trip_amp_platform_plot(params,attributeDics,data,"amplitude",plotName)
+
+            plotName = os.path.join(earthquakesDirectory,"trip_amp_stage_plot.png")
+            seismon.eqmon_plot.trip_amp_stage_plot(params,attributeDics,data,"amplitude",plotName)
 
         plotName = os.path.join(earthquakesDirectory,"worldmap_station_amplitude.png")
         seismon.eqmon_plot.worldmap_station_plot(params,attributeDics,data,"amplitude",plotName)
@@ -758,6 +771,40 @@ def loadChannelTimeseries(params,channel,segment):
     data["ttEnd"] = ttEnd
     data["ttMax"] = ttMax
     data["data"] = amp
+
+    return data
+
+def loadChannelTrips(params,channel):
+    """@load channel timeseries.
+
+    @param params
+        seismon params dictionary
+    @param channel
+        seismon channel structure
+    @param segment
+        [start,end] gps
+    """
+
+    tripsDirectory = params["dirPath"] + "/Text_Files/Trips/" + channel.station_underscore + "/" + str(params["fftDuration"])
+
+    data = {}
+
+    platforms = glob.glob(os.path.join(tripsDirectory,"*"))
+    for platformDirectory in platforms:
+        platform = platformDirectory.split("/")[-1]
+        data[platform] = {}
+        stages = glob.glob(os.path.join(platformDirectory,"*"))
+        for stageDirectory in stages:
+            stage = stageDirectory.split("/")[-1]
+            data[platform][stage] = {}
+            data[platform][stage]["gps"] = []
+            data[platform][stage]["velocity"] = []
+
+            files = glob.glob(os.path.join(stageDirectory,"*.txt"))
+            for file in files:
+                data_out = np.loadtxt(file)
+                data[platform][stage]["gps"].append(data_out[0])
+                data[platform][stage]["velocity"].append(data_out[1])
 
     return data
 

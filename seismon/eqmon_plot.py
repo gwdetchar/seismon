@@ -1207,6 +1207,241 @@ def worldmap_wavefronts(params,attributeDics,currentGPS,plotName):
     #savefig(plotNameCounter,dpi=200)
     plt.close('all')
 
+def trip_amp_stage_plot(params,attributeDics,data,type,plotName):
+    """@worldmap plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param data
+        channel data dictionary
+    @param type
+        type of worldmap plot
+    @param plotName
+        name of plot
+    """
+
+    trips = []
+    platforms = []
+    stages = []
+    trip_lines = [line.strip() for line in open(params["tripsTextFile"])]
+    for line in trip_lines:
+        lineSplit = line.split(" ")
+        trips.append(float(lineSplit[0]))
+        platforms.append(lineSplit[1])
+        stages.append(lineSplit[2])
+    platforms = set(platforms)
+    stages = set(stages)
+
+    plot = gwpy.plotter.Plot(figsize=[14,8])
+
+    colors = cm.rainbow(np.linspace(0, 1, len(platforms)))
+
+    count = 0
+    keys = [key for key in data["channels"].iterkeys()]
+    #for key in keys:
+    for stage in stages:
+        xs = []
+        ys = []
+        for key in keys:
+            for platform in platforms:
+
+                if not platform in data["channels"][key]["trips"]:
+                    continue
+                if not stage in data["channels"][key]["trips"][platform]:
+                    continue
+
+                tts = data["channels"][key]["trips"][platform][stage]["gps"]
+                velocities = data["channels"][key]["trips"][platform][stage]["velocity"]
+
+                for tt,velocity in zip(tts,velocities):
+                    xs.append(tt)
+                    ys.append(velocity*1e6)
+
+        color = colors[count]
+        plot.add_scatter(xs,ys,marker='*', zorder=1000, label=stage,color=color)
+        count = count + 1
+
+    if count == 0:
+        return
+
+    xlabel = "time [s]"
+    ylabel = "Velocity [$\mu$m/s]"
+    plot.axes[0].set_yscale("log")
+    #plot.ylim = [1,200]
+
+    plot.xlabel = xlabel
+    plot.ylabel = ylabel
+
+    xlim = [plot.xlim[0],plot.xlim[1]]
+    ylim = [plot.ylim[0],plot.ylim[1]]
+    plot.xlim = xlim
+    plot.ylim = [0.1,100]
+    plot.add_legend(loc=1,prop={'size':10})
+
+    plot.save(plotName,dpi=200)
+    plot.close()
+
+def trip_amp_platform_plot(params,attributeDics,data,type,plotName):
+    """@worldmap plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param data
+        channel data dictionary
+    @param type
+        type of worldmap plot
+    @param plotName
+        name of plot
+    """
+
+    trips = []
+    platforms = []
+    stages = []
+    trip_lines = [line.strip() for line in open(params["tripsTextFile"])]
+    for line in trip_lines:
+        lineSplit = line.split(" ")
+        trips.append(float(lineSplit[0]))
+        platforms.append(lineSplit[1])
+        stages.append(lineSplit[2])
+    platforms = set(platforms)
+    stages = set(stages)
+
+    plot = gwpy.plotter.Plot(figsize=[14,8])
+
+    colors = cm.rainbow(np.linspace(0, 1, len(platforms)))
+
+    count = 0
+    keys = [key for key in data["channels"].iterkeys()]
+    #for key in keys:
+    for platform in platforms:
+        xs = []
+        ys = []
+        for key in keys:
+            for stage in stages:
+
+                if not platform in data["channels"][key]["trips"]:
+                    continue
+                if not stage in data["channels"][key]["trips"][platform]:
+                    continue
+
+                tts = data["channels"][key]["trips"][platform][stage]["gps"]
+                velocities = data["channels"][key]["trips"][platform][stage]["velocity"]
+
+                for tt,velocity in zip(tts,velocities):
+                    xs.append(tt)
+                    ys.append(velocity*1e6)
+                
+        color = colors[count]
+        plot.add_scatter(xs,ys,marker='*', zorder=1000, label=platform,color=color)
+        count = count + 1
+
+    if count == 0:
+        return
+
+    xlabel = "time [s]"
+    ylabel = "Velocity [$\mu$m/s]"
+    plot.axes[0].set_yscale("log")
+    #plot.ylim = [1,200]
+
+    plot.xlabel = xlabel
+    plot.ylabel = ylabel
+
+    xlim = [plot.xlim[0],plot.xlim[1]]
+    ylim = [plot.ylim[0],plot.ylim[1]]
+    plot.xlim = xlim
+    plot.ylim = [0.1,100]
+    plot.add_legend(loc=1,prop={'size':10})
+
+    plot.save(plotName,dpi=200)
+    plot.close()
+
+def trip_time_plot(params,attributeDics,data,type,plotName):
+    """@worldmap plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param data
+        channel data dictionary
+    @param type
+        type of worldmap plot
+    @param plotName
+        name of plot
+    """
+
+    trips = []
+    trip_lines = [line.strip() for line in open(params["tripsTextFile"])]
+    for line in trip_lines:
+        lineSplit = line.split(" ")
+        trips.append(float(lineSplit[0]))
+
+    ifo = seismon.utils.getIfo(params)
+
+    plot = gwpy.plotter.Plot(figsize=[14,8])
+
+    xs = []
+    ys = []
+
+    count = 0
+    keys = [key for key in data["earthquakes"].iterkeys()]
+    for key in keys:
+        attributeDic = data["earthquakes"][key]["attributeDic"]
+        earthquake_data = data["earthquakes"][key]["data"]
+
+        if len(earthquake_data["ampPrediction"]) == 0:
+            continue
+
+        if type == "amplitude":
+            x = earthquake_data["tt"][0]
+            y = earthquake_data["ampMax"][0] * 1e6
+        elif type == "time":
+            x = earthquake_data["tt"][0]
+            y = earthquake_data["ttDiff"][0]
+
+        if y < 2:
+            continue
+
+        for trip in trips:
+            if np.absolute(x-trip) < 3600:
+                print x, y, trip
+
+        xs.append(x)
+        ys.append(y)
+
+        count = count + 1
+
+    if count == 0:
+        return
+
+    plot.add_scatter(xs,ys,marker='o', zorder=1000, color='b',label='predicted')
+
+    if type == "time":
+        ylabel = "dt [s]"
+    elif type == "amplitude":
+        xlabel = "time [s]"
+        ylabel = "Velocity [$\mu$m/s]"
+        plot.axes[0].set_yscale("log")
+        plot.ylim = [1,200]
+
+    #plot.xlabel = xlabel
+    plot.ylabel = ylabel
+
+    xlim = [plot.xlim[0],plot.xlim[1]]
+    ylim = [plot.ylim[0],plot.ylim[1]]
+
+    for trip in trips:
+        kwargs = {"linestyle":"--","color":"k"}
+        plot.add_line([trip,trip],ylim,**kwargs)
+    plot.xlim = xlim
+
+    plot.save(plotName,dpi=200)
+    plot.close()
+
 def trip_plot(params,attributeDics,data,type,plotName):
     """@worldmap plot
 
@@ -1251,10 +1486,26 @@ def trip_plot(params,attributeDics,data,type,plotName):
             x = earthquake_data["tt"][0]
             y = earthquake_data["ttDiff"][0]
 
-        print x, y
+        if y < 2:
+            continue
 
-        xs.append(x)
-        ys.append(y)
+        numtrips = 0
+        trip_dist = -1
+
+        for trip in trips:
+            if np.absolute(x-trip) < 3600:
+                #print x, y, trip
+                numtrips = numtrips + 1
+                trip_dist = x-trip
+
+        print x, y, numtrips
+
+        if type == "amplitude": 
+            xs.append(y)
+            ys.append(numtrips)
+        elif type == "time":
+            xs.append(y)
+            ys.append(trip_dist)
 
         count = count + 1
 
@@ -1264,23 +1515,28 @@ def trip_plot(params,attributeDics,data,type,plotName):
     plot.add_scatter(xs,ys,marker='o', zorder=1000, color='b',label='predicted')
 
     if type == "time":
+        xlabel = "Velocity [$\mu$m/s]"
         ylabel = "dt [s]"
     elif type == "amplitude":
-        xlabel = "time [s]"
-        ylabel = "Velocity [$\mu$m/s]"
-        plot.axes[0].set_yscale("log")
-        plot.ylim = [1,200]
+        xlabel = "Velocity [$\mu$m/s]"
+        ylabel = "Number of trips"
+        plot.axes[0].set_xscale("log")
+        #plot.ylim = [1,200]
 
     plot.xlabel = xlabel
     plot.ylabel = ylabel
 
     xlim = [plot.xlim[0],plot.xlim[1]]
     ylim = [plot.ylim[0],plot.ylim[1]]
+ 
+    if type == "amplitude":
+        ylim = [-1,6]  
 
-    for trip in trips:
-        kwargs = {"linestyle":"--","color":"k"}
-        plot.add_line([trip,trip],ylim,**kwargs)
+    #for trip in trips:
+    #    kwargs = {"linestyle":"--","color":"k"}
+    #    plot.add_line([trip,trip],ylim,**kwargs)
     plot.xlim = xlim
+    plot.ylim
 
     plot.save(plotName,dpi=200)
     plot.close()
