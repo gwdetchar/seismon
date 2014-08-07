@@ -35,6 +35,12 @@ import lal.gpstime
 
 from seismon import (eqmon, utils)
 
+import matplotlib
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __version__ = 1.0
 __date__    = "9/22/2013"
@@ -54,9 +60,11 @@ def parse_commandline():
                       default ="/home/mcoughlin/Seismon/seismon/input/seismon_params_traveltimes.txt")
     parser.add_option("-t", "--publicFileType", help="Type of public data.",
                       default ="hour")
-    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1000000000,type=int)
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=800000000,type=int)
     parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1200000000,type=int)
+    parser.add_option("-i", "--ifo", help="IFO.", default="LHO")
     parser.add_option("-m", "--minMagnitude", help="Minimum earthquake magnitude.", default=5.0,type=float)
+    
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
 
@@ -94,6 +102,7 @@ def params_struct(opts):
     params["gpsStart"] = opts.gpsStart
     params["gpsEnd"] = opts.gpsEnd
     params["minMagnitude"] = opts.minMagnitude
+    params["ifo"] = opts.ifo
 
     params["doPublic"] = opts.doPublic
     params["doPrivate"] = opts.doPrivate
@@ -103,134 +112,102 @@ def params_struct(opts):
 
     return params
 
-def write_file(file,tree):
-    """@write eqmon file
-
-    @param file
-        eqmon file
-    @param tree
-        xml tree
-    """
-
-    f = open(file,'w+')
-    f.write('%s'%tree)
-    f.close()
-
-def write_info(file,attributeDic):
-    """@write eqmon file
-
-    @param file
-        eqmon file
-    @param attributeDic
-        eqmon structure
-    """
-
-    root = etree.Element('eqmon')
-    for key, value in attributeDic.items():
-        if not key == "traveltimes":
-            element = etree.SubElement(root,key)
-            element.text = str(value)
-    element = etree.SubElement(root,'traveltimes')
-    for key, value in attributeDic["traveltimes"].items():
-        subelement = etree.SubElement(element,key)
-        for category in value:
-            subsubelement = etree.SubElement(subelement,category)
-            subsubelement.text = write_array(value[category])
-
-    
-    tree = etree.tostring(root, pretty_print=True)
-    write_file(file,tree)
-    #tree = etree.ElementTree(root)
-    #tree.write(file, pretty_print=True, xml_declaration=True)
-
-def write_array(array):
-    """@write array
-
-    @param array
-        write array of value
-    """
-    text = ' '.join([str(x) for x in array])
-    return text
-
-def write_context(path):
-    """@write context file
-
-    @param path
-        path to earthquake directory
-    """
-
-    files = glob.glob(os.path.join(path,"*.xml"))
-
-    f = open(os.path.join(path,"context.txt"),"w")
-    for file in files:
-        fileSplit = file.split("/")
-        fileName = fileSplit[-1]
-        if fileName == "context.txt":
-            continue
-        f.write("%s\n"%fileName)
-    f.close()
-
-def delete_files(path,gps):
-    """@delete eqmon files
-
-    @param path
-        path to eqmon files
-    @param gps
-        gps time before which to delete files
-    """
-
-    files = glob.glob(os.path.join(path,"*.xml"))
-
-    for file in files:
-        fileSplit = file.split("/")
-        fileName = fileSplit[-1]
-        if fileName == "context.txt":
-            continue
-        fileNameSplit = fileName.replace(".xml","").split("-")
-        fileGPS = int(fileNameSplit[-1])
-        
-        if fileGPS < gps:
-            os.system("rm %s"%file)
-
-def rsync_files(path):
-    """@rsync eqmon files
-
-    @param path
-        path to rsync 
-    """
-
-    hostname = "coughlin@muon1.ast.cam.ac.uk"
-    folder = "/home/coughlin/public_html"
-
-    x = subprocess.Popen(["rsync","-avz","--delete",path,"%s:%s"%(hostname,folder)])
-    x.wait()
-    if x.returncode==0:
-        print 'Copying complete'
-    else:
-        print 'Copying failed'
-
-def download_publiceventfiles(params):
-    """@download events from usgs website
+def private_events_multiple(params):
+    """@write pdl events
 
     @param params
         seismon params structure
     """
 
-    path = params["publicdataLocation"]
+    numEventsAdded = 0
 
-    if params["publicFileType"] == "hour":
-        file = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
-    elif params["publicFileType"] == "month":
-        file = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson"
-    else:
-        error("Public file type not supported")
+    time_diffs = []
+    mag_diffs = []
+    amp_diffs = []
+    sent_diffs = []
 
-    x = subprocess.Popen(["wget",file,"-O","%s/events.txt"%path])
-    x.wait()
-    if x.returncode==0:
-        print 'Copying complete'
-    else:
-        print 'Copying failed'
+    xmls = glob.glob(os.path.join(params["eventfilesLocation"],"private/*.xml"))
+    xmlCombines = []
+
+    for xml in xmls:
+
+        xmlSplit = xml.split("-")
+        xmlCombine = "%s-%s"%(xmlSplit[0],xmlSplit[1])
+        xmlCombines.append(xmlCombine)
+
+    xmlCombines = list(set(xmlCombines))        
+    xmlCombines = xmlCombines[:100]
+
+    for xmlCombine in xmlCombines:
+        xmlall = glob.glob("%s-*"%(xmlCombine))
+        xmlall = sorted(xmlall)
+
+        attributeDics1 = eqmon.read_eqmon(params,xmlall[0])
+        attributeDics2 = eqmon.read_eqmon(params,xmlall[-1])
+
+        time_diff = attributeDics1["traveltimes"]["LHO"]["RthreePointFivetimes"][-1] - attributeDics2["traveltimes"]["LHO"]["RthreePointFivetimes"][-1]
+        mag_diff = attributeDics1["Magnitude"] - attributeDics2["Magnitude"]
+        amp_diff = 100*(attributeDics1["traveltimes"]["LHO"]["Rfamp"][0] - attributeDics2["traveltimes"]["LHO"]["Rfamp"][0])/np.min([attributeDics1["traveltimes"]["LHO"]["Rfamp"][0],attributeDics2["traveltimes"]["LHO"]["Rfamp"][0]])
+        sent_diff = attributeDics1["SentGPS"] - attributeDics2["SentGPS"]
+
+        print attributeDics1["traveltimes"]["LHO"]["Rfamp"][0],attributeDics2["traveltimes"]["LHO"]["Rfamp"][0],amp_diff
+
+        if np.absolute(sent_diff) < 60:
+            continue
+
+        time_diffs.append(time_diff)
+        mag_diffs.append(mag_diff)
+        amp_diffs.append(amp_diff)
+        sent_diffs.append(sent_diff)
+
+    plotDirectory = "/home/mcoughlin/Seismon/stats/plots_multiple"
+
+    time_diffs = np.absolute(time_diffs)
+    mag_diffs = np.absolute(mag_diffs)
+    amp_diffs = np.absolute(amp_diffs)
+    #amp_diffs = np.log10(np.absolute(amp_diffs))
+    #amp_diffs[np.isinf(amp_diffs)] = 0
+
+    hist, bin_edges = np.histogram(time_diffs,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(time_diffs, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Time Diffs [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'time_diffs.png')
+    plt.savefig(plotName)
+
+    hist, bin_edges = np.histogram(mag_diffs,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(mag_diffs, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Mag Diffs [mag]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'mag_diffs.png')
+    plt.savefig(plotName)
+
+    bins = np.linspace(0,1000,50)
+    hist, bin_edges = np.histogram(amp_diffs,bins=bins)
+
+    plt.figure()
+    n, bins, patches = plt.hist(amp_diffs, bins, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Percentage Amplitude Diffs [\%])')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'amp_diffs.png')
+    plt.savefig(plotName)
+
+    hist, bin_edges = np.histogram(sent_diffs,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(sent_diffs, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Sent Diffs [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'sent_diffs.png')
+    plt.savefig(plotName)
 
 def private_events(params):
     """@write pdl events
@@ -241,62 +218,41 @@ def private_events(params):
 
     numEventsAdded = 0
 
-    folders = glob.glob(os.path.join(params["dataLocation"],"*"))
-    for numFolder in xrange(len(folders)):
+    delays = []
+    mag_diff = []
 
-        folder = folders[numFolder]
+    xmls = glob.glob(os.path.join(params["eventfilesLocation"],"private/*.xml"))
 
-        folderSplit = folder.split("/")
-        eventName = folderSplit[len(folderSplit) - 1]
+    for xml in xmls:
 
-        dataFolder = os.path.join(params["dataLocation"],eventName,eventName[0:2])
-        timeFolders = glob.glob(os.path.join(dataFolder,"*"))
+        attributeDics = eqmon.read_eqmon(params,xml)
 
-        if timeFolders == []:
+        if "Arbitrary" in attributeDics["traveltimes"]:
+            attributeDics = eqmon.eqmon_loc(attributeDics,params["ifo"]) 
+            #attributeDics = eqmon.eqmon_loc(attributeDics,"LSST")
+     
+        if not params["ifo"] in attributeDics["traveltimes"]:
             continue
 
-        if params["doMultipleEvents"]:
-            if len(timeFolders) == 1:
-                continue
+        delay = attributeDics["traveltimes"][params["ifo"]]["RthreePointFivetimes"][-1] - attributeDics["SentGPS"]
+        if delay < 0:
+            continue
 
-        attributeDics = []
-        for timeFolder in timeFolders:
-            attributeDic = []
-            eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
-            quakemlfile = os.path.join(timeFolder,"quakeml.xml")
+        delays.append(delay)
 
-            #if os.path.isfile(os.path.join(timeFolders[0],"eqxml.txt")):
-            #    continue
+    plotDirectory = "/home/mcoughlin/Seismon/stats/plots/%s"%params["ifo"] 
+    if not os.path.isdir(plotDirectory): 
+        os.mkdir(plotDirectory)
 
-            f = open(os.path.join(timeFolders[0],"eqxml.txt"),"w")
-            f.write("Done")
-            f.close()
+    hist, bin_edges = np.histogram(delays,bins=50)
 
-            if os.path.isfile(eqxmlfile):
-                attributeDic = eqmon.read_eqxml(eqxmlfile,eventName)
-                attributeDics.append(attributeDic)
-            elif os.path.isfile(quakemlfile):
-                attributeDic = eqmon.read_quakeml(quakemlfile,eventName)
-                attributeDics.append(attributeDic)
-
-            if attributeDic == []:
-                continue
-
-            if (not "GPS" in attributeDic) or (not "Magnitude" in attributeDic):
-                continue
-
-            if params["doMultipleEvents"]:
-                file = os.path.join(params["eventfilesLocation"],"private/%s-%.0f-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["SentGPS"]))
-            else:
-                file = os.path.join(params["eventfilesLocation"],"private/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
-
-            if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
-                write_info(file,attributeDic)
-
-                print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
-                numEventsAdded = numEventsAdded + 1
-
-    return numEventsAdded
+    plt.figure()
+    n, bins, patches = plt.hist(delays, 50, normed=0, facecolor='green', alpha=0.75)    
+    plt.xlabel('Time between sent xml and 3.5 km/s Rayleigh wave arrival [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'delays.png')
+    plt.savefig(plotName)
 
 def public_events(params):
     """@write usgs website events
@@ -389,7 +345,7 @@ def iris_events(params):
 
             print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
             numEventsAdded = numEventsAdded + 1
-     
+
     return numEventsAdded
 
 def run_traveltimes():
@@ -408,7 +364,10 @@ def run_traveltimes():
         numEventsAddedPrivate = public_events(params)
     if params["doPrivate"]:
         print "Running private events..."
-        numEventsAddedPublic = private_events(params)
+        if params["doMultipleEvents"]:
+            numEventsAddedPublic = private_events_multiple(params)
+        else:
+            numEventsAddedPublic = private_events(params)
     if params["doDatabase"]:
         print "Running database events..."
         numEventsAddedDatabase = database_events(params)

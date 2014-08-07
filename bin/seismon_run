@@ -101,7 +101,7 @@ def parse_commandline():
                      default="/home/mcoughlin/Seismon/H1/H1S5-815097613-875145614/earthquakes_training/training.xml")
     parser.add_option("--doEarthquakesTrips",  action="store_true", default=False)
     parser.add_option("--tripsTextFile", help="Flags text file.",
-                     default="/home/mcoughlin/Seismon/Trips/L1_trips.txt")
+                     default="/home/mcoughlin/Seismon/Trips/H1_trips.txt")
 
     parser.add_option("--doOmicron",  action="store_true", default=False)
     parser.add_option("--doFreqAnalysis",  action="store_true", default=False)
@@ -299,6 +299,7 @@ if params["frame"] == [] and not params["noFrames"]:
 
 params = seismon.utils.setPath(params,[params["gpsStart"],params["gpsEnd"]])
 print params["path"]
+print stop
 
 if params["doEarthquakesOnline"]:
     segmentlist = seismon.eqmon.run_earthquakes(params,[params["gpsStart"],params["gpsEnd"]])

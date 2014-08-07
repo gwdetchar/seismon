@@ -189,6 +189,7 @@ def read_eqmons(file):
         if not "Magnitude" in attributeDic or attributeDic["Magnitude"] < magThreshold:
             return attributeDic
 
+        print attributeDic
         attributeDic["doPlots"] = 0
         for ifoName, traveltimes in attributeDic["traveltimes"].items():
             arrivalMin = min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])

@@ -971,7 +971,11 @@ def read_quakeml(file,eventName):
     attributeDic["Depth"] = float(dic["eventParameters"]["event"]["origin"]["depth"]["value"]) / 1000
     attributeDic["eventID"] = ""
     attributeDic["eventName"] = eventName
-    attributeDic["Magnitude"] = float(dic["eventParameters"]["event"]["magnitude"]["mag"]["value"])
+
+    if "magnitude" in dic["eventParameters"]["event"]:
+        attributeDic["Magnitude"] = float(dic["eventParameters"]["event"]["magnitude"]["mag"]["value"])
+    else:
+        attributeDic["Magnitude"] = 0
 
     attributeDic["Time"] = dic["eventParameters"]["event"]["origin"]["time"]["value"]
     timeString = attributeDic["Time"].replace("T"," ").replace("Z","")
@@ -1268,12 +1272,45 @@ def calculate_traveltimes(attributeDic):
     if not "Latitude" in attributeDic and not "Longitude" in attributeDic:
         return attributeDic
 
-    attributeDic = ifotraveltimes(attributeDic, "LHO", 46.6475, -119.5986)
-    attributeDic = ifotraveltimes(attributeDic, "LLO", 30.4986, -90.7483)
-    attributeDic = ifotraveltimes(attributeDic, "GEO", 52.246944, 9.808333)
-    attributeDic = ifotraveltimes(attributeDic, "VIRGO", 43.631389, 10.505)
-    attributeDic = ifotraveltimes(attributeDic, "FortyMeter", 34.1391, -118.1238)
-    attributeDic = ifotraveltimes(attributeDic, "Homestake", 44.3465, -103.7574)
+    attributeDic = ifotraveltimes(attributeDic, "Arbitrary", 0.0, 0.0)
+    #attributeDic = ifotraveltimes(attributeDic, "LHO", 46.6475, -119.5986)
+    #attributeDic = ifotraveltimes(attributeDic, "LLO", 30.4986, -90.7483)
+    #attributeDic = ifotraveltimes(attributeDic, "GEO", 52.246944, 9.808333)
+    #attributeDic = ifotraveltimes(attributeDic, "VIRGO", 43.631389, 10.505)
+    #attributeDic = ifotraveltimes(attributeDic, "FortyMeter", 34.1391, -118.1238)
+    #attributeDic = ifotraveltimes(attributeDic, "Homestake", 44.3465, -103.7574)
+
+    return attributeDic
+
+def eqmon_loc(attributeDic,ifo):
+    """@calculate travel times of earthquake
+
+    @param attributeDic
+        earthquake stucture
+    """
+
+    if not "traveltimes" in attributeDic:
+        attributeDic["traveltimes"] = {}
+
+    if not "Latitude" in attributeDic and not "Longitude" in attributeDic:
+        return attributeDic
+
+    #attributeDic = ifotraveltimes(attributeDic, "Arbitrary", 0.0, 0.0)
+
+    if ifo == "LHO":
+        attributeDic = ifotraveltimes_loc(attributeDic, "LHO", 46.6475, -119.5986)
+    elif ifo == "LLO":
+        attributeDic = ifotraveltimes_loc(attributeDic, "LLO", 30.4986, -90.7483)
+    elif ifo == "GEO":
+        attributeDic = ifotraveltimes_loc(attributeDic, "GEO", 52.246944, 9.808333)
+    elif ifo == "VIRGO":
+        attributeDic = ifotraveltimes_loc(attributeDic, "VIRGO", 43.631389, 10.505)
+    elif ifo == "FortyMeter":
+        attributeDic = ifotraveltimes_loc(attributeDic, "FortyMeter", 34.1391, -118.1238)
+    elif ifo == "Homestake":
+        attributeDic = ifotraveltimes_loc(attributeDic, "Homestake", 44.3465, -103.7574)
+    elif ifo == "LSST":
+        attributeDic = ifotraveltimes_loc(attributeDic, "LSST", -30.2446, -70.7494)
 
     return attributeDic
 
@@ -1446,10 +1483,6 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         print "Enable ObsPy if updated earthquake estimates desired...\n"
         return attributeDic
 
-    distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
-    distances = np.linspace(0,distance,100)
-    degrees = (distances/6370000)*(180/np.pi)
-
     Rf0 = 0.89256174
     Rfs = 1.3588703
     Q0 = 4169.7511
@@ -1458,7 +1491,17 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     ch = 10.331297
     rs = 1.0357451
 
-    Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+    if ifo == "Arbitrary":
+        degrees = np.linspace(1,180,180)
+        distances = degrees*(np.pi/180)*6370000
+        fwd = 0
+        back = 0
+        Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+    else:
+        distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
+        distances = np.linspace(0,distance,100)
+        degrees = (distances/6370000)*(180/np.pi)
+        Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
     
     Pamp = 1e-6
     Samp = 1e-5
@@ -1524,9 +1567,68 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     traveltimes["Rtwotimes"] = Rtwotimes
     traveltimes["RthreePointFivetimes"] = RthreePointFivetimes
     traveltimes["Rfivetimes"] = Rfivetimes
-    traveltimes["Rfamp"] = [Rfamp]
+
+    if ifo == "Arbitrary":
+        traveltimes["Rfamp"] = Rfamp
+    else:
+        traveltimes["Rfamp"] = [Rfamp]
     traveltimes["Pamp"] = [Pamp]
     traveltimes["Samp"] = [Samp]
+
+    attributeDic["traveltimes"][ifo] = traveltimes
+
+    return attributeDic
+
+def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
+    """@calculate travel times of earthquake
+
+    @param attributeDic
+        earthquake stucture
+    @param ifo
+        ifo name
+    @param ifolat
+        ifo latitude
+    @param ifolon
+        ifo longitude
+    """
+
+    try:
+        from obspy.taup.taup import getTravelTimes
+        from obspy.core.util.geodetics import gps2DistAzimuth
+    except:
+        print "Enable ObsPy if updated earthquake estimates desired...\n"
+        return attributeDic
+
+    distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
+    degree = (distance/6370000)*(180/np.pi)
+
+    ptime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
+        attributeDic["traveltimes"]["Arbitrary"]["Ptimes"])
+    stime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
+        attributeDic["traveltimes"]["Arbitrary"]["Stimes"])
+    rtwotime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
+        attributeDic["traveltimes"]["Arbitrary"]["Rtwotimes"])
+    rthreePointFivetime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
+        attributeDic["traveltimes"]["Arbitrary"]["RthreePointFivetimes"])
+    rfivetime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
+        attributeDic["traveltimes"]["Arbitrary"]["Rfivetimes"])
+    rfamp_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
+        attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
+
+    traveltimes = {}
+    traveltimes["Latitudes"] = ifolat
+    traveltimes["Longitudes"] = ifolon
+    traveltimes["Distances"] = [distance]
+    traveltimes["Degrees"] = [degree]
+    traveltimes["Ptimes"] = [ptime_interp]
+    traveltimes["Stimes"] = [stime_interp]
+    #traveltimes["Rtimes"] = Rtimes
+    traveltimes["Rtwotimes"] = [rtwotime_interp]
+    traveltimes["RthreePointFivetimes"] = [rthreePointFivetime_interp]
+    traveltimes["Rfivetimes"] = [rfivetime_interp]
+    traveltimes["Rfamp"] = [rfamp_interp]
+    traveltimes["Pamp"] = [attributeDic["traveltimes"]["Arbitrary"]["Pamp"][0]]
+    traveltimes["Samp"] = [attributeDic["traveltimes"]["Arbitrary"]["Samp"][0]]
 
     attributeDic["traveltimes"][ifo] = traveltimes
 
