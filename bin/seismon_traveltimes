@@ -31,7 +31,8 @@ import subprocess
 from subprocess import Popen
 from lxml import etree
 
-import lal.gpstime
+#import lal.gpstime
+import astropy.time
 
 from seismon import (eqmon, utils)
 
@@ -52,6 +53,9 @@ def parse_commandline():
 
     parser.add_option("-p", "--paramsFile", help="Seismon params file.",
                       default ="/home/mcoughlin/Seismon/seismon/input/seismon_params_traveltimes.txt")
+    parser.add_option("-c", "--paramsFileCopy", help="Seismon copy params file.",
+                      default ="/home/mcoughlin/Seismon/seismon/input/seismon_params_traveltimes_copy.txt")
+
     parser.add_option("-t", "--publicFileType", help="Type of public data.",
                       default ="hour")
     parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1000000000,type=int)
@@ -65,6 +69,7 @@ def parse_commandline():
     parser.add_option("--doDatabase",  action="store_true", default=False)
     parser.add_option("--doIRIS",  action="store_true", default=False)
     parser.add_option("--doMultipleEvents",  action="store_true", default=False)
+    parser.add_option("--doCopy",  action="store_true", default=False)
 
     opts, args = parser.parse_args()
 
@@ -100,6 +105,10 @@ def params_struct(opts):
     params["doDatabase"] = opts.doDatabase
     params["doIRIS"] = opts.doIRIS
     params["doMultipleEvents"] = opts.doMultipleEvents
+    params["doCopy"] = opts.doCopy
+
+    params["paramsFile"] = opts.paramsFile
+    params["paramsFileCopy"] = opts.paramsFileCopy
 
     return params
 
@@ -192,22 +201,45 @@ def delete_files(path,gps):
         if fileGPS < gps:
             os.system("rm %s"%file)
 
-def rsync_files(path):
+def readParamsFromFileCopy(file):
+    """@read seismon params file
+
+    @param file
+        seismon params file
+    """
+
+    params = {}
+    if os.path.isfile(file):
+        with open(file,'r') as f:
+            for line in f:
+                line_without_return = line.split("\n")
+                line_split = line_without_return[0].split(",")
+                params[line_split[0]] = line_split[1].replace('"','')
+    return params
+
+def rsync_files(params):
     """@rsync eqmon files
 
     @param path
         path to rsync 
     """
 
-    hostname = "coughlin@muon1.ast.cam.ac.uk"
-    folder = "/home/coughlin/public_html"
+    import pexpect
 
-    x = subprocess.Popen(["rsync","-avz","--delete",path,"%s:%s"%(hostname,folder)])
-    x.wait()
-    if x.returncode==0:
-        print 'Copying complete'
-    else:
-        print 'Copying failed'
+    paramsCopy = readParamsFromFileCopy(params["paramsFileCopy"])
+
+    user = paramsCopy["user"]
+    password = paramsCopy["password"]
+    host = paramsCopy["host"]
+    path = paramsCopy["path"]
+
+    rsyncCommand = 'rsync -avz --delete %s %s:%s' % (params["eventfilesLocation"],host,path)
+    child = pexpect.spawn(rsyncCommand)
+    i = child.expect("id_rsa':",timeout=20)
+    child.sendline(password)
+    data = child.read()
+    print data
+    child.close()
 
 def download_publiceventfiles(params):
     """@download events from usgs website
@@ -265,8 +297,8 @@ def private_events(params):
             eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
             quakemlfile = os.path.join(timeFolder,"quakeml.xml")
 
-            #if os.path.isfile(os.path.join(timeFolders[0],"eqxml.txt")):
-            #    continue
+            if os.path.isfile(os.path.join(timeFolders[0],"eqxml.txt")):
+                continue
 
             f = open(os.path.join(timeFolders[0],"eqxml.txt"),"w")
             f.write("Done")
@@ -295,6 +327,9 @@ def private_events(params):
 
                 print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
                 numEventsAdded = numEventsAdded + 1
+
+    path = os.path.join(params["eventfilesLocation"],"private")
+    write_context(path)
 
     return numEventsAdded
 
@@ -366,11 +401,15 @@ def iris_events(params):
 
     import obspy.fdsn, obspy.core
 
-    starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
-    endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+    #starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+    #endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+    #starttime = obspy.core.UTCDateTime(starttime)
+    #endtime = obspy.core.UTCDateTime(endtime)
 
-    starttime = obspy.core.UTCDateTime(starttime)
-    endtime = obspy.core.UTCDateTime(endtime)
+    starttime = astropy.time.Time(params["gpsStart"], format='gps')
+    endtime = astropy.time.Time(params["gpsEnd"], format='gps')
+    starttime = obspy.core.UTCDateTime(starttime.utc.iso)
+    endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 
     client = obspy.fdsn.client.Client("IRIS")
     events = client.get_events(minmagnitude=params["minMagnitude"],starttime=starttime,endtime=endtime)
@@ -415,6 +454,9 @@ def run_traveltimes():
     if params["doIRIS"]:
         print "Running IRIS events..."
         numEventsIRIS = iris_events(params)
+    if params["doCopy"]:
+        print "Copying events..."
+        rsync_files(params)
 
 # =============================================================================
 #

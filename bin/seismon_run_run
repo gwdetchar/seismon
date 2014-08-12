@@ -38,6 +38,9 @@ framesFolderCalibrated = "/home/mcoughlin/Stochastic/Seismic/frames_calibrated/"
 
 for i in xrange(len(gpss)-1):
 
+   if i < 8650:
+      continue
+
    os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8 --framesFolder %s"%(paramsFile,gpss[i],gpss[i+1],framesFolder))
 
    os.system("python seismon_run -p %s -s %d -e %d --doMakeFramesCalibrated --doPlots --framesSampleRate 8 --framesFolder %s --framesFolderCalibrated %s"%(paramsFile,gpss[i],gpss[i+1],framesFolder,framesFolderCalibrated))

@@ -225,12 +225,13 @@ def private_events(params):
 
     for xml in xmls:
 
+        print xml
         attributeDics = eqmon.read_eqmon(params,xml)
 
         if "Arbitrary" in attributeDics["traveltimes"]:
             attributeDics = eqmon.eqmon_loc(attributeDics,params["ifo"]) 
             #attributeDics = eqmon.eqmon_loc(attributeDics,"LSST")
-     
+  
         if not params["ifo"] in attributeDics["traveltimes"]:
             continue
 

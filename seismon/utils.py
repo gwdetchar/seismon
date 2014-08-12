@@ -7,7 +7,8 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from lxml import etree
 
-import lal.gpstime
+#import lal.gpstime
+import astropy.time
 
 import __future__
 
@@ -652,12 +653,13 @@ def channel_struct(params,channelList):
                if params["gpsStart"] < 300000000:
                    starttime = UnixToUTCDateTime(params["gpsStart"])
                    endtime = UnixToUTCDateTime(params["gpsEnd"])
+                   starttime = obspy.core.UTCDateTime(starttime)
+                   endtime = obspy.core.UTCDateTime(endtime)
                else:
-                   starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
-                   endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
-
-               starttime = obspy.core.UTCDateTime(starttime)
-               endtime = obspy.core.UTCDateTime(endtime)
+                   starttime = astropy.time.Time(params["gpsStart"], format='gps')
+                   endtime = astropy.time.Time(params["gpsEnd"], format='gps')
+                   starttime = obspy.core.UTCDateTime(starttime.utc.iso)
+                   endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 
                client = params["client"]
                #client = obspy.fdsn.client.Client("IRIS")
@@ -848,8 +850,11 @@ def GPSToUTCDateTime(gps):
     """
 
     import obspy
-    utc = lal.gpstime.gps_to_utc(int(gps))
-    ttUTC = obspy.UTCDateTime(utc)
+    #utc = lal.gpstime.gps_to_utc(int(gps))
+    #ttUTC = obspy.UTCDateTime(utc)
+
+    utc = astropy.time.Time(int(gps), format='gps')
+    ttUTC = obspy.core.UTCDateTime(utc.utc.iso)
 
     return ttUTC
 
@@ -889,11 +894,15 @@ def retrieve_timeseries(params,channel,segment):
 
         channelSplit = channel.station.split(":")
 
-        starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
-        endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+        #starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+        #endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+        #starttime = obspy.core.UTCDateTime(starttime)
+        #endtime = obspy.core.UTCDateTime(endtime)
 
-        starttime = obspy.core.UTCDateTime(starttime)
-        endtime = obspy.core.UTCDateTime(endtime)
+        starttime = astropy.time.Time(params["gpsStart"], format='gps')
+        endtime = astropy.time.Time(params["gpsEnd"], format='gps')
+        starttime = obspy.core.UTCDateTime(starttime.utc.iso)
+        endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 
         client = params["client"]
         #client = obspy.fdsn.client.Client("IRIS")

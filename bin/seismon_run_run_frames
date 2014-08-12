@@ -30,19 +30,21 @@ frameDur = 3600
 gpsEnd = 1009411215 + (numFrames+1)*frameDur
 
 gpss = np.arange(gpsStart,gpsEnd,frameDur)
+gpsStart = 189331200
+numFrames = 24*366
 
-framesFolder = "/home/mcoughlin/Stochastic/Seismic/frames/"
+framesFolder = "/home/mcoughlin/Stochastic/Moon/frames/"
 paramsFile = "/home/mcoughlin/Seismon/seismon/input/seismon_params_IRIS.txt"
 
-#for i in xrange(len(gpss)-1):
-#   frameFile = "%s/IRIS-IRIS-%d-%d.gwf"%(framesFolder,gpss[i],gpss[i+1]-gpss[i])
-#
-#   if not os.path.isfile(frameFile):
-#       os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
-
-#for i in [1000]:
-for i in [5000]:
+for i in xrange(len(gpss)-1):
    frameFile = "%s/IRIS-IRIS-%d-%d.gwf"%(framesFolder,gpss[i],gpss[i+1]-gpss[i])
 
-   os.system("python seismon_run -p %s -s %d -e %d --doMakeFramesCalibrated --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
+   if not os.path.isfile(frameFile):
+       os.system("python seismon_run -p %s -s %d -e %d --doMakeFrames --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
+
+#for i in [1000]:
+#for i in [5000]:
+#   frameFile = "%s/IRIS-IRIS-%d-%d.gwf"%(framesFolder,gpss[i],gpss[i+1]-gpss[i])
+
+#   os.system("python seismon_run -p %s -s %d -e %d --doMakeFramesCalibrated --doPlots --framesSampleRate 8"%(paramsFile,gpss[i],gpss[i+1]))
 

@@ -30,7 +30,7 @@ while 1:
    gpsEnd = gpsStart + 2*86400
 
    start_time = time.time()
-   os.system("python seismon_traveltimes -p %s -s %d -e %d --doPrivate --doPublic"%(paramsFile,gpsStart,gpsEnd))
+   os.system("python seismon_traveltimes -p %s -s %d -e %d --doPrivate --doPublic --doCopy"%(paramsFile,gpsStart,gpsEnd))
    end_time = time.time()
    elapsed_time = end_time - start_time
    print "Elapsed time for Seismon: %f"%(elapsed_time)
