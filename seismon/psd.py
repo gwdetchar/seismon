@@ -4,8 +4,10 @@ import os, glob, optparse, shutil, warnings, pickle, math, copy, pickle, matplot
 import matplotlib.pyplot as plt
 import numpy as np
 import scipy.signal, scipy.stats
+from scipy import optimize
 import seismon.NLNM, seismon.html
 import seismon.eqmon, seismon.utils
+from matplotlib import cm
 
 import gwpy.time, gwpy.timeseries
 import gwpy.spectrum, gwpy.spectrogram
@@ -43,6 +45,12 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     psdDirectory = params["dirPath"] + "/Text_Files/PSD/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(psdDirectory)
 
+    powerlawDirectory = params["dirPath"] + "/Text_Files/Powerlaw/" + channel.station_underscore + "/" + str(params["fftDuration"])
+    seismon.utils.mkdir(powerlawDirectory)
+
+    EQpowerlawDirectory = params["dirPath"] + "/Text_Files/EQPowerlaw/" + channel.station_underscore + "/" + str(params["fftDuration"])
+    seismon.utils.mkdir(EQpowerlawDirectory)
+
     fftDirectory = params["dirPath"] + "/Text_Files/FFT/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(fftDirectory)
 
@@ -75,6 +83,31 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].data)],np.max(data["dataLowpass"].data)))
     f.close()
 
+    if params["doPowerLawFit"]:
+        xdata = freq
+        ydata = np.array(data["dataASD"])
+
+        indexes = np.where((xdata >= 0.05) & (xdata<=1))[0]
+        xdata = xdata[indexes]
+        ydata = ydata[indexes]
+
+        logx = np.log10(xdata)
+        logy = np.log10(ydata)
+
+        fitfunc = lambda p, x: p[0] + p[1] * x
+        errfunc = lambda p, x, y: (y - fitfunc(p, x))
+
+        out,success = optimize.leastsq(errfunc, [1,-1],args=(logx,logy),maxfev=3000)
+
+        index = out[1]
+        amp = 10.0**out[0]
+
+        powerlawFile = os.path.join(powerlawDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+        f = open(powerlawFile,"wb")
+        f.write("%e %e\n"%(index,amp))
+        f.close()
+
+
     if params["doEarthquakesTrips"]:
 
         tripsDirectory = params["dirPath"] + "/Text_Files/Trips/" + channel.station_underscore + "/" + str(params["fftDuration"])
@@ -106,8 +139,14 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
 
     for attributeDic in attributeDics:
 
+        #for key in attributeDic["traveltimes"].iterkeys():
+        #    print key
+
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue  
+
         if params["ifo"] == "IRIS":
-            attributeDic = seismon.eqmon.ifotraveltimes(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
             traveltimes = attributeDic["traveltimes"]["IRIS"]
         else:
             traveltimes = attributeDic["traveltimes"][ifo]
@@ -137,8 +176,32 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
  
         earthquakesFile = os.path.join(earthquakesDirectory,"%s.txt"%(attributeDic["eventName"]))
         f = open(earthquakesFile,"wb")
-        f.write("%.10f %e %e %e %e\n"%(ttMax,ttDiff,distance,velocity,ampMax))
+        f.write("%.10f %e %e %e %e %.1f %.1f %.1f\n"%(ttMax,ttDiff,distance,velocity,ampMax,Ptime,Stime,RthreePointFivetime))
         f.close()
+
+        if params["doPowerLawFit"]:
+            xdata = freq
+            ydata = np.array(data["dataASD"])
+
+            indexes = np.where((xdata >= 0.05) & (xdata<=1))[0]
+            xdata = xdata[indexes]
+            ydata = ydata[indexes]
+
+            logx = np.log10(xdata)
+            logy = np.log10(ydata)
+
+            fitfunc = lambda p, x: p[0] + p[1] * x
+            errfunc = lambda p, x, y: (y - fitfunc(p, x))
+
+            out,success = optimize.leastsq(errfunc, [1,-1],args=(logx,logy),maxfev=3000)
+
+            index = out[1]
+            amp = 10.0**out[0]
+
+            powerlawFile = os.path.join(EQpowerlawDirectory,"%s.txt"%(attributeDic["eventName"]))
+            f = open(powerlawFile,"wb")
+            f.write("%e %e\n"%(index,amp))
+            f.close()
 
 def calculate_spectra(params,channel,dataFull):
     """@calculate spectral data
@@ -266,17 +329,24 @@ def apply_calibration(params,channel,data):
         poles = [0.70711 + 0.70711*1j , 0.70711 - 0.70711*1j]
         gain = 1
 
-        b = [1,0,0,0];
-        a = [0,1,-1.414,1];
+        #poles = -2*np.pi*poles
+        #zeros = -2*np.pi*zeros
+
+        filt = [[(-1)*np.complex(0.70711,0.70711),(-1)*np.complex(0.70711,-0.70711)],[0,0],1]
+        b, a = scipy.signal.zpk2tf(*filt)
+
+        #b = [1,0,0,0];
+        #a = [0,1,-1.414,1];
         w, h = scipy.signal.freqz(b, a)
 
         f = data["dataASD"].frequencies.data
       
         # Divide by f to get to displacement
         data["dataASD"]/=f
-        # Filter spectrum 
-        data["dataASD"].filterba(a,b,inplace=True)
-        fresp = abs(scipy.signal.freqs(a, b, f)[1])
+        # Filter spectrum
+        filt = [b,a] 
+        data["dataASD"].filter(*filt,inplace=True)
+        fresp = abs(scipy.signal.freqs(b, a, f)[1])
         # Multiply by f to get to velocity
         data["dataASD"]*=f
 
@@ -296,6 +366,12 @@ def apply_calibration(params,channel,data):
             plot.axes[0].set_yscale("log")
             plot.save(pngFile,dpi=200)
             plot.close()
+
+    elif channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+
+        f = data["dataASD"].frequencies.data
+        # Multiply by f to get to velocity
+        data["dataASD"]/=(2*np.pi*f)
 
     elif "IRIS:II:BFO:00:LA1" == channel.station:
 
@@ -378,6 +454,7 @@ def spectra(params, channel, segment):
 
     # make timeseries
     dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
+    print "data read in..."
     if dataFull == []:
         return 
 
@@ -395,7 +472,12 @@ def spectra(params, channel, segment):
         print "timeseries too short for analysis... continuing\n"
         return
 
+    if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+        dataFull *= 9.81
+
+    print "calculating spectra..."
     data = calculate_spectra(params,channel,dataFull)
+    print "calculating calibration..."
     data = apply_calibration(params,channel,data)
     data = calculate_picks(params,channel,data)
 
@@ -410,7 +492,6 @@ def spectra(params, channel, segment):
         earthquakesDirectory = os.path.join(params["path"],"earthquakes")
         earthquakesXMLFile = os.path.join(earthquakesDirectory,"earthquakes.xml")
         attributeDics = seismon.utils.read_eqmons(earthquakesXMLFile)
-
     else:
         attributeDics = []
 
@@ -436,18 +517,34 @@ def spectra(params, channel, segment):
         #dataFull *= 1e6
         dataLowpass *= 1e6
 
-        plot.add_timeseries(dataHighpass,label="highpass")
-        #plot.add_timeseries(dataFull,label="data")
-        plot.add_timeseries(dataLowpass,label="lowpass")
+        if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+            #plot.add_timeseries(dataHighpass,label="data")
+            #dataFull *= 1e6*9.81/(2*np.pi*0.1)
+            plot.add_timeseries(dataFull,label="data")
 
-        xlim = [plot.xlim[0],plot.xlim[1]]
-        ylim = [plot.ylim[0],plot.ylim[1]]
+            xlim = [plot.xlim[0],plot.xlim[1]]
+            ylim = [plot.ylim[0],plot.ylim[1]]
+
+        else:
+
+            plot.add_timeseries(dataHighpass,label="highpass")
+            #plot.add_timeseries(dataFull,label="data")
+            plot.add_timeseries(dataLowpass,label="lowpass")
+
+            xlim = [plot.xlim[0],plot.xlim[1]]
+            ylim = [plot.ylim[0],plot.ylim[1]]
 
         count = 0
         for attributeDic in attributeDics:
 
+            if not "Arbitrary" in attributeDic["traveltimes"]:
+                continue
+
+            #if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+            #    continue
+
             if params["ifo"] == "IRIS":
-                attributeDic = seismon.eqmon.ifotraveltimes(attributeDic, "IRIS", channel.latitude, channel.longitude)
+                attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
                 traveltimes = attributeDic["traveltimes"]["IRIS"]
             else:
                 traveltimes = attributeDic["traveltimes"][ifo]
@@ -608,6 +705,7 @@ def spectra(params, channel, segment):
         plot.add_line(fh, high, **kwargs)
         plot.xlim = [params["fmin"],params["fmax"]]
         plot.ylim = [10**-10, 10**-4]
+        plot.ylim = [10**-8, 10**-2]
         plot.xlabel = "Frequency [Hz]"
         plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
         plot.title = channel.station.replace("_","\_")
@@ -620,33 +718,35 @@ def spectra(params, channel, segment):
         pngFile = os.path.join(plotDirectory,"psd_linear.png")
         label = channel.station.replace("_","\_")
 
-        plot = gwpy.plotter.Plot(figsize=[14,8])
-        plot.add_spectrum(data["dataASD"],label=label)
-        kwargs = {"linestyle":"-.","color":"k"}
-        #plot.add_line(fl, low, label="HNM/LNM", **kwargs)
-        #plot.add_line(fh, high, **kwargs)
-        plot.xlim = [params["fmin"],params["fmax"]]
-        #plot.ylim = [10**-10, 10**-4]
-        plot.xlabel = "Frequency [Hz]"
-        plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
-        plot.title = channel.station.replace("_","\_")
-        #plot.axes[0].set_xscale("log")
-        plot.axes[0].set_yscale("log")
-        plot.add_legend(loc=1,prop={'size':10})
-        plot.save(pngFile,dpi=200)
-        plot.close()
-
-        pngFile = os.path.join(plotDirectory,"tf.png")
-        plot = medratio.plot(figsize=[14,8])
-        plot.add_colorbar(log=True, clim=[0.1, 10], label='ASD ratio to median average')
-        plot.ylabel = "Frequency [Hz]"
-        plot.ylim = [params["fmin"],params["fmax"]]
-        plot.axes[0].set_yscale("log")
-        plot.xlim = [gpsStart,gpsEnd]
-        plot.axes[0].auto_gps_scale()
-        plot.show()
-        plot.save(pngFile,dpi=200)
-        plot.close()                                       
+        if not np.sum(data["dataASD"]) == 0:
+            plot = gwpy.plotter.Plot(figsize=[14,8])
+            plot.add_spectrum(data["dataASD"],label=label)
+            kwargs = {"linestyle":"-.","color":"k"}
+            #plot.add_line(fl, low, label="HNM/LNM", **kwargs)
+            #plot.add_line(fh, high, **kwargs)
+            plot.xlim = [params["fmin"],params["fmax"]]
+            #plot.ylim = [10**-10, 10**-4]
+            plot.xlabel = "Frequency [Hz]"
+            plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+            plot.title = channel.station.replace("_","\_")
+            #plot.axes[0].set_xscale("log")
+            plot.axes[0].set_yscale("log")
+            plot.add_legend(loc=1,prop={'size':10})
+            plot.save(pngFile,dpi=200)
+            plot.close()
+  
+        if not len(medratio) == 0:
+           pngFile = os.path.join(plotDirectory,"tf.png")
+           plot = medratio.plot(figsize=[14,8])
+           plot.add_colorbar(log=True, clim=[0.1, 10], label='ASD ratio to median average')
+           plot.ylabel = "Frequency [Hz]"
+           plot.ylim = [params["fmin"],params["fmax"]]
+           plot.axes[0].set_yscale("log")
+           plot.xlim = [gpsStart,gpsEnd]
+           plot.axes[0].auto_gps_scale()
+           plot.show()
+           plot.save(pngFile,dpi=200)
+           plot.close()                                       
 
         if params["doEarthquakesVelocityMap"]:
             pngFile = os.path.join(plotDirectory,"velocitymaps.png")
@@ -849,7 +949,7 @@ def analysis(params, channel):
 
         tts.append(tt)
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file)
+        spectra_out = gwpy.spectrum.Spectrum.read(file,format='dat')
         spectra_out.unit = 'counts/Hz^(1/2)'
         spectra.append(spectra_out)
 
@@ -892,7 +992,10 @@ def analysis(params, channel):
 
     f = open(os.path.join(textDirectory,"spectra.txt"),"w")
     for i in xrange(len(freq)):
-        f.write("%e %e %e %e %e %e %e\n"%(freq[i],spectral_variation_1per[i],spectral_variation_10per[i],spectral_variation_50per[i],spectral_variation_90per[i],spectral_variation_99per[i],spectraNow[i]))
+        f.write("%e %e %e %e %e %e %e\n"%(freq[i],spectral_variation_1per[i].value,\
+            spectral_variation_10per[i].value,spectral_variation_50per[i].value,\
+            spectral_variation_90per[i].value,spectral_variation_99per[i].value,\
+            spectraNow[i].value))
     f.close()
 
     sigDict = {}
@@ -917,7 +1020,11 @@ def analysis(params, channel):
         newSpectra = np.array(newSpectra)
         if len(newSpectra.shape) > 1:
             newSpectra = np.mean(newSpectra, axis = 0)
-        sig, bgcolor = seismon.utils.html_bgcolor(np.mean(newSpectraNow),newSpectra)
+        try:
+            sig, bgcolor = seismon.utils.html_bgcolor(np.mean(newSpectraNow),newSpectra)
+        except:
+            sig = 0
+            bgcolor = 'nan'
 
         f.write("%e %e %e %e %s\n"%(ff_ave[i],ff_ave[i+1],np.mean(newSpectraNow),sig,bgcolor))
 
@@ -943,7 +1050,9 @@ def analysis(params, channel):
 
         pngFile = os.path.join(plotDirectory,"psd.png")
 
-        plot = spectraNow.plot()
+        #plot = spectraNow.plot()
+        plot = gwpy.plotter.Plot(figsize=[14,8])
+        plot.add_spectrum(spectraNow,label='now')
         kwargs = {"linestyle":"-","color":"k"}
         plot.add_line(freq, spectral_variation_10per, **kwargs)
         plot.add_line(freq, spectral_variation_50per, **kwargs)
@@ -955,13 +1064,18 @@ def analysis(params, channel):
         plot.ylim = [np.min(bins), np.max(bins)]
         plot.xlabel = "Frequency [Hz]"
         plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+        plot.axes[0].set_xscale("log")
+        plot.axes[0].set_yscale("log")
         plot.save(pngFile,dpi=200)
         plot.close()
 
         pngFile = os.path.join(plotDirectory,"disp.png")
 
         spectraNowDisplacement = spectraNow / freq
-        plot = spectraNowDisplacement.plot()
+        #plot = spectraNowDisplacement.plot()
+
+        plot = gwpy.plotter.Plot(figsize=[14,8])
+        plot.add_spectrum(spectraNowDisplacement,label='now')
         kwargs = {"linestyle":"-","color":"w"}
         plot.add_line(freq, spectral_variation_10per/freq, **kwargs)
         plot.add_line(freq, spectral_variation_50per/freq, **kwargs)
@@ -973,41 +1087,31 @@ def analysis(params, channel):
         plot.ylim = [np.min(bins)/np.max(freq), np.max(bins)/np.min(freq)]
         plot.xlabel = "Frequency [Hz]"
         plot.ylabel = "Displacement Spectrum [m/rtHz]"
+        plot.axes[0].set_xscale("log")
+        plot.axes[0].set_yscale("log")
         plot.save(pngFile,dpi=200)
         plot.close()
 
         pngFile = os.path.join(plotDirectory,"tf.png")
-        specgramLog = specgram.to_logf(fmin=np.min(freq),fmax=np.max(freq))
-        plot = specgramLog.plot()
+        #specgramLog = specgram.to_logf(fmin=np.min(freq),fmax=np.max(freq))
+        #plot = specgramLog.plot()
+        plot = specgram.plot()
         plot.ylim = [params["fmin"],params["fmax"]]
         plot.ylabel = "Frequency [Hz]"
         colorbar_label = "Amplitude Spectrum [(m/s)/rtHz]"
         kwargs = {}
+        plot.axes[0].set_xscale("log")
+        plot.axes[0].set_yscale("log")
         plot.add_colorbar(location='right', log=True, label=colorbar_label, clim=None, visible=True, **kwargs)
-        plot.save(pngFile,dpi=200)
-        plot.close()
-
-        pngFile = os.path.join(plotDirectory,"psd.png")
-        plot = spectraNow.plot()
-        kwargs = {"linestyle":"-","color":"k"}
-        plot.add_line(freq, spectral_variation_10per, **kwargs)
-        plot.add_line(freq, spectral_variation_50per, **kwargs)
-        plot.add_line(freq, spectral_variation_90per, **kwargs)
-        kwargs = {"linestyle":"-.","color":"k"}
-        plot.add_line(fl, low, **kwargs)
-        plot.add_line(fh, high, **kwargs)
-        plot.xlim = [params["fmin"],params["fmax"]]
-        plot.ylim = [np.min(bins),np.max(bins)]
-        plot.xlabel = "Frequency [Hz]"
-        plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
-
         plot.save(pngFile,dpi=200)
         plot.close()
 
         pngFile = os.path.join(plotDirectory,"specvar.png")
         kwargs = {"linestyle":"-","color":"w"}
         #plot = specvar.plot(**kwargs)
-        plot = spectraNow.plot(**kwargs)
+        plot = gwpy.plotter.Plot(figsize=[14,8])
+        plot.add_spectrum(spectraNow,label='now')
+        #plot = spectraNow.plot(**kwargs)
         kwargs = {"linestyle":"-","color":"k"}
         plot.add_line(freq, spectral_variation_10per, **kwargs)
         plot.add_line(freq, spectral_variation_50per, **kwargs)
@@ -1090,7 +1194,7 @@ def channel_summary(params, segment):
         if not os.path.isfile(file):
             continue
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file)
+        spectra_out = gwpy.spectrum.Spectrum.read(file,format='dat')
         spectra_out.unit = 'counts/Hz^(1/2)'
 
         if np.sum(spectra_out.data) == 0.0:
@@ -1098,6 +1202,15 @@ def channel_summary(params, segment):
 
         data[channel.station_underscore] = {}
         data[channel.station_underscore]["data"] = spectra_out
+
+        if params["doPowerLawFit"]:
+
+            powerlawDirectory = params["dirPath"] + "/Text_Files/Powerlaw/" + channel.station_underscore + "/" + str(params["fftDuration"])
+            seismon.utils.mkdir(powerlawDirectory)
+
+            powerlawFile = os.path.join(powerlawDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+            data_out = np.loadtxt(powerlawFile)
+            data[channel.station_underscore]["powerlaw"] = data_out
 
     if data == {}:
         return
@@ -1118,8 +1231,9 @@ def channel_summary(params, segment):
             label = key.replace("_","\_")
 
             plot.add_spectrum(data[key]["data"], label=label)
-            lowBin = np.min([lowBin,np.min(data[key]["data"])])
-            highBin = np.max([highBin,np.max(data[key]["data"])])
+
+            lowBin = np.min([lowBin,np.min(np.array(data[key]["data"]))])
+            highBin = np.max([highBin,np.max(np.array(data[key]["data"]))])
 
         kwargs = {"linestyle":"-.","color":"k"}
         plot.add_line(fl, low, **kwargs)
@@ -1139,14 +1253,18 @@ def channel_summary(params, segment):
         lowBin = np.inf
         highBin = -np.inf
         ref = params["referenceChannel"].replace(":","_")
+
+        if not ref in data:
+            return
+
         plot = gwpy.plotter.Plot(figsize=[14,8])
         for key in data.iterkeys():
 
             label = key.replace("_","\_")
 
             plot.add_spectrum(data[key]["data"] / data[ref]["data"], label=label)
-            lowBin = np.min([lowBin,np.min(data[key]["data"])])
-            highBin = np.max([highBin,np.max(data[key]["data"])])
+            lowBin = np.min([lowBin,np.min(np.array(data[key]["data"]))])
+            highBin = np.max([highBin,np.max(np.array(data[key]["data"]))])
 
         kwargs = {"linestyle":"-.","color":"k"}
         #plot.add_line(fl, low, **kwargs)
@@ -1163,4 +1281,43 @@ def channel_summary(params, segment):
         plot.save(pngFile,dpi=200)
         plot.close()
 
+        if params["doPowerLawFit"]:
+
+            pngFile = os.path.join(plotDirectory,"powerlaw.png")
+            colors = cm.rainbow(np.linspace(0, 1, len(data)))
+            count = 0
+
+            plot = gwpy.plotter.Plot(figsize=[14,8])
+            for key in data.iterkeys():
+
+                label = key.replace("_","\_")
+
+                color = colors[count]
+                kwargs = {"linestyle":"-","color":color}
+
+                plot.add_spectrum(data[key]["data"], label=label, **kwargs)
+
+                powerlaw = lambda x, amp, index: amp * (x**index)
+
+                xdata = data[key]["data"].frequencies
+                index = data[key]["powerlaw"][0]
+                amp = data[key]["powerlaw"][1]
+
+                kwargs = {"linestyle":"--","color":color}
+                plot.add_line(xdata,powerlaw(xdata,amp,index),**kwargs)
+                count = count + 1
+
+            kwargs = {"linestyle":"-.","color":"k"}
+            plot.add_line(fl, low, **kwargs)
+            plot.add_line(fh, high, **kwargs)
+            plot.xlim = [params["fmin"],params["fmax"]]
+            plot.ylim = [lowBin, highBin]
+            plot.xlabel = "Frequency [Hz]"
+            plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+            plot.add_legend(loc=1,prop={'size':10})
+            plot.axes[0].set_xscale("log")
+            plot.axes[0].set_yscale("log")
+
+            plot.save(pngFile,dpi=200)
+            plot.close()
 

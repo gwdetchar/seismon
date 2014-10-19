@@ -26,6 +26,7 @@ Comments should be e-mailed to michael.coughlin@ligo.org.
 """
 
 import os, sys, glob, optparse, warnings, time, json
+from datetime import datetime
 import numpy as np
 import subprocess
 from subprocess import Popen
@@ -68,6 +69,7 @@ def parse_commandline():
     parser.add_option("--doPrivate",  action="store_true", default=False)
     parser.add_option("--doDatabase",  action="store_true", default=False)
     parser.add_option("--doIRIS",  action="store_true", default=False)
+    parser.add_option("--doFake",  action="store_true", default=False)
     parser.add_option("--doMultipleEvents",  action="store_true", default=False)
     parser.add_option("--doCopy",  action="store_true", default=False)
 
@@ -104,6 +106,7 @@ def params_struct(opts):
     params["doPrivate"] = opts.doPrivate
     params["doDatabase"] = opts.doDatabase
     params["doIRIS"] = opts.doIRIS
+    params["doFake"] = opts.doFake
     params["doMultipleEvents"] = opts.doMultipleEvents
     params["doCopy"] = opts.doCopy
 
@@ -143,6 +146,8 @@ def write_info(file,attributeDic):
     for key, value in attributeDic["traveltimes"].items():
         subelement = etree.SubElement(element,key)
         for category in value:
+            if category in ["Latitudes","Longitudes"]:
+                continue
             subsubelement = etree.SubElement(subelement,category)
             subsubelement.text = write_array(value[category])
 
@@ -168,6 +173,10 @@ def write_context(path):
         path to earthquake directory
     """
 
+    tm = time.struct_time(time.gmtime())
+    dt = datetime.fromtimestamp(time.mktime(tm))
+    currentGPS = astropy.time.Time(dt, format='datetime', scale='utc').gps
+
     files = glob.glob(os.path.join(path,"*.xml"))
 
     f = open(os.path.join(path,"context.txt"),"w")
@@ -176,6 +185,13 @@ def write_context(path):
         fileName = fileSplit[-1]
         if fileName == "context.txt":
             continue
+
+        fileNameSplit = fileName.replace(".xml","").split("-")
+        fileGPS = int(fileNameSplit[-1])
+
+        if fileGPS < currentGPS - 12*3600:
+            continue
+
         f.write("%s\n"%fileName)
     f.close()
 
@@ -254,6 +270,8 @@ def download_publiceventfiles(params):
         file = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_hour.geojson"
     elif params["publicFileType"] == "month":
         file = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/4.5_month.geojson"
+    elif params["publicFileType"] == "day":
+        file = "http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson"
     else:
         error("Public file type not supported")
 
@@ -280,9 +298,9 @@ def private_events(params):
 
         folderSplit = folder.split("/")
         eventName = folderSplit[len(folderSplit) - 1]
-
         dataFolder = os.path.join(params["dataLocation"],eventName,eventName[0:2])
         timeFolders = glob.glob(os.path.join(dataFolder,"*"))
+        timeFolders = sorted(timeFolders)
 
         if timeFolders == []:
             continue
@@ -293,6 +311,7 @@ def private_events(params):
 
         attributeDics = []
         for timeFolder in timeFolders:
+
             attributeDic = []
             eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
             quakemlfile = os.path.join(timeFolder,"quakeml.xml")
@@ -327,6 +346,8 @@ def private_events(params):
 
                 print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
                 numEventsAdded = numEventsAdded + 1
+
+                print file
 
     path = os.path.join(params["eventfilesLocation"],"private")
     write_context(path)
@@ -431,6 +452,36 @@ def iris_events(params):
      
     return numEventsAdded
 
+def fake_events(params):
+    """@write fake events
+
+    @param params
+        seismon params structure
+    """
+
+    numEvents = 2
+
+    numEventsAdded = 0
+    for i in xrange(numEvents):    
+
+        attributeDic = eqmon.fakeeventread()
+        if not "GPS" in attributeDic:
+            continue
+        if os.path.isfile(os.path.join(params["eventfilesLocation"],"fake/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))):
+            continue
+
+        file = os.path.join(params["eventfilesLocation"],"fake/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+        if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+            write_info(file,attributeDic)
+
+            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            numEventsAdded = numEventsAdded + 1
+
+        
+
+    return numEventsAdded
+
+
 def run_traveltimes():
     """@run traveltime calculator
     """
@@ -454,6 +505,9 @@ def run_traveltimes():
     if params["doIRIS"]:
         print "Running IRIS events..."
         numEventsIRIS = iris_events(params)
+    if params["doFake"]:
+        print "Running Fake events..."
+        numEventsFake = fake_events(params)
     if params["doCopy"]:
         print "Copying events..."
         rsync_files(params)

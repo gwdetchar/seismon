@@ -190,7 +190,6 @@ def read_eqmons(file):
         if not "Magnitude" in attributeDic or attributeDic["Magnitude"] < magThreshold:
             return attributeDic
 
-        print attributeDic
         attributeDic["doPlots"] = 0
         for ifoName, traveltimes in attributeDic["traveltimes"].items():
             arrivalMin = min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
@@ -899,8 +898,8 @@ def retrieve_timeseries(params,channel,segment):
         #starttime = obspy.core.UTCDateTime(starttime)
         #endtime = obspy.core.UTCDateTime(endtime)
 
-        starttime = astropy.time.Time(params["gpsStart"], format='gps')
-        endtime = astropy.time.Time(params["gpsEnd"], format='gps')
+        starttime = astropy.time.Time(gpsStart, format='gps')
+        endtime = astropy.time.Time(gpsEnd, format='gps')
         starttime = obspy.core.UTCDateTime(starttime.utc.iso)
         endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 

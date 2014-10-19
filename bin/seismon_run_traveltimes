@@ -28,9 +28,10 @@ while 1:
 
    gpsStart = int(os.popen("tconvert now").readline()) - 86400
    gpsEnd = gpsStart + 2*86400
+   minMagnitude = 2.0
 
    start_time = time.time()
-   os.system("python seismon_traveltimes -p %s -s %d -e %d --doPrivate --doPublic --doCopy"%(paramsFile,gpsStart,gpsEnd))
+   os.system("python seismon_traveltimes -p %s -s %d -e %d --minMagnitude %.1f --doPrivate --doPublic --doCopy"%(paramsFile,gpsStart,gpsEnd,minMagnitude))
    end_time = time.time()
    elapsed_time = end_time - start_time
    print "Elapsed time for Seismon: %f"%(elapsed_time)

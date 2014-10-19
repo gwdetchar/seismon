@@ -47,10 +47,28 @@ def restimates(params,attributeDics,plotName):
     magnitudes = []
     for attributeDic in attributeDics:
 
-        if "Restimate" not in attributeDic["traveltimes"][ifo]:
+        if not "Arbitrary" in attributeDic["traveltimes"]:
             continue
 
-        travel_time = attributeDic["traveltimes"][ifo]["Restimate"] - attributeDic["traveltimes"][ifo]["RthreePointFivetimes"][-1]
+        if params["ifo"] == "IRIS":
+            distances = []
+            for channel in params["channels"]:
+                attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+                traveltimes = attributeDic["traveltimes"]["IRIS"]
+                distances.append(traveltimes["Distances"][0])
+            index = np.argmax(distances)
+            channel = params["channels"][index]
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+
+        else:
+            traveltimes = attributeDic["traveltimes"][ifo]
+
+
+        if "Restimate" not in traveltimes:
+            continue
+
+        travel_time = traveltimes["Restimate"] - traveltimes["RthreePointFivetimes"][-1]
 
         gps.append(travel_time)
         magnitudes.append(attributeDic["Magnitude"])
@@ -66,6 +84,254 @@ def restimates(params,attributeDics,plotName):
     plt.xlim([min(magnitudes)-0.5, max(magnitudes)+0.5])
     plt.xlabel('Magnitude')
     plt.ylabel("\Delta T")
+    plt.show()
+    plt.savefig(plotName,dpi=200)
+    plt.close('all')
+
+def timedelay_plot(params,data,plotName):
+    """@restimates plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param plotName
+        name of plot
+    """
+
+    index = []
+    amp = []
+    RthreePointFivetimes = []
+    Ptimes = []
+    distance = []
+    magnitude = []
+    depth = []
+
+    for key in data["channels"].iterkeys():
+
+        label = key.replace("_","\_")
+
+        channel_data = data["channels"][key]["earthquakes"]
+
+        for i in xrange(len(channel_data["RthreePointFivetimes"])):
+
+            RthreePointFivetime = channel_data["RthreePointFivetimes"][i]
+            Ptime = channel_data["Ptimes"][i]
+            #ampMax = channel_data["ampMax"][i]
+            
+            amp.append(channel_data["ampMax"][i])
+            distance.append(channel_data["distance"][i])
+            depth.append(channel_data["depth"][i])
+            magnitude.append(channel_data["magnitude"][i])
+            RthreePointFivetimes.append(RthreePointFivetime)
+            Ptimes.append(Ptime)
+    
+    if magnitude == []:
+        return
+
+    magnitude = np.array(magnitude)
+    amp = np.array(amp)
+    distance = np.array(distance)
+    depth = np.array(depth)
+    Ptimes = np.array(Ptimes)
+    RthreePointFivetimes = np.array(RthreePointFivetimes)
+    diffs = RthreePointFivetimes - Ptimes
+
+    plt.figure()
+    plt.loglog(diffs,amp,'*')
+    #plt.xlim([min(magnitudes)-0.5, max(magnitudes)+0.5])
+    plt.xlabel('Delay between P and R-wave arrivals [s]')
+    plt.ylabel('Peak ground velocity [m/s]')
+    #plt.ylabel("\Delta T")
+    plt.show()
+    plt.savefig(plotName,dpi=200)
+    plt.close('all')
+
+def timedelay_distance_plot(params,data,plotName):
+    """@restimates plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param plotName
+        name of plot
+    """
+
+    index = []
+    amp = []
+    RthreePointFivetimes = []
+    Ptimes = []
+    distance = []
+    magnitude = []
+    depth = []
+
+    for key in data["channels"].iterkeys():
+
+        label = key.replace("_","\_")
+
+        channel_data = data["channels"][key]["earthquakes"]
+
+        for i in xrange(len(channel_data["RthreePointFivetimes"])):
+
+            RthreePointFivetime = channel_data["RthreePointFivetimes"][i]
+            Ptime = channel_data["Ptimes"][i]
+            #ampMax = channel_data["ampMax"][i]
+
+            amp.append(channel_data["ampMax"][i])
+            distance.append(channel_data["distance"][i])
+            depth.append(channel_data["depth"][i])
+            magnitude.append(channel_data["magnitude"][i])
+            RthreePointFivetimes.append(RthreePointFivetime)
+            Ptimes.append(Ptime)
+
+    if magnitude == []:
+        return
+
+    magnitude = np.array(magnitude)
+    amp = np.array(amp)
+    distance = np.array(distance)
+    depth = np.array(depth)
+    Ptimes = np.array(Ptimes)
+    RthreePointFivetimes = np.array(RthreePointFivetimes)
+    diffs = RthreePointFivetimes - Ptimes
+
+    plt.figure()
+    plt.loglog(distance,diffs,'*')
+    #plt.xlim([min(magnitudes)-0.5, max(magnitudes)+0.5])
+    plt.ylabel('Delay between P and R-wave arrivals [s]')
+    plt.xlabel('Distance [m]')
+    #plt.ylabel("\Delta T")
+    plt.show()
+    plt.savefig(plotName,dpi=200)
+    plt.close('all')
+
+def powerlaw_timedelay_plot(params,data,plotName):
+    """@restimates plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param plotName
+        name of plot
+    """
+
+    index = []
+    amp = []
+    distance = []
+    depth = []
+    magnitude = []
+    RthreePointFivetimes = []
+    Ptimes = []
+
+    for key in data["channels"].iterkeys():
+        label = key.replace("_","\_")
+
+        channel_data = data["channels"][key]["powerlaw"]
+
+        for i in xrange(len(channel_data["index"])):
+            index.append(channel_data["index"][i])
+            amp.append(channel_data["amp"][i])
+            distance.append(channel_data["distance"][i])
+            depth.append(channel_data["depth"][i])
+            magnitude.append(channel_data["magnitude"][i])
+
+            RthreePointFivetime = channel_data["RthreePointFivetimes"][i]
+            Ptime = channel_data["Ptimes"][i]
+            RthreePointFivetimes.append(RthreePointFivetime)
+            Ptimes.append(Ptime)
+
+    if magnitudes == []:
+        return
+
+    index = np.array(index)
+    magnitude = np.array(magnitude)
+    amp = np.array(amp)
+    distance = np.array(distance)
+    depth = np.array(depth)
+    Ptimes = np.array(Ptimes)
+    RthreePointFivetimes = np.array(RthreePointFivetimes)
+    diffs = RthreePointFivetimes - Ptimes
+
+    plt.figure()
+    fig, ax1 = plt.subplots()
+    ax1.loglog(diffs,amp, 'b*')
+    ax1.set_xlabel('Delay between P and R-wave arrivals [s]')
+    # Make the y-axis label and tick labels match the line color.
+    ax1.set_ylabel('amplitude', color='b')
+    for tl in ax1.get_yticklabels():
+        tl.set_color('b')
+
+    ax2 = ax1.twinx()
+    ax2.semilogx(diffs,index, 'r.')
+    ax2.set_ylabel('slope', color='r')
+    for tl in ax2.get_yticklabels():
+        tl.set_color('r')
+
+    #plt.xlim([min(magnitudes)-0.5, max(magnitudes)+0.5])
+    #plt.xlabel('Magnitude')
+    #plt.ylabel("\Delta T")
+    plt.show()
+    plt.savefig(plotName,dpi=200)
+    plt.close('all')
+
+def powerlaw_plot(params,data,plotName):
+    """@restimates plot
+
+    @param params
+        seismon params dictionary
+    @param attributeDics
+        list of eqmon structures
+    @param plotName
+        name of plot
+    """
+
+    index = []
+    amp = []
+    distance = []
+    depth = []
+    magnitude = []
+
+    for key in data["channels"].iterkeys():
+        label = key.replace("_","\_")
+
+        channel_data = data["channels"][key]["powerlaw"]
+
+        for i in xrange(len(channel_data["index"])):
+            index.append(channel_data["index"][i])
+            amp.append(channel_data["amp"][i]) 
+            distance.append(channel_data["distance"][i])
+            depth.append(channel_data["depth"][i])
+            magnitude.append(channel_data["magnitude"][i])
+
+    if magnitudes == []:
+        return
+
+    index = np.array(index)
+    magnitude = np.array(magnitude)
+    amp = np.array(amp)
+    distance = np.array(distance)
+    depth = np.array(depth)
+
+    plt.figure()
+    fig, ax1 = plt.subplots()
+    ax1.loglog(magnitude/distance,amp, 'b*')
+    ax1.set_xlabel('Magnitude / Distance')
+    # Make the y-axis label and tick labels match the line color.
+    ax1.set_ylabel('amplitude', color='b')
+    for tl in ax1.get_yticklabels():
+        tl.set_color('b')
+
+    ax2 = ax1.twinx()
+    ax2.semilogx(magnitude/distance,index, 'r.')
+    ax2.set_ylabel('slope', color='r')
+    for tl in ax2.get_yticklabels():
+        tl.set_color('r')
+
+    #plt.xlim([min(magnitudes)-0.5, max(magnitudes)+0.5])
+    #plt.xlabel('Magnitude')
+    #plt.ylabel("\Delta T")
     plt.show()
     plt.savefig(plotName,dpi=200)
     plt.close('all')
@@ -188,6 +454,8 @@ def earthquakes_station_distance(params,data,type,plotName):
 
         count=count+1
 
+    if count == 0:
+        return
     xlim = plot.xlim
     xp = np.linspace(xlim[0],xlim[1],100)
 
@@ -749,9 +1017,28 @@ def worldmap_plot(params,attributeDics,type,plotName):
     m.drawparallels(np.arange(-90, 90, 30), color='#bbbbbb')
 
     if not attributeDics == []:
-        traveltimes = attributeDics[0]["traveltimes"][ifo]
-        ifolat = traveltimes["Latitudes"][-1]
-        ifolng = traveltimes["Longitudes"][-1]
+        attributeDic = attributeDics[0]
+
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            return
+
+        if params["ifo"] == "IRIS":
+            distances = []
+            for channel in params["channels"]:
+                attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+                traveltimes = attributeDic["traveltimes"]["IRIS"]
+                distances.append(traveltimes["Distances"][0])
+            index = np.argmax(distances)
+            channel = params["channels"][index]
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+
+        else:
+            traveltimes = attributeDic["traveltimes"][ifo]
+
+        #traveltimes = attributeDics[0]["traveltimes"][ifo]
+        ifolat = traveltimes["Latitudes"]
+        ifolng = traveltimes["Longitudes"]
         # compute the native map projection coordinates for cities
         ifox,ifoy = m(ifolng,ifolat)
 
@@ -777,7 +1064,24 @@ def worldmap_plot(params,attributeDics,type,plotName):
 
     for attributeDic in attributeDics:
 
-        if type == "Restimates" and "Restimate" not in attributeDic["traveltimes"][ifo]:
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue
+
+        if params["ifo"] == "IRIS":
+            distances = []
+            for channel in params["channels"]:
+                attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+                traveltimes = attributeDic["traveltimes"]["IRIS"]
+                distances.append(traveltimes["Distances"][0])
+            index = np.argmax(distances)
+            channel = params["channels"][index]
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+
+        else:
+            traveltimes = attributeDic["traveltimes"][ifo]
+
+        if type == "Restimates" and "Restimate" not in traveltimes:
             continue
 
         x,y = m(attributeDic["Longitude"], attributeDic["Latitude"])
@@ -787,7 +1091,7 @@ def worldmap_plot(params,attributeDics,type,plotName):
             vmin = 0
             vmax = 7
         elif type == "Traveltimes":
-            travel_time = attributeDic["traveltimes"][ifo]["RthreePointFivetimes"][-1] - attributeDic["traveltimes"][ifo]["RthreePointFivetimes"][0]
+            travel_time = traveltimes["RthreePointFivetimes"][-1] - traveltimes["RthreePointFivetimes"][0]
             travel_time = travel_time / 60
             color = travel_time
             colorbar_label = "Travel times [minutes]"
@@ -795,7 +1099,7 @@ def worldmap_plot(params,attributeDics,type,plotName):
             vmax = 60
         elif type == "Restimates":
             
-            travel_time = attributeDic["traveltimes"][ifo]["Restimate"] - attributeDic["traveltimes"][ifo]["RthreePointFivetimes"][0]
+            travel_time = traveltimes["Restimate"] - traveltimes["RthreePointFivetimes"][0]
             travel_time = travel_time / 60
             color = travel_time
             colorbar_label = "Travel times [minutes]"
@@ -1108,6 +1412,7 @@ def worldmap_wavefronts(params,attributeDics,currentGPS,plotName):
 
     if not attributeDics == []:
      for ifoName, traveltimes in attributeDics[0]["traveltimes"].items():
+        continue
         ifolat = traveltimes["Latitudes"][-1]
         ifolng = traveltimes["Longitudes"][-1]
         # compute the native map projection coordinates for cities

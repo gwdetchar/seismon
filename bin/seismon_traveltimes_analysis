@@ -220,6 +220,7 @@ def private_events(params):
 
     delays = []
     mag_diff = []
+    delaysNotice = []
 
     xmls = glob.glob(os.path.join(params["eventfilesLocation"],"private/*.xml"))
 
@@ -238,8 +239,10 @@ def private_events(params):
         delay = attributeDics["traveltimes"][params["ifo"]]["RthreePointFivetimes"][-1] - attributeDics["SentGPS"]
         if delay < 0:
             continue
+        delayNotice = attributeDics["SentGPS"] - attributeDics["GPS"]
 
         delays.append(delay)
+        delaysNotice.append(delayNotice)
 
     plotDirectory = "/home/mcoughlin/Seismon/stats/plots/%s"%params["ifo"] 
     if not os.path.isdir(plotDirectory): 
@@ -253,6 +256,16 @@ def private_events(params):
     plt.ylabel('Counts')
     plt.show()
     plotName = os.path.join(plotDirectory,'delays.png')
+    plt.savefig(plotName)
+
+    hist, bin_edges = np.histogram(delaysNotice,bins=50)
+
+    plt.figure()
+    n, bins, patches = plt.hist(delaysNotice, 50, normed=0, facecolor='green', alpha=0.75)
+    plt.xlabel('Time between event and notice [s]')
+    plt.ylabel('Counts')
+    plt.show()
+    plotName = os.path.join(plotDirectory,'notices.png')
     plt.savefig(plotName)
 
 def public_events(params):

@@ -97,6 +97,7 @@ def parse_commandline():
     parser.add_option("--doEarthquakesTraining",  action="store_true", default=False)
     parser.add_option("--doEarthquakesTesting",  action="store_true", default=False)
     parser.add_option("--doEarthquakesHilbert",  action="store_true", default=False)
+    parser.add_option("--doEarthquakesChile",  action="store_true", default=False)
     parser.add_option("--earthquakesTrainingFile", help="Earthquakes training file.",
                      default="/home/mcoughlin/Seismon/H1/H1S5-815097613-875145614/earthquakes_training/training.xml")
     parser.add_option("--doEarthquakesTrips",  action="store_true", default=False)
@@ -129,6 +130,7 @@ def parse_commandline():
                      default="/home/mcoughlin/Gravimeter/frames")
     parser.add_option("--framesFolderCalibrated", help="frames folder.",
                      default="/home/mcoughlin/Gravimeter/frames_calibrated")
+    parser.add_option("--doPowerLawFit",  action="store_true", default=False)
 
     parser.add_option("-N", "--wienerFilterOrder", help="Wiener filter order.", default=1000,type=int)
     parser.add_option("--wienerFilterSampleRate", help="Wiener filter sample rate.", default=0,type=int)
@@ -211,6 +213,7 @@ def params_struct(opts):
     params["doEarthquakesTesting"] = opts.doEarthquakesTesting
     params["doEarthquakesHilbert"] = opts.doEarthquakesHilbert
     params["doEarthquakesTrips"] = opts.doEarthquakesTrips
+    params["doEarthquakesChile"] = opts.doEarthquakesChile
     params["tripsTextFile"] = opts.tripsTextFile
 
     params["userEmail"] = opts.userEmail
@@ -244,6 +247,7 @@ def params_struct(opts):
     params["framesSampleRate"] = float(eval(opts.framesSampleRate))
     params["framesFolder"] = opts.framesFolder
     params["framesFolderCalibrated"] = opts.framesFolderCalibrated
+    params["doPowerLawFit"] = opts.doPowerLawFit
 
     params["doFlagsDatabase"] = opts.doFlagsDatabase
     params["doFlagsTextFile"] = opts.doFlagsTextFile
@@ -298,8 +302,6 @@ if params["frame"] == [] and not params["noFrames"]:
     sys.exit()
 
 params = seismon.utils.setPath(params,[params["gpsStart"],params["gpsEnd"]])
-print params["path"]
-print stop
 
 if params["doEarthquakesOnline"]:
     segmentlist = seismon.eqmon.run_earthquakes(params,[params["gpsStart"],params["gpsEnd"]])

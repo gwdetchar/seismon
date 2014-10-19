@@ -74,9 +74,13 @@ def beamforming(params, segment):
             'longitude': channel.longitude,
             'elevation': 0.0})
 
-        st += trace
+        print channel.station, len(dataFull.data)
 
-    print st
+        if (trace.stats.endtime < tend) or (trace.stats.starttime > tstart):
+            continue
+ 
+        st += trace
+    print stop
 
     # Execute sonic
     kwargs = dict(
@@ -89,11 +93,13 @@ def beamforming(params, segment):
         # restrict output
         semb_thres=-1e9, vel_thres=-1e9, timestamp='mlabday',
         #stime=tstart, etime=tstart+300,
-        stime=tstart, etime=tend-1,
+        stime=tstart, etime=tend,
         coordsys = 'lonlat', method = 0
     )
 
+    print "Array processing...\n"
     out = obspy.signal.array_analysis.array_processing(st, **kwargs)
+    print "Finished array processing...\n"
 
     if params["doPlots"]:
 

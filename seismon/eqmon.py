@@ -55,7 +55,7 @@ def run_earthquakes(params,segment):
     h = open(segmentsFile,"w+")
 
     threshold = 10**(-7)
-    #threshold = 0
+    threshold = 0
 
     amp = 0
     segmentlist = glue.segments.segmentlist()
@@ -66,8 +66,47 @@ def run_earthquakes(params,segment):
             attributeDic = calculate_traveltimes_velocitymap(attributeDic)
         if params["doEarthquakesLookUp"]:
             attributeDic = calculate_traveltimes_lookup(attributeDic)        
-    
-        traveltimes = attributeDic["traveltimes"][ifo]
+
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue
+
+        if params["ifo"] == "IRIS":
+            distances = []
+            for channel in params["channels"]:
+                attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+                traveltimes = attributeDic["traveltimes"]["IRIS"]
+                distances.append(traveltimes["Distances"][0])
+            index = np.argmax(distances)
+            channel = params["channels"][index]
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+
+        else:
+            attributeDic = seismon.eqmon.eqmon_loc(attributeDic,ifo)
+            traveltimes = attributeDic["traveltimes"][ifo]
+
+        #if "Arbitrary" in attributeDic["traveltimes"]:
+        #    attributeDic = eqmon_loc(attributeDic,ifo)
+
+        if params["doEarthquakesChile"]:
+            minlatitude = -80.0
+            maxlatitude = -10.0
+            minlongitude = -80.0
+            maxlongitude = -60.0
+
+            if attributeDic["Latitude"] < minlatitude:
+                continue
+            if attributeDic["Latitude"] > maxlatitude:
+                continue
+            if attributeDic["Longitude"] < minlongitude:
+                continue
+            if attributeDic["Longitude"] > maxlongitude:
+                continue
+
+            if attributeDic["Magnitude"] < 6.0:
+                continue
+
+        #traveltimes = attributeDic["traveltimes"][ifo]
 
         arrival = np.min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
         departure = np.max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
@@ -173,9 +212,15 @@ def run_earthquakes_analysis(params,segment):
         data["channels"][channel.station_underscore]["timeseries"] = loadChannelTimeseries(params,channel,segment)
         data["channels"][channel.station_underscore]["earthquakes"] = loadChannelEarthquakes(params,channel,attributeDics)
         data["channels"][channel.station_underscore]["trips"] = loadChannelTrips(params,channel)
+        if params["doPowerLawFit"]:
+            data["channels"][channel.station_underscore]["powerlaw"] = loadChannelEarthquakesPowerLaw(params,channel,attributeDics)
 
     data["earthquakes"] = {}
     for attributeDic in attributeDics:
+
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue
+
         data["earthquakes"][attributeDic["eventName"]] = {}
         data["earthquakes"][attributeDic["eventName"]]["attributeDic"] = attributeDic
         data["earthquakes"][attributeDic["eventName"]]["data"] = loadEarthquakeChannels(params,attributeDic)
@@ -194,6 +239,14 @@ def run_earthquakes_analysis(params,segment):
     save_predictions(params,data)
 
     if params["doPlots"]:
+
+        print "Creating plots..."
+
+        plotName = os.path.join(earthquakesDirectory,"earthquakes_timedelay.png")
+        seismon.eqmon_plot.timedelay_plot(params,data,plotName)
+
+        plotName = os.path.join(earthquakesDirectory,"earthquakes_timedelay_distance.png")
+        seismon.eqmon_plot.timedelay_distance_plot(params,data,plotName)
 
         plotName = os.path.join(earthquakesDirectory,"prediction.png")
         seismon.eqmon_plot.prediction(data,plotName)
@@ -287,6 +340,12 @@ def run_earthquakes_analysis(params,segment):
             seismon.eqmon_plot.earthquakes_station_distance(params,data,"lookup",plotName)
             plotName = os.path.join(earthquakesDirectory,"earthquakes_distance_lookupresidual.png")
             seismon.eqmon_plot.earthquakes_station_distance(params,data,"lookupresidual",plotName)
+
+        if params["doPowerLawFit"]:
+            plotName = os.path.join(earthquakesDirectory,"earthquakes_powerlaw.png")
+            seismon.eqmon_plot.powerlaw_plot(params,data,plotName)
+            plotName = os.path.join(earthquakesDirectory,"earthquakes_powerlaw_timedelay.png")
+            seismon.eqmon_plot.powerlaw_timedelay_plot(params,data,plotName)
 
 def save_predictions(params,data):
     """@save file for generating predictions
@@ -445,7 +504,24 @@ def loadEarthquakes(params,attributeDics):
 
     for attributeDic in attributeDics:
 
-        traveltimes = attributeDic["traveltimes"][ifo]
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue
+
+        if params["ifo"] == "IRIS":
+            distances = []
+            for channel in params["channels"]:
+
+                attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+                traveltimes = attributeDic["traveltimes"]["IRIS"]
+                distances.append(traveltimes["Distances"][0])
+            index = np.argmax(distances)
+            channel = params["channels"][index]
+
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+
+        else:
+            traveltimes = attributeDic["traveltimes"][ifo]
 
         names.append(attributeDic["eventName"])
         tt.append(attributeDic["GPS"])
@@ -477,7 +553,13 @@ def loadEarthquakeChannels(params,attributeDic):
     """
 
     ifo = seismon.utils.getIfo(params)
-    traveltimes = attributeDic["traveltimes"][ifo]
+
+    if params["ifo"] == "IRIS":
+        for channel in params["channels"]:
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+    else:
+        traveltimes = attributeDic["traveltimes"][ifo]
 
     ttMax = []
     ttDiff = []
@@ -523,12 +605,83 @@ def loadEarthquakeChannels(params,attributeDic):
 
     return data
 
-def loadChannelEarthquakes(params,channel,attributeDics):
+def loadChannelEarthquakesPowerLaw(params,channel,attributeDics):
     """@load earthquakes dictionaries.
 
     @param params
         seismon params dictionary
     @param attributeDics
+        list of seismon earthquake structures
+    """
+
+    ifo = seismon.utils.getIfo(params)
+
+    amp = []
+    index = []
+    distance = []
+    depth = []
+    magnitude = []
+    Ptimes = []
+    Stimes = []
+    RthreePointFivetimes = []
+    Rtwotimes = []
+    Rfivetimes = []
+
+    for attributeDic in attributeDics:
+
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue
+
+        if params["ifo"] == "IRIS":
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            traveltimes = attributeDic["traveltimes"]["IRIS"]
+        else:
+            traveltimes = attributeDic["traveltimes"][ifo]
+
+        EQpowerlawDirectory = params["dirPath"] + "/Text_Files/EQPowerlaw/" + channel.station_underscore + "/" + str(params["fftDuration"])
+        EQPowerLawFile = os.path.join(EQpowerlawDirectory,"%s.txt"%(attributeDic["eventName"]))
+
+        if not os.path.isfile(EQPowerLawFile):
+            continue
+
+        data_out = np.loadtxt(EQPowerLawFile)
+        index.append(data_out[0])
+        amp.append(data_out[1])
+        distance.append(traveltimes["Distances"][0])
+        depth.append(attributeDic["Depth"])
+        magnitude.append(attributeDic["Magnitude"])
+        Ptimes.append(max(traveltimes["Ptimes"]))
+        Stimes.append(max(traveltimes["Stimes"]))
+        RthreePointFivetimes.append(max(traveltimes["RthreePointFivetimes"]))
+        Rfivetimes.append(max(traveltimes["Rfivetimes"]))
+        Rtwotimes.append(max(traveltimes["Rtwotimes"]))
+
+    Ptimes = np.array(Ptimes)
+    Stimes = np.array(Stimes)
+    RthreePointFivetimes = np.array(RthreePointFivetimes)
+    Rfivetimes = np.array(Rfivetimes)
+    Rtwotimes = np.array(Rtwotimes)
+
+    data = {}
+    data["index"] = np.array(index)
+    data["amp"] = np.array(amp)
+    data["distance"] = np.array(distance)
+    data["depth"] = np.array(depth)
+    data["magnitude"] = np.array(magnitude)
+    data["Ptimes"] = Ptimes
+    data["Stimes"] = Stimes
+    data["RthreePointFivetimes"] = RthreePointFivetimes
+    data["Rfivetimes"] = Rfivetimes
+    data["Rtwotimes"] = Rtwotimes
+
+    return data
+
+def loadChannelEarthquakes(params,channel,attributeDics):
+    """@load earthquakes dictionaries.
+
+    @param params
+        seismon params dictionary
+    param attributeDics
         list of seismon earthquake structures
     """
 
@@ -554,12 +707,20 @@ def loadChannelEarthquakes(params,channel,attributeDics):
     Rlookuptime = []
     RlookuptimeDiff = []
     RlookuptimeResidual = [] 
+    Ptimes = []
+    Stimes = []
+    RthreePointFivetimes = []
+    Rtwotimes = []
+    Rfivetimes = []
  
     print "Large residuals"
     for attributeDic in attributeDics:
 
+        if not "Arbitrary" in attributeDic["traveltimes"]:
+            continue
+
         if params["ifo"] == "IRIS":
-            attributeDic = seismon.eqmon.ifotraveltimes(attributeDic, "IRIS", channel.latitude, channel.longitude)
+            attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
             traveltimes = attributeDic["traveltimes"]["IRIS"]
         else:
             traveltimes = attributeDic["traveltimes"][ifo]
@@ -592,6 +753,11 @@ def loadChannelEarthquakes(params,channel,attributeDics):
         gps.append(attributeDic["GPS"])
         thisResidual = (data_out[4] - traveltimes["Rfamp"][0])/traveltimes["Rfamp"][0]
         residual.append(thisResidual)
+        Ptimes.append(max(traveltimes["Ptimes"]))
+        Stimes.append(max(traveltimes["Stimes"]))
+        RthreePointFivetimes.append(max(traveltimes["RthreePointFivetimes"]))
+        Rfivetimes.append(max(traveltimes["Rfivetimes"]))
+        Rtwotimes.append(max(traveltimes["Rtwotimes"]))
 
         if params["doEarthquakesVelocityMap"]:
             thisRvelocitymaptime = max(traveltimes["Rvelocitymaptimes"])
@@ -631,6 +797,11 @@ def loadChannelEarthquakes(params,channel,attributeDics):
     Rlookuptime = np.array(Rlookuptime)
     RlookuptimeDiff = np.array(RlookuptimeDiff)
     RlookuptimeResidual = np.array(RlookuptimeResidual)
+    Ptimes = np.array(Ptimes)
+    Stimes = np.array(Stimes)
+    RthreePointFivetimes = np.array(RthreePointFivetimes)
+    Rfivetimes = np.array(Rfivetimes)
+    Rtwotimes = np.array(Rtwotimes)
 
     data = {}
     data["tt"] = ttMax
@@ -653,6 +824,11 @@ def loadChannelEarthquakes(params,channel,attributeDics):
     data["Rlookuptime"] = Rlookuptime
     data["RlookuptimeDiff"] = RlookuptimeDiff
     data["RlookuptimeResidual"] = RlookuptimeResidual
+    data["Ptimes"] = Ptimes
+    data["Stimes"] = Stimes
+    data["RthreePointFivetimes"] = RthreePointFivetimes
+    data["Rfivetimes"] = Rfivetimes
+    data["Rtwotimes"] = Rtwotimes
 
     return data
 
@@ -973,7 +1149,7 @@ def read_quakeml(file,eventName):
     attributeDic["Longitude"] = float(dic["eventParameters"]["event"]["origin"]["longitude"]["value"])
     attributeDic["Latitude"] = float(dic["eventParameters"]["event"]["origin"]["latitude"]["value"])
     attributeDic["Depth"] = float(dic["eventParameters"]["event"]["origin"]["depth"]["value"]) / 1000
-    attributeDic["eventID"] = ""
+    attributeDic["eventID"] = eventName
     attributeDic["eventName"] = eventName
 
     if "magnitude" in dic["eventParameters"]["event"]:
@@ -1228,6 +1404,52 @@ def databaseread(event):
     tm = time.struct_time(time.gmtime())
     attributeDic['WrittenGPS'] = astropy.time.Time(tm, format='datetime', scale='utc').gps
     #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(tm))
+    attributeDic['WrittenUTC'] = float(time.time())
+
+    return attributeDic
+
+def fakeeventread():
+
+    attributeDic = {}
+
+    Time = time.gmtime()
+    dt = datetime.fromtimestamp(time.mktime(Time))
+    tm = time.struct_time(dt.timetuple())
+    attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+    #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
+    attributeDic['UTC'] = time.time()
+    attributeDic['Time'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", Time)
+
+    attributeDic["Longitude"] = random.uniform(-180.0,180.0)
+    attributeDic["Latitude"] = random.uniform(0.0,10.0)
+    attributeDic["Depth"] = 0
+
+    eventID = "%.0f"%attributeDic['GPS']
+    eventName = ''.join(["fake",str(eventID)])
+
+    attributeDic["eventName"] = eventName
+    attributeDic["eventID"] = eventID
+
+    attributeDic["Magnitude"] = random.uniform(9.0,10.0)
+    attributeDic["DataSource"] = "FAKE"
+    attributeDic["Version"] = 1.0
+    attributeDic["Type"] = 1.0
+    attributeDic['Region'] = "FAKE"
+    attributeDic["Review"] = "FAKE"
+
+    SentTime = time.gmtime()
+    dt = datetime.fromtimestamp(time.mktime(SentTime))
+    attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+    #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
+    attributeDic['SentUTC'] = time.time()
+    attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
+
+    attributeDic = calculate_traveltimes(attributeDic)
+    tm = time.struct_time(time.gmtime())
+    dt = datetime.fromtimestamp(time.mktime(tm))
+
+    attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+    #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
     attributeDic['WrittenUTC'] = float(time.time())
 
     return attributeDic
@@ -1596,6 +1818,22 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
 
     return attributeDic
 
+def distance_latlon(lat1,lon1,lat2,lon2):
+    R = 6373.0
+
+    lat1 = math.radians(lat1)
+    lat2 = math.radians(lat2)
+    lon1 = math.radians(lon1)
+    lon2 = math.radians(lon2)
+
+    dlon = lon2 - lon1
+    dlat = lat2 - lat1
+    a = (math.sin(dlat/2))**2 + math.cos(lat1) * math.cos(lat2) * (math.sin(dlon/2))**2
+    c = 2 * math.atan2(np.sqrt(a), np.sqrt(1-a))
+    distance = R * c
+
+    return distance
+
 def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     """@calculate travel times of earthquake
 
@@ -1616,6 +1854,10 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         print "Enable ObsPy if updated earthquake estimates desired...\n"
         return attributeDic
 
+    #print attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon
+    #if (np.absolute(attributeDic["Latitude"]-ifolat)**2 + np.absolute(attributeDic["Longitude"]-ifolon)**2) < 5:
+    #    distance = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon) 
+    #else:       
     distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
     degree = (distance/6370000)*(180/np.pi)
 

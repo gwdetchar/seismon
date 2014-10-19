@@ -64,8 +64,8 @@ def hilbert(params, segment):
             print "timeseries too short for analysis... continuing\n"
             continue
 
-        cutoff = 0.01
-        dataFull = dataFull.lowpass(cutoff, amplitude=0.9, order=3, method='scipy')
+        #cutoff = 0.01
+        #dataFull = dataFull.lowpass(cutoff, amplitude=0.9, order=3, method='scipy')
 
         dataAll.append(dataFull)
 
