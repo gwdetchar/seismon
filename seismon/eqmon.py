@@ -163,6 +163,58 @@ def run_earthquakes(params,segment):
 
     return segmentlist
 
+def run_earthquakes_info(params,segment):
+    """@run earthquakes prediction.
+
+    @param params
+        seismon params dictionary
+    @param segment
+        [start,end] gps
+    """
+
+    gpsStart = segment[0]
+    gpsEnd = segment[1]
+
+    params["earthquakesMinMag"] = 0.0
+    attributeDics = retrieve_earthquakes(params,gpsStart,gpsEnd)
+    attributeDics = sorted(attributeDics, key=itemgetter("Magnitude"), reverse=True)
+
+    ifos = ["H1","L1","G1","V1"]
+    amp = 0
+    for attributeDic in attributeDics:
+        if attributeDic["eventID"] == "None":
+            eventID = "%.0f"%attributeDic['GPS']
+            eventName = ''.join(["iris",str(eventID)])
+            attributeDic["eventID"] = eventName
+
+        earthquakesDirectory = os.path.join(params["path"],"earthquakes")
+        earthquakesDirectory = os.path.join(earthquakesDirectory,attributeDic["eventID"])
+
+        earthquakesFile = os.path.join(earthquakesDirectory,"earthquakes.txt")
+        earthquakesXMLFile = os.path.join(earthquakesDirectory,"earthquakes.xml")
+        seismon.utils.mkdir(earthquakesDirectory)
+
+        f = open(earthquakesFile,"w+")
+        for ifo in ifos:
+            ifoShort = ifo
+            params["ifo"] = ifo
+            ifo = seismon.utils.getIfo(params) 
+
+            attributeDic = seismon.eqmon.eqmon_loc(attributeDic,ifo)
+            traveltimes = attributeDic["traveltimes"][ifo]
+
+            arrival = np.min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+            departure = np.max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+
+            arrival_floor = np.floor(arrival / 100.0) * 100.0
+            departure_ceil = np.ceil(departure / 100.0) * 100.0
+
+            f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort))
+
+            print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort)
+        f.close()
+        write_info(earthquakesXMLFile,[attributeDic])
+
 def run_earthquakes_analysis(params,segment):
     """@run earthquakes analysis.
 

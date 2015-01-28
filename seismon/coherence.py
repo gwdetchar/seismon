@@ -85,13 +85,15 @@ def coherence(params, channel1, channel2, segment):
     fft2 = []
     for i in xrange(len(gpss)-1):
 
+        print i, len(gpss)
+
         tt1 = np.array(dataFull1.times)
         indexes = np.intersect1d(np.where(tt1 >= gpss[i])[0],np.where(tt1 <= gpss[i+1])[0])
         indexMin = np.min(indexes)
         indexMax = np.max(indexes)
         dataCut1 = dataFull1[indexMin:indexMax]
 
-        dataFFT1 = dataCut1.fft()
+        dataFFT1 = dataCut1.fft(nfft=len(dataCut1))
         freqFFT1 = np.array(dataFFT1.frequencies)
         dataFFT1 = np.array(dataFFT1.data)
         indexes = np.where((freqFFT1 >= params["fmin"]) & (freqFFT1 <= params["fmax"]))[0]
@@ -105,7 +107,7 @@ def coherence(params, channel1, channel2, segment):
         indexMax = np.max(indexes)
         dataCut2 = dataFull2[indexMin:indexMax]
 
-        dataFFT2 = dataCut2.fft()
+        dataFFT2 = dataCut2.fft(nfft=len(dataCut2))
         freqFFT2 = np.array(dataFFT2.frequencies)
         dataFFT2 = np.array(dataFFT2.data)
         indexes = np.where((freqFFT2 >= params["fmin"]) & (freqFFT2 <= params["fmax"]))[0]

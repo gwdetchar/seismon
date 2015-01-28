@@ -1,0 +1,124 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013 Michael Coughlin
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+"""Seismic summary information generator.
+
+This script generates a nested web page and content for
+reviewing seismicity at the sites and earthquake status.
+
+Comments should be e-mailed to michael.coughlin@ligo.org.
+
+"""
+
+
+import os, sys, glob, optparse, shutil, warnings
+
+if not os.getenv("DISPLAY", None):
+    import matplotlib
+    matplotlib.use("agg", warn=False)
+
+import lal.gpstime
+
+import seismon.psd, seismon.utils
+import seismon.html, seismon.omicron
+import seismon.eqmon, seismon.eqmon_plot
+import seismon.coherence, seismon.hilbert
+import seismon.wiener, seismon.wiener_fft
+import seismon.trend, seismon.frame
+import seismon.bits
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@Parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-p", "--paramsFile", help="Seismon params file.", 
+                      default ="/home/mcoughlin/Seismon/seismon/input/seismon_params_earthquakesInfo.txt")
+
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1054028959,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1054029209,type=int)
+
+    parser.add_option("--eventfilesType", help="Event files type.", default="public")
+    parser.add_option("--doPlots",  action="store_true", default=False)
+    parser.add_option("--doEarthquakes",  action="store_true", default=False)
+    parser.add_option("--doHTML",  action="store_true", default=False)
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running pylal_seismon_run..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@Creates seismon params structure
+    @param opts
+        seismon command line options
+    """
+
+    params = seismon.utils.readParamsFromFile(opts.paramsFile)
+    params["gpsStart"] = opts.gpsStart
+    params["gpsEnd"] = opts.gpsEnd
+
+    params["eventfilesType"] = opts.eventfilesType
+
+    params["doPlots"] = opts.doPlots
+    params["doEarthquakes"] = opts.doEarthquakes
+    params["doHTML"] = opts.doHTML
+
+    return params
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+warnings.filterwarnings("ignore")
+
+# Parse command line
+opts = parse_commandline()
+params = params_struct(opts)
+params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/" + "%.0f"%params["gpsStart"] + "-" + "%.0f"%params["gpsEnd"]
+
+if params["doEarthquakes"]:
+    print params["path"]
+    segmentlist = seismon.eqmon.run_earthquakes_info(params,[params["gpsStart"],params["gpsEnd"]])
+

@@ -438,6 +438,9 @@ def iris_events(params):
     numEventsAdded = 0
     for event in events.events:
         attributeDic = eqmon.irisread(event)
+
+        print attributeDic["GPS"], attributeDic["Magnitude"]
+
         if not "GPS" in attributeDic:
             continue
         if os.path.isfile(os.path.join(params["eventfilesLocation"],"iris/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))):

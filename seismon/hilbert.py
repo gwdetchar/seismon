@@ -90,15 +90,25 @@ def hilbert(params, segment):
         else:
             traveltimes = attributeDic["traveltimes"][ifo]
 
+        doTilt = 0
         for dataFull in dataAll:
-            if "X" in dataFull.channel.name or "E" == dataFull.channel.name[-1]:
+            if "_X_" in dataFull.channel.name or "E" == dataFull.channel.name[-1]:
                 tsx = dataFull.data
-            if "Y" in dataFull.channel.name or "N" == dataFull.channel.name[-1]:
+            if "_Y_" in dataFull.channel.name or "N" == dataFull.channel.name[-1]:
                 tsy = dataFull.data
-            if "Z" in dataFull.channel.name:
+            if "_Z_" in dataFull.channel.name:
                 tsz = dataFull.data
+            if "_RY_" in dataFull.channel.name:
+                tttilt = np.array(dataFull.times)
+                tstilt = dataFull.data
+                doTilt = 1
+            print dataFull.sample_rate
 
         tt = np.array(dataAll[0].times)
+        fs = 1.0/(tt[1]-tt[0])     
+ 
+        if doTilt:   
+            tstilt = np.interp(tt,tttilt,tstilt)
 
         Ptime = max(traveltimes["Ptimes"])
         Stime = max(traveltimes["Stimes"])
@@ -119,6 +129,30 @@ def hilbert(params, segment):
         tsx = tsx[indexes]
         tsy = tsy[indexes]
         tsz = tsz[indexes]
+
+        if doTilt:
+            tstilt = tstilt[indexes]
+
+            cutoff_high = 0.01 # 10 MHz
+            cutoff_low = 0.3
+            n = 3
+            worN = 16384
+            B_low, A_low = scipy.signal.butter(n, cutoff_low / (fs / 2.0), btype='lowpass')
+            #w_low, h_low = scipy.signal.freqz(B_low,A_low)
+            w_low, h_low = scipy.signal.freqz(B_low,A_low,worN=worN)
+            B_high, A_high = scipy.signal.butter(n, cutoff_high / (fs / 2.0), btype='highpass')
+            w_high, h_high = scipy.signal.freqz(B_high,A_high,worN=worN)
+
+            dataLowpass = scipy.signal.lfilter(B_low, A_low, tstilt,
+                                        axis=0).view(dataFull.__class__)
+            dataHighpass = scipy.signal.lfilter(B_high, A_high, tstilt,
+                                        axis=0).view(dataFull.__class__)
+
+            dataTilt = dataHighpass.view(dataHighpass.__class__)
+            #dataTilt = tstilt.view(tstilt.__class__)
+            dataTilt = gwpy.timeseries.TimeSeries(dataTilt)
+            dataTilt.sample_rate = dataFull.sample_rate
+            dataTilt.epoch = Rfivetime
 
         tszhilbert = scipy.signal.hilbert(tsz).imag
         tszhilbert = -tszhilbert
@@ -150,6 +184,9 @@ def hilbert(params, segment):
 
         dataHilbert = dataHilbert.resample(16)
         dataXY = dataXY.resample(16)
+
+        if doTilt:
+            dataTilt = dataTilt.resample(16)
 
         if params["doPlots"]:
 
@@ -218,6 +255,9 @@ def hilbert(params, segment):
             dataHilbert *= 1e6
             dataXY *= 1e6
 
+            if doTilt:
+                dataTilt *= 1e6 * (9.81)/(2*np.pi*0.01)
+
             pngFile = os.path.join(plotDirectory,"%s-max.png"%(attributeDic["eventName"]))
             plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
 
@@ -249,9 +289,19 @@ def hilbert(params, segment):
         dataHilbert = dataHilbert.resample(1.0)
         dataXY = dataXY.resample(1.0)
 
+        if doTilt:
+            dataTilt = dataTilt.resample(1.0)
+
         dataHilbertAbs = np.absolute(dataHilbert)
         dataXYAbs = np.absolute(dataXY)
         dataRatio = dataXYAbs / dataHilbertAbs
+
+        meanValue = np.median(np.absolute(dataRatio))
+        dataXYScale = dataXY/meanValue
+
+        dataXYScale = gwpy.timeseries.TimeSeries(dataXYScale)
+        dataXYScale.sample_rate = dataXY.sample_rate
+        dataXYScale.epoch = dataXY.epoch
 
         if params["doPlots"]:
 
@@ -271,6 +321,19 @@ def hilbert(params, segment):
             plot.save(pngFile)
             plot.close()
 
+            pngFile = os.path.join(plotDirectory,"%s-max-scale.png"%(attributeDic["eventName"]))
+            plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+            kwargs = {"linestyle":"-","color":"b"}
+            plot.add_timeseries(dataHilbert,label="Hilbert",**kwargs)
+            kwargs = {"linestyle":"-","color":"g"}
+            plot.add_timeseries(dataXYScale,label="XY Scaled",**kwargs)
+            plot.ylabel = r"Velocity [$\mu$m/s]"
+            plot.add_legend(loc=1,prop={'size':10})
+
+            plot.save(pngFile)
+            plot.close()
+
             pngFile = os.path.join(plotDirectory,"%s-ratio.png"%(attributeDic["eventName"]))
             plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
 
@@ -282,7 +345,6 @@ def hilbert(params, segment):
             kwargs = {"linestyle":"-","color":"r"}
             plot.add_line(xlim,[0.78,0.78],label="PREM",**kwargs)
 
-            meanValue = np.median(np.absolute(dataRatio))
             plot.title = "Median Ratio: %.3f"%(meanValue)
 
             #plot.ylim = [0,100]
@@ -292,3 +354,20 @@ def hilbert(params, segment):
 
             plot.save(pngFile)
             plot.close()
+
+            if doTilt:
+                pngFile = os.path.join(plotDirectory,"%s-max-scale-tilt.png"%(attributeDic["eventName"]))
+                plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+                kwargs = {"linestyle":"-","color":"b"}
+                plot.add_timeseries(dataHilbert,label="Hilbert",**kwargs)
+                kwargs = {"linestyle":"-","color":"g"}
+                plot.add_timeseries(dataXYScale,label="XY Scaled",**kwargs)
+                kwargs = {"linestyle":"-","color":"k"}
+                plot.add_timeseries(dataTilt,label="Tiltmeter",**kwargs)
+                plot.ylabel = r"Velocity [$\mu$m/s]"
+                plot.add_legend(loc=1,prop={'size':10})
+
+                plot.save(pngFile)
+                plot.close()
+

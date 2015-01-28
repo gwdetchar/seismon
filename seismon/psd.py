@@ -215,8 +215,13 @@ def calculate_spectra(params,channel,dataFull):
     """
 
     fs = channel.samplef # 1 ns -> 1 GHz
-    cutoff_high = 0.5 # 10 MHz
-    cutoff_low = 0.3
+
+    if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+        cutoff_high = 0.05 # 10 MHz
+        cutoff_low = 0.3
+    else:
+        cutoff_high = 0.5 # 10 MHz
+        cutoff_low = 0.3
     n = 3
     worN = 16384
     B_low, A_low = scipy.signal.butter(n, cutoff_low / (fs / 2.0), btype='lowpass')
@@ -235,8 +240,8 @@ def calculate_spectra(params,channel,dataFull):
         pngFile = os.path.join(plotDirectory,"bode.png")
         kwargs = {'logx':True}
         plot = gwpy.plotter.BodePlot(figsize=[14,8],**kwargs)
-        plot.add_filter((B_low,A_low),frequencies=w_high,sample_rate=fs,label="lowpass")
-        plot.add_filter((B_high,A_high),frequencies=w_high,sample_rate=fs,label="highpass")
+        plot.add_filter((B_low,A_low),frequencies=w_high,label="lowpass")
+        plot.add_filter((B_high,A_high),frequencies=w_high,label="highpass")
         plot.add_legend(loc=1,prop={'size':10})
         plot.save(pngFile,dpi=200)
         plot.close()
@@ -323,7 +328,8 @@ def apply_calibration(params,channel,data):
         spectral data structure
     """  
 
-    if ("L4C" in channel.station) or ("GS13" in channel.station):
+    if False:
+    #if ("L4C" in channel.station) or ("GS13" in channel.station):
 
         zeros = [0,0,0]
         poles = [0.70711 + 0.70711*1j , 0.70711 - 0.70711*1j]
@@ -494,6 +500,7 @@ def spectra(params, channel, segment):
         attributeDics = seismon.utils.read_eqmons(earthquakesXMLFile)
     else:
         attributeDics = []
+    #attributeDics = [attributeDics[0]]
 
     save_data(params,channel,gpsStart,gpsEnd,data,attributeDics)
 
@@ -520,20 +527,26 @@ def spectra(params, channel, segment):
         if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
             #plot.add_timeseries(dataHighpass,label="data")
             #dataFull *= 1e6*9.81/(2*np.pi*0.1)
-            plot.add_timeseries(dataFull,label="data")
+            #plot.add_timeseries(dataFull,label="data")
+
+            dataHighpass *= (9.81)/(2*np.pi*0.05)
+
+            plot.add_timeseries(dataHighpass,label="highpass")
 
             xlim = [plot.xlim[0],plot.xlim[1]]
             ylim = [plot.ylim[0],plot.ylim[1]]
+
+            #ylim = [-0.5*(9.81)/(2*np.pi*0.05),0.5*(9.81)/(2*np.pi*0.05)]
 
         else:
 
             plot.add_timeseries(dataHighpass,label="highpass")
             #plot.add_timeseries(dataFull,label="data")
-            plot.add_timeseries(dataLowpass,label="lowpass")
+            kwargs = {"linestyle":"-","color":"k"}
+            plot.add_timeseries(dataLowpass,label="lowpass",**kwargs)
 
             xlim = [plot.xlim[0],plot.xlim[1]]
             ylim = [plot.ylim[0],plot.ylim[1]]
-
         count = 0
         for attributeDic in attributeDics:
 
@@ -571,19 +584,22 @@ def spectra(params, channel, segment):
             if count ==  0:
                 kwargs = {"linestyle":"--","color":"r"}
                 plot.add_line([Ptime,Ptime],ylim,label="P Est. Arrival",**kwargs)
+                plt.text(Ptime+30,ylim[1]-10,'P')
                 kwargs = {"linestyle":"--","color":"g"}
                 plot.add_line([Stime,Stime],ylim,label="S Est. Arrival",**kwargs)
+                plt.text(Stime+30,ylim[1]-10,'S')
                 kwargs = {"linestyle":"--","color":"b"}
                 plot.add_line([RthreePointFivetime,RthreePointFivetime],ylim,label="3.5 km/s R Est. Arrival",**kwargs)            
-                plot.add_line([Rtwotime,Rtwotime],ylim,label="2 km/s R Est. Arrival",**kwargs)
-                plot.add_line([Rfivetime,Rfivetime],ylim,label="5 km/s R Est. Arrival",**kwargs)
+                plt.text(RthreePointFivetime+30,ylim[1]-10,'Rf')
+                #plot.add_line([Rtwotime,Rtwotime],ylim,label="2 km/s R Est. Arrival",**kwargs)
+                #plot.add_line([Rfivetime,Rfivetime],ylim,label="5 km/s R Est. Arrival",**kwargs)
 
                 if params["doEarthquakesVelocityMap"]:
                     kwargs = {"linestyle":"--","color":"m"}
                     plot.add_line([Rvelocitymaptime,Rvelocitymaptime],ylim,label="Velocity map R Est. Arrival",**kwargs)
                 kwargs = {"linestyle":"--","color":"k"}
-                plot.add_line(xlim,[peak_velocity,peak_velocity],label="pred. vel.",**kwargs)
-                plot.add_line(xlim,[-peak_velocity,-peak_velocity],**kwargs)
+                #plot.add_line(xlim,[peak_velocity,peak_velocity],label="pred. vel.",**kwargs)
+                #plot.add_line(xlim,[-peak_velocity,-peak_velocity],**kwargs)
 
             else:
                 kwargs = {"linestyle":"--","color":"r"}
@@ -611,7 +627,7 @@ def spectra(params, channel, segment):
             data_out = np.loadtxt(earthquakesFile)
             ttMax = data_out[0]
             kwargs = {"linestyle":"-","color":"k"}
-            plot.add_line([ttMax,ttMax],ylim,label="Max amplitude",**kwargs)
+            #plot.add_line([ttMax,ttMax],ylim,label="Max amplitude",**kwargs)
 
             count = count + 1
 
@@ -659,14 +675,29 @@ def spectra(params, channel, segment):
                     plt.text(trip+15,ylim[1]-count*perc_diff,'%s %s'%(platform,stage),fontsize=12)
                     count = count + 1
 
-        plot.ylabel = r"Velocity [$\mu$m/s]"
+        if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+            plot.ylabel = r"Angle [$\mu$rad]"
+        elif channel.station == "H1:ISI-GND_BRS_ETMX_DAMPCTRLMON":
+            plot.ylabel = r"Counts"
+        else:
+            plot.ylabel = r"Velocity [$\mu$m/s]"
         plot.title = channel.station.replace("_","\_")
         plot.xlim = xlim
         plot.ylim = ylim
         plot.add_legend(loc=1,prop={'size':10})
 
+        #plot.ylim = [-0.05,0.05]
+        plot.save(pngFile)
+        #plot.grid = 0
+        #pdfFile = os.path.join(plotDirectory,"timeseries.pdf")
+        #plot.save(pdfFile)
+
         try:
             plot.save(pngFile)
+
+            epsFile = os.path.join(plotDirectory,"timeseries.eps")
+            plot.save(epsFile)
+
 
             pngFile = os.path.join(plotDirectory,"timeseries_30.png")
             plot.ylim = [-30,30]
@@ -705,9 +736,13 @@ def spectra(params, channel, segment):
         plot.add_line(fh, high, **kwargs)
         plot.xlim = [params["fmin"],params["fmax"]]
         plot.ylim = [10**-10, 10**-4]
-        plot.ylim = [10**-8, 10**-2]
+        #plot.ylim = [10**-8, 10**-2]
         plot.xlabel = "Frequency [Hz]"
-        plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+
+        if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
+            plot.ylabel = r"Angle [$\mu$rad/rtHz]"
+        else:
+            plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
         plot.title = channel.station.replace("_","\_")
         plot.axes[0].set_xscale("log")
         plot.axes[0].set_yscale("log")
