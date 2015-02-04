@@ -32,15 +32,9 @@ if not os.getenv("DISPLAY", None):
     import matplotlib
     matplotlib.use("agg", warn=False)
 
-import lal.gpstime
+#import lal.gpstime
 
-import seismon.psd, seismon.utils
-import seismon.html, seismon.omicron
-import seismon.eqmon, seismon.eqmon_plot
-import seismon.coherence, seismon.hilbert
-import seismon.wiener, seismon.wiener_fft
-import seismon.trend, seismon.frame
-import seismon.bits
+import seismon.eqmon
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __version__ = 1.0

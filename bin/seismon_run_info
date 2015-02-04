@@ -1,0 +1,39 @@
+#!/usr/bin/python
+
+"""
+%prog
+
+Michael Coughlin (coughlim@carleton.edu)
+
+This program runs seismon_run.py.
+
+"""
+
+# =============================================================================
+#
+#                               PREAMBLE
+#
+# =============================================================================
+
+
+import os, time
+
+__author__ = "Michael Coughlin <coughlim@carleton.edu>"
+__date__ = "2012/2/7"
+__version__ = "0.1"
+
+while 1:
+
+   paramsFile = "/home/controls/mcoughlin/Seismon/seismon/input/seismon_params_earthquakesInfo.txt"
+
+   gpsStart = int(os.popen("tconvert now").readline()) - 86400
+   gpsEnd = gpsStart + 2*86400
+   minMagnitude = 2.0
+
+   start_time = time.time()
+   os.system("python seismon_info -p %s -s %d -e %d --eventfilesType iris --doEarthquakes"%(paramsFile,gpsStart,gpsEnd))
+   end_time = time.time()
+   elapsed_time = end_time - start_time
+   print "Elapsed time for Seismon: %f"%(elapsed_time)
+   print "python seismon_info -p %s -s %d -e %d --eventfilesType iris --doEarthquakes"%(paramsFile,gpsStart,gpsEnd)
+   print stop
