@@ -188,7 +188,7 @@ def run_earthquakes_info(params,segment):
             attributeDic["eventID"] = eventName
 
         earthquakesDirectory = os.path.join(params["path"],"earthquakes")
-        earthquakesDirectory = os.path.join(earthquakesDirectory,attributeDic["eventID"])
+        earthquakesDirectory = os.path.join(earthquakesDirectory,str(attributeDic["eventID"]))
 
         earthquakesFile = os.path.join(earthquakesDirectory,"earthquakes.txt")
         earthquakesXMLFile = os.path.join(earthquakesDirectory,"earthquakes.xml")
@@ -1602,6 +1602,8 @@ def eqmon_loc(attributeDic,ifo):
         attributeDic = ifotraveltimes_loc(attributeDic, "Homestake", 44.3465, -103.7574)
     elif ifo == "LSST":
         attributeDic = ifotraveltimes_loc(attributeDic, "LSST", -30.2446, -70.7494)
+    elif ifo == "MIT":
+        attributeDic = ifotraveltimes_loc(attributeDic, "MIT", 42.3598, -71.0921)
 
     return attributeDic
 

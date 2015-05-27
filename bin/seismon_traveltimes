@@ -435,11 +435,21 @@ def iris_events(params):
     client = obspy.fdsn.client.Client("IRIS")
     events = client.get_events(minmagnitude=params["minMagnitude"],starttime=starttime,endtime=endtime)
 
+    print params["eventfilesLocation"] 
+    ifos = ["LHO","LLO","GEO","VIRGO","Homestake","FortyMeter","MIT"]
+
     numEventsAdded = 0
     for event in events.events:
         attributeDic = eqmon.irisread(event)
 
-        print attributeDic["GPS"], attributeDic["Magnitude"]
+        print attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
+
+        for ifo in ifos:
+            attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo)
+            traveltimes = attributeDicTemp["traveltimes"][ifo]
+            print "%s %.0f %.0f %.0f %.0f %.0f %.5e %.0f"%(ifo,max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],max(traveltimes["Distances"]))
+        print ""
+        print ""
 
         if not "GPS" in attributeDic:
             continue
@@ -452,7 +462,7 @@ def iris_events(params):
 
             print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
             numEventsAdded = numEventsAdded + 1
-     
+
     return numEventsAdded
 
 def fake_events(params):
