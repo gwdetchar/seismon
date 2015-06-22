@@ -1132,6 +1132,7 @@ def read_eqxml(file,eventName):
     attributeDic["eventID"] = dic["Event"]["EventID"]
     attributeDic["eventName"] = eventName
     attributeDic["Magnitude"] = float(dic["Event"]["Origin"]["Magnitude"]["Value"])
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
 
     if "Region" in dic["Event"]["Origin"]:
         attributeDic["Region"] = dic["Event"]["Origin"]["Region"]
@@ -1208,6 +1209,7 @@ def read_quakeml(file,eventName):
         attributeDic["Magnitude"] = float(dic["eventParameters"]["event"]["magnitude"]["mag"]["value"])
     else:
         attributeDic["Magnitude"] = 0
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
 
     attributeDic["Time"] = dic["eventParameters"]["event"]["origin"]["time"]["value"]
     timeString = attributeDic["Time"].replace("T"," ").replace("Z","")
@@ -1305,6 +1307,7 @@ def jsonread(event):
     attributeDic["eventID"] = event["properties"]["code"]
     attributeDic["eventName"] = event["properties"]["ids"].split(",")[1]
     attributeDic["Magnitude"] = event["properties"]["mag"]
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
     attributeDic["UTC"] = float(event["properties"]["time"]) / 1000.0
     attributeDic["DataSource"] = event["properties"]["sources"].replace(",","")
     attributeDic["Version"] = 1.0
@@ -1377,6 +1380,7 @@ def irisread(event):
 
     attributeDic["eventName"] = eventName
     attributeDic["Magnitude"] = event.magnitudes[0].mag
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
     attributeDic["DataSource"] = "IRIS"
     attributeDic["Version"] = 1.0
     attributeDic["Type"] = 1.0
@@ -1433,6 +1437,7 @@ def databaseread(event):
         attributeDic["Magnitude"] = float(eventSplit[4])
     except:
         attributeDic["Magnitude"] = 0
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
     tm = time.struct_time(dt.timetuple())
 
     attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
@@ -1483,6 +1488,7 @@ def fakeeventread():
     attributeDic["eventID"] = eventID
 
     attributeDic["Magnitude"] = random.uniform(9.0,10.0)
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
     attributeDic["DataSource"] = "FAKE"
     attributeDic["Version"] = 1.0
     attributeDic["Type"] = 1.0
@@ -1819,7 +1825,12 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         lats.append(lat)
         lons.append(lon)
 
-        tt = getTravelTimes(delta=degree, depth=attributeDic["Depth"])
+        if attributeDic["Depth"] >= 2.0:
+            depth = attributeDic["Depth"]
+        else:
+            depth = 2.0
+
+        tt = getTravelTimes(delta=degree, depth=depth)
         #tt.append({'phase_name': 'R', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
         tt.append({'phase_name': 'Rtwo', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/2000, 'd2T/dD2': 0, 'dT/dh': 0})
         tt.append({'phase_name': 'RthreePointFive', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
