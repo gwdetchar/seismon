@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os, sys, time, glob, math, matplotlib, random, string
+matplotlib.use('Agg') 
 import numpy as np
 from datetime import datetime
 from operator import itemgetter
