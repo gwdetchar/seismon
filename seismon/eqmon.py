@@ -2,6 +2,9 @@
 
 import os, sys, time, glob, math, matplotlib, random, string
 matplotlib.use('Agg') 
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
 import numpy as np
 from datetime import datetime
 from operator import itemgetter
@@ -15,6 +18,12 @@ import astropy.time
 
 import seismon.utils, seismon.eqmon_plot
 import seismon.pybrain
+
+import gwpy.time, gwpy.timeseries
+import gwpy.spectrum, gwpy.spectrogram
+import gwpy.plotter
+
+from pylal import Fr
 
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
@@ -176,12 +185,22 @@ def run_earthquakes_info(params,segment):
     gpsStart = segment[0]
     gpsEnd = segment[1]
 
-    params["earthquakesMinMag"] = 0.0
+    params["earthquakesMinMag"] = 5.0
     attributeDics = retrieve_earthquakes(params,gpsStart,gpsEnd)
     attributeDics = sorted(attributeDics, key=itemgetter("Magnitude"), reverse=True)
 
-    ifos = ["H1","L1","G1","V1"]
+    ifos = ["H1","L1","G1","V1","MIT"]
     amp = 0
+
+    if params["doEPICs"]:
+        epics_dicts = {}
+        tt = np.arange(gpsStart,gpsEnd,1)
+        for ifo in ifos:
+            epics_dicts[ifo] = {}
+            epics_dicts[ifo]["tt"] = tt
+            epics_dicts[ifo]["amp"] = np.zeros(tt.shape)
+            epics_dicts[ifo]["eq"] = np.zeros(tt.shape)
+
     for attributeDic in attributeDics:
         if attributeDic["eventID"] == "None":
             eventID = "%.0f"%attributeDic['GPS']
@@ -213,8 +232,64 @@ def run_earthquakes_info(params,segment):
             f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort))
 
             print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort)
+
+            if params["doEPICs"]:
+                indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
+                amps = np.zeros(tt.shape)
+                amps[indexes] = 1
+                epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps*traveltimes["Rfamp"][0]
+                epics_dicts[ifoShort]["eq"] = epics_dicts[ifoShort]["eq"] + amps
+
         f.close()
         write_info(earthquakesXMLFile,[attributeDic])
+
+    if params["doEPICs"]:
+        frameName = "%s/S-SEISMON-%d-%d.gwf"%(params["epicsDirectory"],gpsStart,gpsEnd-gpsStart)
+        out_dicts = []
+        for ifo in ifos:
+
+            channel_name =  "%s:AMP"%ifo
+            out_dict = {'name'  : channel_name,
+                'data'  : epics_dicts[ifo]["amp"],
+                'start' : tt[0],
+                'dx'    : tt[1]-tt[0],
+                'kind'  : 'ADC'}
+            out_dicts.append(out_dict)
+
+            channel_name =  "%s:EQ"%ifo
+            out_dict = {'name'  : channel_name,
+                'data'  : epics_dicts[ifo]["eq"],
+                'start' : tt[0],
+                'dx'    : tt[1]-tt[0],
+                'kind'  : 'ADC'}
+            out_dicts.append(out_dict)
+
+        Fr.frputvect(frameName,out_dicts)
+        print frameName, "completed"
+
+        if params["doPlots"]:
+            plotsDirectory = os.path.join(params["path"],"plots")
+            seismon.utils.mkdir(plotsDirectory)            
+
+            t0 = tt[0]
+            samplef = 1.0/(tt[1]-tt[0])
+            ttplot = tt - t0
+            plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+            for ifo in ifos:
+                dataFull = gwpy.timeseries.TimeSeries(epics_dicts[ifo]["amp"], times=None, epoch=t0, channel=ifo, unit=None,sample_rate=samplef, name=ifo)
+                plot.add_timeseries(dataFull)
+            plot.add_legend(loc=1,prop={'size':10})
+
+            #plot.ylim = [-0.05,0.05]
+            plt.show()
+            plotName = "%s/amp.png"%(plotsDirectory)
+            plot.save(plotName)
+            plotName = "%s/amp.eps"%(plotsDirectory)
+            plot.save(plotName)
+            plotName = "%s/amp.pdf"%(plotsDirectory)
+            plot.save(plotName)
+            plt.close()
 
 def run_earthquakes_analysis(params,segment):
     """@run earthquakes analysis.

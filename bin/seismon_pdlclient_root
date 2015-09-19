@@ -76,10 +76,10 @@ def runProcess(process,verbose=False):
            return process
 
 
-   runCommand = "rm /home/michael.coughlin/Seismon/ProductClient/data/receiver_index.db"
+   runCommand = "rm /var/www/vhosts/emvogil-3/html/Seismon/ProductClient/data/receiver_index.db"
    process = Popen(runCommand,shell=True,stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
 
-   runCommand = "java -jar /home/michael.coughlin/Seismon/ProductClient/ProductClient.jar --receive --configFile=/home/michael.coughlin/Seismon/ProductClient/config.ini -Xmx1024m"
+   runCommand = "java -jar /var/www/vhosts/emvogil-3/html/Seismon/ProductClient/ProductClient.jar --receive --configFile=/var/www/vhosts/emvogil-3/html/Seismon/ProductClient/config.ini -Xmx1024m"
    process = Popen(runCommand,shell=True,stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
    verboseProcess(process,verbose)
    exitCode = process.returncode
@@ -107,9 +107,9 @@ def findProcess():
 
     return process
 
-folderDirectory = '/home/michael.coughlin/Seismon/ProductClient' 
-dataDirectory = '/home/michael.coughlin/Seismon/ProductClient/data'
-dataOldDirectory = '/home/michael.coughlin/Seismon/ProductClient/dataOld'
+folderDirectory = '/var/www/vhosts/emvogil-3/html/Seismon/ProductClient' 
+dataDirectory = '/var/www/vhosts/emvogil-3/html/Seismon/ProductClient/data'
+dataOldDirectory = '/var/www/vhosts/emvogil-3/html/Seismon/ProductClient/dataOld'
 
 current_date = datetime.date.today()
 

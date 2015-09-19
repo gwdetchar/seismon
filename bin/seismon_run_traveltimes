@@ -24,14 +24,17 @@ __version__ = "0.1"
 
 while 1:
 
-   paramsFile = "/home/mcoughlin/Seismon/seismon/input/seismon_params_traveltimes.txt"
+   paramsFile = "/home/michael.coughlin/Seismon/seismon/input/seismon_params_traveltimes.txt"
 
-   gpsStart = int(os.popen("tconvert now").readline()) - 86400
+   tconvert_command = '/home/michael.coughlin/LAL/master/bin/lalapps_tconvert now'
+   tconvert_command = 'tconvert now'
+
+   gpsStart = int(os.popen(tconvert_command).readline()) - 86400
    gpsEnd = gpsStart + 2*86400
    minMagnitude = 2.0
 
    start_time = time.time()
-   os.system("python seismon_traveltimes -p %s -s %d -e %d --minMagnitude %.1f --doPrivate --doPublic --doCopy"%(paramsFile,gpsStart,gpsEnd,minMagnitude))
+   os.system("python seismon_traveltimes -p %s -s %d -e %d --minMagnitude %.1f --doPrivate --doPublic"%(paramsFile,gpsStart,gpsEnd,minMagnitude))
    end_time = time.time()
    elapsed_time = end_time - start_time
    print "Elapsed time for Seismon: %f"%(elapsed_time)

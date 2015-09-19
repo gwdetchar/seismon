@@ -26,6 +26,11 @@ Comments should be e-mailed to michael.coughlin@ligo.org.
 """
 
 import os, sys, glob, optparse, warnings, time, json
+
+if not os.getenv("DISPLAY", None):
+    import matplotlib
+    matplotlib.use("agg", warn=False)
+
 from datetime import datetime
 import numpy as np
 import subprocess
@@ -282,6 +287,41 @@ def download_publiceventfiles(params):
     else:
         print 'Copying failed'
 
+def save_private_event(params,timeFolder,eventName):
+
+    attributeDic = []
+    eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
+    quakemlfile = os.path.join(timeFolder,"quakeml.xml")
+
+    if os.path.isfile(os.path.join(timeFolder,"eqxml.txt")):
+        return
+
+    f = open(os.path.join(timeFolder,"eqxml.txt"),"w")
+    f.write("Done")
+    f.close()
+
+    if os.path.isfile(eqxmlfile):
+        attributeDic = eqmon.read_eqxml(eqxmlfile,eventName)
+    elif os.path.isfile(quakemlfile):
+        attributeDic = eqmon.read_quakeml(quakemlfile,eventName)
+
+    if attributeDic == []:
+        return
+
+    if (not "GPS" in attributeDic) or (not "Magnitude" in attributeDic):
+        return
+
+    if params["doMultipleEvents"]:
+        file = os.path.join(params["eventfilesLocation"],"private/%s-%.0f-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["SentGPS"]))
+    else:
+        file = os.path.join(params["eventfilesLocation"],"private/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+
+    if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+        write_info(file,attributeDic)
+
+        print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+
+
 def private_events(params):
     """@write pdl events
 
@@ -292,6 +332,7 @@ def private_events(params):
     numEventsAdded = 0
 
     folders = glob.glob(os.path.join(params["dataLocation"],"*"))
+    #folders = []
     for numFolder in xrange(len(folders)):
 
         folder = folders[numFolder]
@@ -309,45 +350,31 @@ def private_events(params):
             if len(timeFolders) == 1:
                 continue
 
-        attributeDics = []
         for timeFolder in timeFolders:
-
-            attributeDic = []
-            eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
-            quakemlfile = os.path.join(timeFolder,"quakeml.xml")
-
-            if os.path.isfile(os.path.join(timeFolders[0],"eqxml.txt")):
-                continue
-
-            f = open(os.path.join(timeFolders[0],"eqxml.txt"),"w")
-            f.write("Done")
-            f.close()
-
-            if os.path.isfile(eqxmlfile):
-                attributeDic = eqmon.read_eqxml(eqxmlfile,eventName)
-                attributeDics.append(attributeDic)
-            elif os.path.isfile(quakemlfile):
-                attributeDic = eqmon.read_quakeml(quakemlfile,eventName)
-                attributeDics.append(attributeDic)
-
-            if attributeDic == []:
-                continue
-
-            if (not "GPS" in attributeDic) or (not "Magnitude" in attributeDic):
-                continue
-
-            if params["doMultipleEvents"]:
-                file = os.path.join(params["eventfilesLocation"],"private/%s-%.0f-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["SentGPS"]))
-            else:
-                file = os.path.join(params["eventfilesLocation"],"private/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
-
-            if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
-                write_info(file,attributeDic)
-
-                print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+                save_private_event(params,timeFolder,eventName)
                 numEventsAdded = numEventsAdded + 1
 
-                print file
+    folders = glob.glob(os.path.join(params["internalDataLocation"],"*"))
+    for numFolder in xrange(len(folders)):
+
+        folder = folders[numFolder]
+
+        folderSplit = folder.split("/")
+        eventName = folderSplit[len(folderSplit) - 1]
+        dataFolder = os.path.join(params["internalDataLocation"],eventName,eventName[0:2])
+        timeFolders = glob.glob(os.path.join(dataFolder,"*"))
+        timeFolders = sorted(timeFolders)
+
+        if timeFolders == []:
+            continue
+
+        if params["doMultipleEvents"]:
+            if len(timeFolders) == 1:
+                continue
+
+        for timeFolder in timeFolders:
+                save_private_event(params,timeFolder,eventName)
+                numEventsAdded = numEventsAdded + 1
 
     path = os.path.join(params["eventfilesLocation"],"private")
     write_context(path)

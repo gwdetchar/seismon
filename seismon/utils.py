@@ -744,6 +744,8 @@ def getIfo(params):
         ifo = "FortyMeter"
     elif params["ifo"] == "XG":
         ifo = "Homestake"
+    elif params["ifo"] == "MIT":
+        ifo = "MIT"
     elif params["ifo"] == "IRIS":
         ifo = "LHO"
     elif params["ifo"] == "LUNAR":
@@ -779,6 +781,9 @@ def getLatLon(params):
     elif params["ifo"] == "XG":
         latitude = 44.3465
         longitude = -103.7574
+    elif params["ifo"] == "MIT":
+        latitude = 42.3598
+        longitude = -71.0921
     elif params["ifo"] == "IRIS":
         latitude = 46.6475
         longitude = -119.5986
