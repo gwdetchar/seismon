@@ -8,7 +8,7 @@ from matplotlib import cm
 import numpy as np
 from datetime import datetime
 from operator import itemgetter
-import glue.segments, glue.segmentsUtils
+import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 from lxml import etree
 import scipy.spatial
 import smtplib, email.mime.text
@@ -278,6 +278,62 @@ def run_earthquakes_info(params,segment):
 
             for ifo in ifos:
                 dataFull = gwpy.timeseries.TimeSeries(epics_dicts[ifo]["amp"], times=None, epoch=t0, channel=ifo, unit=None,sample_rate=samplef, name=ifo)
+                plot.add_timeseries(dataFull)
+            plot.add_legend(loc=1,prop={'size':10})
+
+            #plot.ylim = [-0.05,0.05]
+            plt.show()
+            plotName = "%s/amp.png"%(plotsDirectory)
+            plot.save(plotName)
+            plotName = "%s/amp.eps"%(plotsDirectory)
+            plot.save(plotName)
+            plotName = "%s/amp.pdf"%(plotsDirectory)
+            plot.save(plotName)
+            plt.close()
+
+    if params["doReadEPICs"]:
+
+        params["channel"] = None
+        params["referenceChannel"] = None
+        params = seismon.utils.channel_struct(params,params["epicsChannelList"])
+        frameList = [os.path.join(root, name)
+            for root, dirs, files in os.walk(params["epicsDirectory"])
+            for name in files]
+        datacache = []
+        for frame in frameList:
+            thisFrame = frame.replace("file://localhost","")
+            if thisFrame == "":
+                continue
+
+            thisFrameSplit = thisFrame.split(".")
+            if thisFrameSplit[-1] == "log":
+                continue
+
+            thisFrameSplit = thisFrame.split("-")
+            gps = float(thisFrameSplit[-2])
+            dur = float(thisFrameSplit[-1].replace(".gwf",""))
+
+            if gps+dur < gpsStart:
+                continue
+            if gps > gpsEnd:
+                continue
+
+            #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
+            datacache.append(frame)
+        datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+        params["frame"] = datacache
+
+        data = []
+        for channel in params["channels"]:
+            dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
+            data.append(dataFull)
+
+        if params["doPlots"]:
+            plotsDirectory = os.path.join(params["path"],"plots")
+            seismon.utils.mkdir(plotsDirectory)
+
+            plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+            for dataFull in data:
                 plot.add_timeseries(dataFull)
             plot.add_legend(loc=1,prop={'size':10})
 

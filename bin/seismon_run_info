@@ -22,14 +22,14 @@ __author__ = "Michael Coughlin <coughlim@carleton.edu>"
 __date__ = "2012/2/7"
 __version__ = "0.1"
 
-gpsEnd = int(os.popen("tconvert now").readline()) - 5
+gpsEnd = int(os.popen("tconvert now").readline())
 
 while 1:
 
    paramsFile = "/home/michael.coughlin/Seismon/seismon/input/seismon_params_earthquakesInfo.txt"
 
    gpsStart = gpsEnd
-   gpsEnd = int(os.popen("tconvert now").readline())
+   gpsEnd = int(os.popen("tconvert now").readline()) + 4
 
    start_time = time.time()
    os.system("python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs"%(paramsFile,gpsStart,gpsEnd))
