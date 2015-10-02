@@ -185,7 +185,7 @@ def run_earthquakes_info(params,segment):
     gpsStart = segment[0]
     gpsEnd = segment[1]
 
-    params["earthquakesMinMag"] = 5.0
+    params["earthquakesMinMag"] = 2.0
     attributeDics = retrieve_earthquakes(params,gpsStart,gpsEnd)
     attributeDics = sorted(attributeDics, key=itemgetter("Magnitude"), reverse=True)
 
@@ -237,14 +237,37 @@ def run_earthquakes_info(params,segment):
                 indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
                 amps = np.zeros(tt.shape)
                 amps[indexes] = 1
-                epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps*traveltimes["Rfamp"][0]
+
+                tstart = (max(traveltimes["Rfivetimes"]) + max(traveltimes["RthreePointFivetimes"]))/2.0
+                tend = max(traveltimes["Rtwotimes"]) 
+                x = np.arange(tstart,tend,1)
+                x = tt
+                y = (x - np.min(x))/600.0
+                lamb = 1 + y[-1]/5.0
+                vals = scipy.stats.gamma.pdf(y, lamb)
+                vals = np.absolute(vals)
+                vals = vals / np.max(vals)
+                vals = vals * traveltimes["Rfamp"][0]
+
+                #epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps*traveltimes["Rfamp"][0]
+                epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + vals
                 epics_dicts[ifoShort]["eq"] = epics_dicts[ifoShort]["eq"] + amps
 
         f.close()
         write_info(earthquakesXMLFile,[attributeDic])
 
+    
+    if os.path.isdir(params["path"]):
+        sys_command = "find %s -mtime +1 -exec rm -r {} \;"%params["currentpath"]
+        os.system(sys_command)
+        sys_command = "cp -r %s/* %s"%(params["path"],params["currentpath"])
+        os.system(sys_command)
+    else:
+        sys_command = "mkdir %s"%(params["currentpath"])
+        os.system(sys_command)
+
     if params["doEPICs"]:
-        frameName = "%s/S-SEISMON-%d-%d.gwf"%(params["epicsDirectory"],gpsStart,gpsEnd-gpsStart)
+        frameName = "%s/frames/S-SEISMON-%d-%d.gwf"%(params["epicsDirectory"],gpsStart,gpsEnd-gpsStart)
         out_dicts = []
         for ifo in ifos:
 
@@ -266,6 +289,16 @@ def run_earthquakes_info(params,segment):
 
         Fr.frputvect(frameName,out_dicts)
         print frameName, "completed"
+
+        for ifo in ifos:
+            filenamedir = "%s/txt/%s"%(params["epicsDirectory"],ifo)
+            if not os.path.isdir(filenamedir):
+                os.mkdir(filenamedir)
+            fileName = "%s/%s-SEISMON-%d-%d.txt"%(filenamedir,ifo,gpsStart,gpsEnd-gpsStart)
+            fid = open(fileName,'w')
+            for t, eq, amp in zip(tt,epics_dicts[ifo]["eq"],epics_dicts[ifo]["amp"]):
+                fid.write('%12.1f %d %10.5e\n'%(t,eq,amp))
+            fid.close()
 
         if params["doPlots"]:
             plotsDirectory = os.path.join(params["path"],"plots")
@@ -296,8 +329,9 @@ def run_earthquakes_info(params,segment):
         params["channel"] = None
         params["referenceChannel"] = None
         params = seismon.utils.channel_struct(params,params["epicsChannelList"])
+        epicsDirectory = os.path.join(params["epicsDirectory"],"frames")
         frameList = [os.path.join(root, name)
-            for root, dirs, files in os.walk(params["epicsDirectory"])
+            for root, dirs, files in os.walk(epicsDirectory)
             for name in files]
         datacache = []
         for frame in frameList:
@@ -328,6 +362,16 @@ def run_earthquakes_info(params,segment):
             dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
             data.append(dataFull)
 
+        if params["doTimeseries"]:
+            params = seismon.utils.channel_struct(params,params["channelList"])
+            datands = []
+            for channel in params["channels"]:
+                dataFull = gwpy.timeseries.TimeSeries.fetch(channel.station, segment[0], segment[1], verbose=True, host='nds.ligo.caltech.edu')
+                dataFull = dataFull / channel.calibration
+                dataFull = dataFull.resample(1)
+                dataFull = dataFull - np.mean(dataFull)
+                datands.append(dataFull)
+
         if params["doPlots"]:
             plotsDirectory = os.path.join(params["path"],"plots")
             seismon.utils.mkdir(plotsDirectory)
@@ -346,6 +390,23 @@ def run_earthquakes_info(params,segment):
             plotName = "%s/amp.pdf"%(plotsDirectory)
             plot.save(plotName)
             plt.close()
+
+            if params["doTimeseries"]:
+                plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+                for dataFull in datands:
+                    plot.add_timeseries(dataFull)
+                plot.add_legend(loc=1,prop={'size':10})
+                plt.show()
+                plotName = "%s/timeseries.png"%(plotsDirectory)
+                plot.save(plotName)
+                plotName = "%s/timeseries.eps"%(plotsDirectory)
+                plot.save(plotName)
+                plotName = "%s/timeseries.pdf"%(plotsDirectory)
+                plot.save(plotName)
+                plt.close()
+
+            sys_command = "cp -r %s/* %s/plots"%(plotsDirectory,params["currentpath"])
+            os.system(sys_command)
 
 def run_earthquakes_analysis(params,segment):
     """@run earthquakes analysis.

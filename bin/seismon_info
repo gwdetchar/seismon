@@ -52,17 +52,21 @@ def parse_commandline():
     parser = optparse.OptionParser(usage=__doc__,version=__version__)
 
     parser.add_option("-p", "--paramsFile", help="Seismon params file.", 
-                      default ="/home/michael.coughlin/Seismon/seismon/input/seismon_params_earthquakesInfo.txt")
+                      default ="/Seismon/Seismon/seismon/input/seismon_params_earthquakesInfo.txt")
 
     parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1126709046,type=int)
     parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1126787937,type=int)
 
-    parser.add_option("--eventfilesType", help="Event files type.", default="public")
+    parser.add_option("--eventfilesType", help="Event files type.", default="private")
     parser.add_option("--doPlots",  action="store_true", default=False)
     parser.add_option("--doEarthquakes",  action="store_true", default=False)
+    parser.add_option("--doTimeseries",  action="store_true", default=False)
     parser.add_option("--doEPICs",  action="store_true", default=False)
     parser.add_option("--epicsChannelList", help="Seismon params file.",
-                      default ="/home/michael.coughlin/Seismon/seismon/input/seismon_epics_channel_list.txt")
+                      default ="/Seismon/Seismon/seismon/input/seismon_epics_channel_list.txt")
+    parser.add_option("--channelList", help="Seismon params file.",
+                      default ="/Seismon/Seismon/seismon/input/seismon_nds_channel_list.txt")
+
     parser.add_option("--doReadEPICs",  action="store_true", default=False)
 
     parser.add_option("-v", "--verbose", action="store_true", default=False,
@@ -98,8 +102,10 @@ def params_struct(opts):
 
     params["doPlots"] = opts.doPlots
     params["doEarthquakes"] = opts.doEarthquakes
+    params["doTimeseries"] = opts.doEarthquakes
     params["doEPICs"] = opts.doEPICs
     params["epicsChannelList"] = opts.epicsChannelList
+    params["channelList"] = opts.channelList
     params["doReadEPICs"] = opts.doReadEPICs
 
     return params
@@ -116,6 +122,7 @@ warnings.filterwarnings("ignore")
 opts = parse_commandline()
 params = params_struct(opts)
 params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/" + "%.0f"%params["gpsStart"] + "-" + "%.0f"%params["gpsEnd"]
+params["currentpath"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/" + "current"
 
 if params["doEarthquakes"]:
     print params["path"]

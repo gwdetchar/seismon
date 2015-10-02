@@ -505,11 +505,12 @@ def frame_struct(params):
         datacache = "IRIS"
     else:
         if params["frameType"] == "nds2":
-            #conn = nds2.connection(params["ndsServer"])
-            #y = conn.find_channels('*',nds2.channel.CHANNEL_TYPE_RAW,\
-            #    nds2.channel.DATA_TYPE_FLOAT32, 128, 16384)
+            import nds2
+            conn = nds2.connection(params["ndsServer"])
+            y = conn.find_channels('*',nds2.channel.CHANNEL_TYPE_RAW,\
+                nds2.channel.DATA_TYPE_FLOAT32, 128, 16384)
 
-            #params["ndsConnection"] = conn
+            params["ndsConnection"] = conn
             pass
 
         else:
@@ -1304,7 +1305,7 @@ def retrieve_timeseries(params,channel,segment):
         #print "done"
 
         # make timeseries
-        #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd)
+        dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd)
 
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd)
