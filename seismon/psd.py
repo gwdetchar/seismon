@@ -604,10 +604,15 @@ def spectra(params, channel, segment):
                 plot.add_line(xlim,[peak_velocity,peak_velocity],label="pred. vel.",**kwargs)
                 plot.add_line(xlim,[-peak_velocity,-peak_velocity],**kwargs)
 
-                x = np.arange(Rfivetime,Rtwotime,1)
-                mu = np.log(RthreePointFivetime)
-                sigma = 5e-8 * np.log(Rtwotime - Rfivetime)
-                vals = (np.exp(-(np.log(x) - mu)**2 / (2 * sigma**2)) / (x * sigma * np.sqrt(2 * np.pi)))
+                tstart = (Rfivetime + RthreePointFivetime)/2.0
+                #tstart = RthreePointFivetime
+                tend = Rtwotime
+                x = np.arange(tstart,tend,1)
+                y = (x - np.min(x))/600.0
+                mu = RthreePointFivetime
+                lamb = 1 + y[-1]/5.0
+                vals = scipy.stats.gamma.pdf(y, lamb)
+                vals = np.absolute(vals)
                 vals = vals / np.max(vals)
                 vals = vals * peak_velocity
                 kwargs = {"linestyle":"--","color":"g"}
