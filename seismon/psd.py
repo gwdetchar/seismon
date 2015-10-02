@@ -556,6 +556,9 @@ def spectra(params, channel, segment):
             #if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
             #    continue
 
+            if attributeDic["Magnitude"] < params["minMagnitude"]:
+                continue
+
             if params["ifo"] == "IRIS":
                 attributeDic = seismon.eqmon.ifotraveltimes_loc(attributeDic, "IRIS", channel.latitude, channel.longitude)
                 traveltimes = attributeDic["traveltimes"]["IRIS"]
@@ -591,15 +594,24 @@ def spectra(params, channel, segment):
                 kwargs = {"linestyle":"--","color":"b"}
                 plot.add_line([RthreePointFivetime,RthreePointFivetime],ylim,label="3.5 km/s R Est. Arrival",**kwargs)            
                 plt.text(RthreePointFivetime+30,ylim[1]-10,'Rf')
-                #plot.add_line([Rtwotime,Rtwotime],ylim,label="2 km/s R Est. Arrival",**kwargs)
-                #plot.add_line([Rfivetime,Rfivetime],ylim,label="5 km/s R Est. Arrival",**kwargs)
+                plot.add_line([Rtwotime,Rtwotime],ylim,label="2 km/s R Est. Arrival",**kwargs)
+                plot.add_line([Rfivetime,Rfivetime],ylim,label="5 km/s R Est. Arrival",**kwargs)
 
                 if params["doEarthquakesVelocityMap"]:
                     kwargs = {"linestyle":"--","color":"m"}
                     plot.add_line([Rvelocitymaptime,Rvelocitymaptime],ylim,label="Velocity map R Est. Arrival",**kwargs)
                 kwargs = {"linestyle":"--","color":"k"}
-                #plot.add_line(xlim,[peak_velocity,peak_velocity],label="pred. vel.",**kwargs)
-                #plot.add_line(xlim,[-peak_velocity,-peak_velocity],**kwargs)
+                plot.add_line(xlim,[peak_velocity,peak_velocity],label="pred. vel.",**kwargs)
+                plot.add_line(xlim,[-peak_velocity,-peak_velocity],**kwargs)
+
+                x = np.arange(Rfivetime,Rtwotime,1)
+                mu = np.log(RthreePointFivetime)
+                sigma = 5e-8 * np.log(Rtwotime - Rfivetime)
+                vals = (np.exp(-(np.log(x) - mu)**2 / (2 * sigma**2)) / (x * sigma * np.sqrt(2 * np.pi)))
+                vals = vals / np.max(vals)
+                vals = vals * peak_velocity
+                kwargs = {"linestyle":"--","color":"g"}
+                plot.add_line(x,vals,label="Envelope",**kwargs)
 
             else:
                 kwargs = {"linestyle":"--","color":"r"}
