@@ -102,7 +102,7 @@ def params_struct(opts):
 
     params["doPlots"] = opts.doPlots
     params["doEarthquakes"] = opts.doEarthquakes
-    params["doTimeseries"] = opts.doEarthquakes
+    params["doTimeseries"] = opts.doTimeseries
     params["doEPICs"] = opts.doEPICs
     params["epicsChannelList"] = opts.epicsChannelList
     params["channelList"] = opts.channelList
@@ -127,4 +127,7 @@ params["currentpath"] = params["dirPath"] + "/" + "all" + "/" + params["runName"
 if params["doEarthquakes"]:
     print params["path"]
     segmentlist = seismon.eqmon.run_earthquakes_info(params,[params["gpsStart"],params["gpsEnd"]])
+
+
+
 

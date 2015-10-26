@@ -39,7 +39,7 @@ while 1:
    print "python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs"%(paramsFile,gpsStart,gpsEnd)
 
    start_time = time.time()
-   os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots --doTimeseries"%(paramsFile,gpsEnd-3600,gpsEnd))
+   os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots"%(paramsFile,gpsEnd-3600,gpsEnd))
    end_time = time.time()
    elapsed_time = end_time - start_time
    print "Elapsed time for Seismon: %f"%(elapsed_time)
