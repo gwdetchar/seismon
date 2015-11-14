@@ -16,6 +16,7 @@ import socket
 import ssl
 from argparse import ArgumentParser
 from time import sleep
+import numpy as np
 
 import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 
@@ -33,28 +34,6 @@ __date__    = "9/22/2013"
 #                               DEFINITIONS
 #
 # =============================================================================
-
-socket.setdefaulttimeout(30)
-
-CHANNELS = {
-    'H1:AMP': {
-        'type': 'float',
-    },
-    'L1:AMP': {
-        'type': 'float',
-    },
-    'V1:AMP': {
-        'type': 'float',
-    },
-    'G1:AMP': {
-        'type': 'float',
-    },
-
-    'MIT:AMP': {
-        'type': 'float',
-    },
-}
-
 
 # -----------------------------------------------------------------------------
 # logging
@@ -292,33 +271,33 @@ def setup_params(params):
     params["channel"] = None
     params["referenceChannel"] = None
     params = seismon.utils.channel_struct(params,params["epicsChannelList"])
-    epicsDirectory = os.path.join(params["epicsDirectory"],"frames")
-    frameList = [os.path.join(root, name)
-        for root, dirs, files in os.walk(epicsDirectory)
-        for name in files]
-    datacache = []
-    for frame in frameList:
-        thisFrame = frame.replace("file://localhost","")
-        if thisFrame == "":
-            continue
+    #epicsDirectory = os.path.join(params["epicsDirectory"],"frames")
+    #frameList = [os.path.join(root, name)
+    #    for root, dirs, files in os.walk(epicsDirectory)
+    #    for name in files]
+    #datacache = []
+    #for frame in frameList:
+    #    thisFrame = frame.replace("file://localhost","")
+    #    if thisFrame == "":
+    #        continue
     
-        thisFrameSplit = thisFrame.split(".")
-        if thisFrameSplit[-1] == "log":
-            continue
+    #    thisFrameSplit = thisFrame.split(".")
+    #    if thisFrameSplit[-1] == "log":
+    #        continue
     
-        thisFrameSplit = thisFrame.split("-")
-        gps = float(thisFrameSplit[-2])
-        dur = float(thisFrameSplit[-1].replace(".gwf",""))
+    #    thisFrameSplit = thisFrame.split("-")
+    #    gps = float(thisFrameSplit[-2])
+    #    dur = float(thisFrameSplit[-1].replace(".gwf",""))
     
-        if gps+dur < gpsStart:
-            continue
-        if gps > gpsEnd:
-            continue
+    #    if gps+dur < gpsStart:
+    #        continue
+    #    if gps > gpsEnd:
+    #        continue
     
-        #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
-        datacache.append(frame)
-    datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
-    params["frame"] = datacache
+    #    #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
+    #    datacache.append(frame)
+    #datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+    #params["frame"] = datacache
     return params
 
 # =============================================================================
@@ -340,6 +319,17 @@ logger.setLevel(opts.verbose * 10)
 # -----------------------------------------------------------------------------
 # execute action
 
+socket.setdefaulttimeout(30)
+
+CHANNELS = {}
+ifos = ['H1','L1','V1','G1','MIT']
+epicschannels = ['ETA','AMP','PROB','MULT']
+
+for ifo in ifos:
+    for epicschannel in epicschannels:
+        channel = "%s:%s"%(ifo,epicschannel)
+        CHANNELS[channel] = {'type': 'float'}
+
 logger.info('Starting iteration')
 # create PVdb
 prefix = 'SEISMON:'
@@ -347,28 +337,39 @@ server = cas.CaServer(prefix, CHANNELS)
 server.start()
 logger.info("Created CA server with prefix %r" % server.prefix)
 
-try:
+#try:
+while True:
     while True:
-        segment = [gps_time_now()-60,gps_time_now()-30]
-        params["gpsStart"] = segment[0]
-        params["gpsEnd"] = segment[1]
-        params = setup_params(params)
-        print params["frame"]
+        #segment = [gps_time_now()-60,gps_time_now()-30]
+        #params["gpsStart"] = segment[0]
+        #params["gpsEnd"] = segment[1]
+        #params = setup_params(params)
 
-        data = []
-        for channel in params["channels"]:
-            print channel.station
-            print segment
-            try:
-                dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
-                data.append(dataFull)
-            except:
-                continue
-        for dataFull in data:
-            # get last event
-            caput("%s%s"%(prefix,dataFull.name),dataFull.data[-1])
-            logger.info('Recorded %s' % dataFull.name)
+        filename = os.path.join(params["epicsDirectory"],"epics.txt")
+        lines = [line.rstrip('\n') for line in open(filename)]
+
+        for line in lines:
+            lineSplit = line.split(" ")
+            ifo = lineSplit[0]
+            prob = float(lineSplit[1])
+            eta = float(lineSplit[2]) 
+            amp = float(lineSplit[3])
+            mult = float(lineSplit[4])
+
+            name = "%s:ETA"%ifo
+            caput("%s%s"%(prefix,name),eta)
+            logger.info('Recorded %s' % name)
+            name = "%s:PROB"%ifo
+            caput("%s%s"%(prefix,name),prob)
+            logger.info('Recorded %s' % name)
+            name = "%s:AMP"%ifo
+            caput("%s%s"%(prefix,name),amp)
+            logger.info('Recorded %s' % name)
+            name = "%s:MULT"%ifo
+            caput("%s%s"%(prefix,name),mult)
+            logger.info('Recorded %s' % name)
 
         logger.info('Iteration complete')
-except KeyboardInterrupt:
-    logger.warning('Caught keyboard interrupt, EXITING')
+        time.sleep(1)
+#except KeyboardInterrupt:
+#    logger.warning('Caught keyboard interrupt, EXITING')
