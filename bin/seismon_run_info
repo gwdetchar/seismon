@@ -29,7 +29,7 @@ while 1:
    paramsFile = "/Seismon/Seismon/seismon/input/seismon_params_earthquakesInfo.txt"
 
    gpsStart = int(os.popen("tconvert now").readline()) - 3600
-   gpsEnd = gpsStart + 3600 + 120
+   gpsEnd = gpsStart + 3600
 
    start_time = time.time()
    os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs"%(paramsFile,gpsStart,gpsEnd))

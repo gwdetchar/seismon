@@ -253,11 +253,15 @@ def run_earthquakes_info(params,segment):
 
        epics_dicts = {}
        for ifo in ifos:
-            epics_dicts[ifo] = {}
-            epics_dicts[ifo]["prob"] = 0
-            epics_dicts[ifo]["eta"] = 0
-            epics_dicts[ifo]["amp"] = 0
-            epics_dicts[ifo]["mult"] = 0
+            ifoShort = ifo
+            params["ifo"] = ifo
+            ifo = seismon.utils.getIfo(params)
+
+            epics_dicts[ifoShort] = {}
+            epics_dicts[ifoShort]["prob"] = 0
+            epics_dicts[ifoShort]["eta"] = 0
+            epics_dicts[ifoShort]["amp"] = 0
+            epics_dicts[ifoShort]["mult"] = 0
 
     for attributeDic in attributeDics:
         if attributeDic["eventID"] == "None":
@@ -292,22 +296,26 @@ def run_earthquakes_info(params,segment):
             print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort)
 
             if params["doEPICs"]:
-                indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
-                eqs = np.zeros(tt.shape)
-                eqs[indexes] = 1
+                #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
+                #eqs = np.zeros(tt.shape)
+                #eqs[indexes] = 1
 
-                epics_dicts[ifo]["eta"] = arrival - gpsEnd
-                epics_dicts[ifo]["amp"] = traveltimes["Rfamp"][0]
+                eta = arrival - gpsEnd
+                if eta < 0:
+                    continue 
+
+                epics_dicts[ifoShort]["eta"] = arrival - gpsEnd
+                epics_dicts[ifoShort]["amp"] = traveltimes["Rfamp"][0]
                 if len(attributeDics) > 1:
-                    epics_dicts[ifo]["mult"] = 1
+                    epics_dicts[ifoShort]["mult"] = 1
                 else:
-                    epics_dicts[ifo]["mult"] = 0
-                if eamp < 1e-6:
-                    epics_dicts[ifo]["prob"] = 1
-                elif eamp < 5e-6:
-                    epics_dicts[ifo]["prob"] = 2
+                    epics_dicts[ifoShort]["mult"] = 0
+                if epics_dicts[ifoShort]["amp"] < 1e-6:
+                    epics_dicts[ifoShort]["prob"] = 1
+                elif epics_dicts[ifoShort]["amp"] < 5e-6:
+                    epics_dicts[ifoShort]["prob"] = 2
                 else:
-                    epics_dicts[ifo]["prob"] = 3     
+                    epics_dicts[ifoShort]["prob"] = 3     
 
                 #tstart = (max(traveltimes["Rfivetimes"]) + max(traveltimes["RthreePointFivetimes"]))/2.0
                 #tend = max(traveltimes["Rtwotimes"]) 
@@ -365,10 +373,14 @@ def run_earthquakes_info(params,segment):
         #print frameName, "completed"
 
         for ifo in ifos:
+            ifoShort = ifo
+            params["ifo"] = ifo
+            ifo = seismon.utils.getIfo(params)
+
             #filenamedir = "%s/txt/%s"%(params["epicsDirectory"],ifo)
             #if not os.path.isdir(filenamedir):
             #    os.mkdir(filenamedir)
-            fid.write('%s %d %.5f %.5e %d\n'%(ifo,epics_dicts[ifo]["prob"],epics_dicts[ifo]["eta"],epics_dicts[ifo]["amp"],epics_dicts[ifo]["mult"]))
+            fid.write('%s %d %.5f %.5e %d\n'%(ifoShort,epics_dicts[ifoShort]["prob"],epics_dicts[ifoShort]["eta"],epics_dicts[ifoShort]["amp"],epics_dicts[ifoShort]["mult"]))
         fid.close()
 
         if params["doPlots"]:
