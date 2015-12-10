@@ -251,13 +251,13 @@ def calculate_spectra(params,channel,dataFull):
                                         axis=0).view(dataFull.__class__)
     dataLowpass.data[:2*channel.samplef] = dataLowpass.data[2*channel.samplef]
     dataLowpass.data[-2*channel.samplef:] = dataLowpass.data[-2*channel.samplef]
-    dataLowpass.sample_rate =  dataFull.sample_rate
+    dataLowpass.dx =  dataFull.dx
     dataLowpass.epoch = dataFull.epoch
 
     #dataHighpass = dataFull.highpass(1.0)
     dataHighpass = scipy.signal.lfilter(B_high, A_high, dataFull,
                                         axis=0).view(dataFull.__class__)
-    dataHighpass.sample_rate =  dataFull.sample_rate
+    dataHighpass.dx =  dataFull.dx
     dataHighpass.epoch = dataFull.epoch
 
     if "IRIS:II:BFO:00:LA1" == channel.station:
@@ -269,7 +269,7 @@ def calculate_spectra(params,channel,dataFull):
 
         dataLowpass.data[:60*channel.samplef] = dataLowpass.data[60*channel.samplef]
         dataLowpass.data[-60*channel.samplef:] = dataLowpass.data[-60*channel.samplef]
-        dataLowpass.sample_rate =  dataFull.sample_rate
+        dataLowpass.dx =  dataFull.dx
         dataLowpass.epoch = dataFull.epoch
 
         dataHighpass.data[:60*channel.samplef] = dataHighpass.data[60*channel.samplef]
@@ -512,9 +512,9 @@ def spectra(params, channel, segment):
         pngFile = os.path.join(plotDirectory,"timeseries.png")
         plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
 
-        dataHighpass = data["dataHighpass"].decimate(16)
-        dataFull = data["dataFull"].decimate(16)
-        dataLowpass = data["dataLowpass"].decimate(16)
+        dataHighpass = data["dataHighpass"].resample(16)
+        dataFull = data["dataFull"].resample(16)
+        dataLowpass = data["dataLowpass"].resample(16)
       
         #dataHighpass = data["dataHighpass"]
         #dataFull = data["dataFull"]

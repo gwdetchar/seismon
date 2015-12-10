@@ -406,6 +406,7 @@ def frame_struct(params):
         datacache = []
     elif params["ifo"] == "XG":
         frameDir = "/archive/frames/MBH/"
+        frameDir = "/home/prestegard/Homestake_frames/"
         frameList = [os.path.join(root, name)
             for root, dirs, files in os.walk(frameDir)
             for name in files]

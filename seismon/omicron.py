@@ -10,7 +10,9 @@ import gwpy.time, gwpy.timeseries
 import gwpy.spectrum, gwpy.spectrogram
 import gwpy.plotter, gwpy.table
 
-import laldetchar.triggers
+from gwpy.table.lsctables import SnglBurstTable
+
+#import laldetchar.triggers
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -40,7 +42,15 @@ def plot_triggers(params,channel,segment):
     omicronPath = os.path.join(omicronDirectory,channel.station)
     omicronXMLs = glob.glob(os.path.join(omicronPath,"*.xml"))
 
-    table = laldetchar.triggers.from_files(omicronXMLs, "omicron")
+    table = []
+    for ii in xrange(len(omicronXMLs)):
+        tabletmp = SnglBurstTable.read(omicronXMLs[0])
+        #print tabletmp
+        for jj in xrange(len(tabletmp)):
+            table.append(tabletmp[jj])
+        #print table
+        #print stop
+    #table = laldetchar.triggers.from_files(omicronXMLs, "omicron")
 
     if table == []:
        return
@@ -48,7 +58,7 @@ def plot_triggers(params,channel,segment):
     peak_times = gwpy.plotter.table.get_table_column(table, "peak_time")
     central_freqs = gwpy.plotter.table.get_table_column(table, "central_freq")
     snrs = gwpy.plotter.table.get_table_column(table, "snr")
- 
+
     textLocation = params["path"] + "/" + channel.station_underscore
     seismon.utils.mkdir(textLocation)
 
@@ -69,7 +79,8 @@ def plot_triggers(params,channel,segment):
 
         epoch = gwpy.time.Time(gpsStart, format='gps')
        
-        plot = gwpy.plotter.EventTablePlot(table, 'time', 'central_freq', 'snr', figsize=[14,8],epoch=gpsStart,size_by_log='snr', size_range=[6, 20],edgecolor='none')
+        #plot = gwpy.plotter.EventTablePlot(table, 'time', 'central_freq', 'snr', figsize=[14,8],epoch=gpsStart,size_by_log='snr', size_range=[6, 20],edgecolor='none')
+        plot = table.plot('time', 'central_freq', color='snr', edgecolor='none', epoch=gpsStart)
         plot.add_colorbar(log=True, clim=[6, 20],label='Signal-to-noise ratio (SNR)')
         plot.xlim = [gpsStart, gpsEnd]
         plot.ylabel = 'Frequency [Hz]'
@@ -77,6 +88,11 @@ def plot_triggers(params,channel,segment):
         plot.axes[0].set_yscale("log")
         plot.save(pngFile)
         plot.close()
+
+        print pngFile
+        print peak_times
+        print gpsStart, gpsEnd
+        print stop
 
 def generate_triggers(params):
     """@generate omicron triggers.
@@ -90,8 +106,15 @@ def generate_triggers(params):
 
     gpsStart = 1e20
     gpsEnd = -1e20
-    f = open(os.path.join(omicronDirectory,"frames.ffl"),"w")
+
+    gpss = []
     for frame in params["frame"]:
+        gpss.append(frame.segment[0])
+    indexes = np.argsort(gpss)
+   
+    f = open(os.path.join(omicronDirectory,"frames.ffl"),"w")
+    for ii in indexes: 
+        frame = params["frame"][ii]
         f.write("%s %d %d 0 0\n"%(frame.path, frame.segment[0], frame.segment[1]-frame.segment[0]))
         gpsStart = min(gpsStart,frame.segment[0])
         gpsEnd = max(gpsEnd,frame.segment[1])
@@ -106,8 +129,8 @@ def generate_triggers(params):
     f.write("%d %d\n"%(gpsStart,gpsEnd))
     f.close()
 
-    omicron = "/home/detchar/opt/virgosoft/Omicron/v0r3/Linux-x86_64/omicron.exe"
-    environmentSetup = "CMTPATH=/home/detchar/opt/virgosoft; export CMTPATH; source /home/detchar/opt/virgosoft/Omicron/v0r3/cmt/setup.sh"
+    omicron = "/home/detchar/opt/virgosoft/Omicron/v2r1/Linux-x86_64/omicron.exe"
+    environmentSetup = "CMTPATH=/home/detchar/opt/virgosoft; export CMTPATH; source /home/detchar/opt/virgosoft/Omicron/v2r1/cmt/setup.sh"
     omicronCommand = "%s; %s %s %s"%(environmentSetup, omicron, os.path.join(omicronDirectory,"segments.txt"),os.path.join(omicronDirectory,"params.txt"))
 
     p = Popen(omicronCommand,shell=True,stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
@@ -148,10 +171,10 @@ def omicron_params(params):
     //*************************************************************************************
     
     //** chunk duration in seconds (must be an integer)
-    PARAMETER       CHUNKDURATION   864
+    PARAMETER       CHUNKDURATION   512
     
     //** segment duration in seconds (must be an integer)
-    PARAMETER       BLOCKDURATION   512
+    PARAMETER       SEGMENTDURATION   512
     
     //** overlap duration between segments in seconds (must be an integer)
     PARAMETER       OVERLAPDURATION  160
