@@ -1,0 +1,375 @@
+#!/usr/bin/env python
+
+"""Interact with external astrophysical alerts.
+
+This script repeatedly queries the Gravitational Wave Candidate Event
+Database (GraceDB) and populates the external trigger event channels
+displayed on the MEDM screen in the control rooms.
+"""
+
+__author__ = 'Duncan Macleod <duncan.macleod@ligo.org>'
+
+import os, sys, glob, optparse, warnings, time, json
+import subprocess
+import logging
+import socket
+import ssl
+from argparse import ArgumentParser
+from time import sleep
+import numpy as np
+
+import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+
+import epics
+import cas
+
+import seismon.utils
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+# -----------------------------------------------------------------------------
+# logging
+
+BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE = range(8)
+RESET_SEQ = "\033[0m"
+COLOR_SEQ = "\033[1;%dm"
+BOLD_SEQ = "\033[1m"
+COLORS = {
+    'WARNING': YELLOW,
+    'INFO': WHITE,
+    'DEBUG': BLUE,
+    'CRITICAL': RED,
+    'ERROR': RED
+}
+
+class ColoredFormatter(logging.Formatter):
+    """A `~logging.Formatter` that supports coloured output
+    """
+    def __init__(self, msg, use_color=True, **kwargs):
+        logging.Formatter.__init__(self, msg, **kwargs)
+        self.use_color = use_color
+
+    def format(self, record):
+        record.gpstime = gps_time_now(log=False)
+        levelname = record.levelname
+        if self.use_color and levelname in COLORS:
+            levelname_color = (
+                COLOR_SEQ % (30 + COLORS[levelname]) + levelname + RESET_SEQ)
+            record.levelname = levelname_color
+        return logging.Formatter.format(self, record)
+
+
+class ExtAlertLogger(logging.Logger):
+    """`~logging.Logger` with a nice format
+    """
+    FORMAT = ('[{bold}%(name)s{reset} %(gpstime)d] %(levelname)+19s: '
+              '%(message)s'.format(bold=BOLD_SEQ, reset=RESET_SEQ))
+    def __init__(self, name, level=logging.DEBUG):
+        #super(Logger, self).__init__(name, level=level)
+        #self.__init__(name, level=level) 
+        logging.Logger.__init__(self,name,level=level)
+        colorformatter = ColoredFormatter(self.FORMAT)
+        console = logging.StreamHandler()
+        console.setFormatter(colorformatter)
+        self.addHandler(console)
+
+
+# set logging
+logger = ExtAlertLogger('ext-alert')
+
+
+def unwrap_gracedb_event(event):
+    """Parse a gracedb event into a `dict` with specific keys
+
+    Parameters
+    ----------
+    event : `dict`
+        raw event dict from GraceDb query
+
+    Returns
+    -------
+    params : `dict`
+        dict with the following keys:
+
+        - 'ID': the event ID
+        - 'TIME': the GPS time of the event,
+        - 'SOURCE': the pipeline that created the event,
+        - 'TYPE': the category of event,
+        - 'PAUSE': the GPS time until which to pause tinj injections
+
+    Raises
+    ------
+    NotImplementedError
+        if the event doesn't match the 'G' or 'E' ID prefix, or
+        if the event type hasn't been mapped to a pause time for tinj
+    """
+    uid = str(event['graceid'])
+    out = {
+        'ID': uid,
+        'TIME': float(event['gpstime']),
+        'SOURCE': str(event['pipeline']),
+    }
+    # GW candidate events (out-going)
+    if uid.startswith('G'):
+        out['TYPE'] = str(event['group'])
+    # ExtTrig events (incoming)
+    elif uid.startswith('E'):
+        out['TYPE'] = str(event['search'])
+    # Test events
+    elif uid.startswith('T'):
+        out['TYPE'] = 'TEST'
+    else:
+        raise NotImplementedError("Handling alerts for %s-type events has not "
+                                  "been implemented" % uid[0])
+    try:
+        out['PAUSE'] = out['TIME'] + PAUSE[out['TYPE']]
+    except KeyError:
+        raise NotImplementedError("Unknown pause time for %r event "
+                                  % out['TYPE'])
+    return out
+
+def gps_time_now(log=False):
+
+    gps = int(os.popen("tconvert now").readline())
+    return gps
+    
+
+def caput(channel, value, **kwargs):
+    """caput with logging
+
+    Parameters
+    ----------
+    channel : `str`
+        name of channel to put
+    value : `float`, `str`
+        target value for channel
+    **kwargs
+        other keyword arguments to pass to `epics.caput`
+    """
+    epics.caput(channel, value, **kwargs)
+    logger.debug("caput %s = %s" % (channel, value))
+
+
+EPICS_RETRY = 0
+
+def caget(channel, log=True, retry=0, **kwargs):
+    """caget with logging
+
+    Parameters
+    ----------
+    channel : `str`
+        name of channel to get
+    log : `bool`, optional, default: `True`
+        use verbose logging
+    retry : `int`, optional, defauilt: `0`
+        catch failed cagets and try again this many times
+    **kwargs
+        other keyword arguments to pass to `epics.caget`
+
+    Returns
+    -------
+    value : `float`, str`
+        the value retrieved from that channel
+
+    Raises
+    ------
+    ValueError
+        if the channel failed to respond to a caget request
+    """
+    global EPICS_RETRY
+    value = epics.caget(channel, **kwargs)
+    if value is None:
+        if log:
+            logger.critical("Failed to caget %s" % channel)
+        if EPICS_RETRY < retry:
+            logger.warning('Retrying [%d]' % EPICS_RETRY)
+            return caget(channel, log=log, retry=retry, **kwargs)
+        else:
+            raise ValueError("Failed to caget %s" % channel)
+    if log:
+        logger.debug("caget %s = %s" % (channel, value))
+    EPICS_RETRY = 0
+    return value
+
+def parse_commandline():
+    """@Parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-p", "--paramsFile", help="Seismon params file.",
+                      default ="/Seismon/Seismon/seismon/input/seismon_params_earthquakesInfo.txt")
+
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1126709046,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1126787937,type=int)
+
+    parser.add_option("--eventfilesType", help="Event files type.", default="private")
+    parser.add_option("--doPlots",  action="store_true", default=False)
+    parser.add_option("--doEarthquakes",  action="store_true", default=False)
+    parser.add_option("--doTimeseries",  action="store_true", default=False)
+    parser.add_option("--doEPICs",  action="store_true", default=False)
+    parser.add_option("--epicsChannelList", help="Seismon params file.",
+                      default ="/Seismon/Seismon/seismon/input/seismon_epics_channel_list.txt")
+    parser.add_option("--channelList", help="Seismon params file.",
+                      default ="/Seismon/Seismon/seismon/input/seismon_nds_channel_list.txt")
+
+    parser.add_option("--doReadEPICs",  action="store_true", default=False)
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running pylal_seismon_run..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@Creates seismon params structure
+    @param opts
+        seismon command line options
+    """
+
+    params = seismon.utils.readParamsFromFile(opts.paramsFile)
+    params["gpsStart"] = opts.gpsStart
+    params["gpsEnd"] = opts.gpsEnd
+
+    params["eventfilesType"] = opts.eventfilesType
+
+    params["doPlots"] = opts.doPlots
+    params["doEarthquakes"] = opts.doEarthquakes
+    params["doTimeseries"] = opts.doTimeseries
+    params["doEPICs"] = opts.doEPICs
+    params["epicsChannelList"] = opts.epicsChannelList
+    params["channelList"] = opts.channelList
+    params["doReadEPICs"] = opts.doReadEPICs
+
+    return params
+
+def setup_params(params):
+
+    gpsStart = params["gpsStart"]
+    gpsEnd = params["gpsEnd"]
+
+    params["channel"] = None
+    params["referenceChannel"] = None
+    params = seismon.utils.channel_struct(params,params["epicsChannelList"])
+    #epicsDirectory = os.path.join(params["epicsDirectory"],"frames")
+    #frameList = [os.path.join(root, name)
+    #    for root, dirs, files in os.walk(epicsDirectory)
+    #    for name in files]
+    #datacache = []
+    #for frame in frameList:
+    #    thisFrame = frame.replace("file://localhost","")
+    #    if thisFrame == "":
+    #        continue
+    
+    #    thisFrameSplit = thisFrame.split(".")
+    #    if thisFrameSplit[-1] == "log":
+    #        continue
+    
+    #    thisFrameSplit = thisFrame.split("-")
+    #    gps = float(thisFrameSplit[-2])
+    #    dur = float(thisFrameSplit[-1].replace(".gwf",""))
+    
+    #    if gps+dur < gpsStart:
+    #        continue
+    #    if gps > gpsEnd:
+    #        continue
+    
+    #    #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
+    #    datacache.append(frame)
+    #datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+    #params["frame"] = datacache
+    return params
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+warnings.filterwarnings("ignore")
+
+# Parse command line
+opts = parse_commandline()
+params = params_struct(opts)
+params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/" + "%.0f"%params["gpsStart"] + "-" + "%.0f"%params["gpsEnd"]
+params["currentpath"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/" + "current"
+
+logger.setLevel(opts.verbose * 10)
+
+# -----------------------------------------------------------------------------
+# execute action
+
+socket.setdefaulttimeout(30)
+
+CHANNELS = {}
+ifos = ['H1','L1','V1','G1','MIT']
+epicschannels = ['ETA','AMP','PROB','MULT']
+
+for ifo in ifos:
+    for epicschannel in epicschannels:
+        channel = "%s:%s"%(ifo,epicschannel)
+        CHANNELS[channel] = {'type': 'float'}
+
+logger.info('Starting iteration')
+# create PVdb
+prefix = 'SEISMON:'
+server = cas.CaServer(prefix, CHANNELS)
+server.start()
+logger.info("Created CA server with prefix %r" % server.prefix)
+
+#try:
+while True:
+    while True:
+        #segment = [gps_time_now()-60,gps_time_now()-30]
+        #params["gpsStart"] = segment[0]
+        #params["gpsEnd"] = segment[1]
+        #params = setup_params(params)
+
+        filename = os.path.join(params["epicsDirectory"],"epics.txt")
+        lines = [line.rstrip('\n') for line in open(filename)]
+
+        for line in lines:
+            lineSplit = line.split(" ")
+            ifo = lineSplit[0]
+            prob = float(lineSplit[1])
+            eta = float(lineSplit[2]) 
+            amp = float(lineSplit[3])
+            mult = float(lineSplit[4])
+
+            name = "%s:ETA"%ifo
+            caput("%s%s"%(prefix,name),eta)
+            logger.info('Recorded %s' % name)
+            name = "%s:PROB"%ifo
+            caput("%s%s"%(prefix,name),prob)
+            logger.info('Recorded %s' % name)
+            name = "%s:AMP"%ifo
+            caput("%s%s"%(prefix,name),amp)
+            logger.info('Recorded %s' % name)
+            name = "%s:MULT"%ifo
+            caput("%s%s"%(prefix,name),mult)
+            logger.info('Recorded %s' % name)
+
+        logger.info('Iteration complete')
+        time.sleep(1)
+#except KeyboardInterrupt:
+#    logger.warning('Caught keyboard interrupt, EXITING')

@@ -28,8 +28,8 @@ while 1:
 
    paramsFile = "/Seismon/Seismon/seismon/input/seismon_params_earthquakesInfo.txt"
 
-   gpsStart = gpsEnd
-   gpsEnd = int(os.popen("tconvert now").readline()) + 8
+   gpsStart = int(os.popen("tconvert now").readline()) - 3600
+   gpsEnd = gpsStart + 3600
 
    start_time = time.time()
    os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs"%(paramsFile,gpsStart,gpsEnd))
@@ -38,10 +38,10 @@ while 1:
    print "Elapsed time for Seismon: %f"%(elapsed_time)
    print "python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs"%(paramsFile,gpsStart,gpsEnd)
 
-   start_time = time.time()
-   os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots --doTimeseries"%(paramsFile,gpsEnd-3600,gpsEnd))
-   end_time = time.time()
-   elapsed_time = end_time - start_time
-   print "Elapsed time for Seismon: %f"%(elapsed_time)
-   print "python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots"%(paramsFile,gpsEnd-3600,gpsEnd)
+   #start_time = time.time()
+   #os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots"%(paramsFile,gpsEnd-3600,gpsEnd))
+   #end_time = time.time()
+   #elapsed_time = end_time - start_time
+   #print "Elapsed time for Seismon: %f"%(elapsed_time)
+   #print "python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doReadEPICs --doPlots"%(paramsFile,gpsEnd-3600,gpsEnd)
 

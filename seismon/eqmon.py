@@ -173,6 +173,63 @@ def run_earthquakes(params,segment):
 
     return segmentlist
 
+def caput(channel, value, **kwargs):
+    """caput with logging
+
+    Parameters
+    ----------
+    channel : `str`
+        name of channel to put
+    value : `float`, `str`
+        target value for channel
+    **kwargs
+        other keyword arguments to pass to `epics.caput`
+    """
+    epics.caput(channel, value, **kwargs)
+    logger.debug("caput %s = %s" % (channel, value))
+
+
+EPICS_RETRY = 0
+
+def caget(channel, log=True, retry=0, **kwargs):
+    """caget with logging
+
+    Parameters
+    ----------
+    channel : `str`
+        name of channel to get
+    log : `bool`, optional, default: `True`
+        use verbose logging
+    retry : `int`, optional, defauilt: `0`
+        catch failed cagets and try again this many times
+    **kwargs
+        other keyword arguments to pass to `epics.caget`
+
+    Returns
+    -------
+    value : `float`, str`
+        the value retrieved from that channel
+
+    Raises
+    ------
+    ValueError
+        if the channel failed to respond to a caget request
+    """
+    global EPICS_RETRY
+    value = epics.caget(channel, **kwargs)
+    if value is None:
+        if log:
+            logger.critical("Failed to caget %s" % channel)
+        if EPICS_RETRY < retry:
+            logger.warning('Retrying [%d]' % EPICS_RETRY)
+            return caget(channel, log=log, retry=retry, **kwargs)
+        else:
+            raise ValueError("Failed to caget %s" % channel)
+    if log:
+        logger.debug("caget %s = %s" % (channel, value))
+    EPICS_RETRY = 0
+    return value
+
 def run_earthquakes_info(params,segment):
     """@run earthquakes prediction.
 
@@ -193,13 +250,18 @@ def run_earthquakes_info(params,segment):
     amp = 0
 
     if params["doEPICs"]:
-        epics_dicts = {}
-        tt = np.arange(gpsStart,gpsEnd,1)
-        for ifo in ifos:
-            epics_dicts[ifo] = {}
-            epics_dicts[ifo]["tt"] = tt
-            epics_dicts[ifo]["amp"] = np.zeros(tt.shape)
-            epics_dicts[ifo]["eq"] = np.zeros(tt.shape)
+
+       epics_dicts = {}
+       for ifo in ifos:
+            ifoShort = ifo
+            params["ifo"] = ifo
+            ifo = seismon.utils.getIfo(params)
+
+            epics_dicts[ifoShort] = {}
+            epics_dicts[ifoShort]["prob"] = 0
+            epics_dicts[ifoShort]["eta"] = 0
+            epics_dicts[ifoShort]["amp"] = 0
+            epics_dicts[ifoShort]["mult"] = 0
 
     for attributeDic in attributeDics:
         if attributeDic["eventID"] == "None":
@@ -234,71 +296,92 @@ def run_earthquakes_info(params,segment):
             print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort)
 
             if params["doEPICs"]:
-                indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
-                amps = np.zeros(tt.shape)
-                amps[indexes] = 1
+                #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
+                #eqs = np.zeros(tt.shape)
+                #eqs[indexes] = 1
 
-                tstart = (max(traveltimes["Rfivetimes"]) + max(traveltimes["RthreePointFivetimes"]))/2.0
-                tend = max(traveltimes["Rtwotimes"]) 
-                x = np.arange(tstart,tend,1)
-                x = tt
-                y = (x - np.min(x))/600.0
-                lamb = 1 + y[-1]/5.0
-                vals = scipy.stats.gamma.pdf(y, lamb)
-                vals = np.absolute(vals)
-                vals = vals / np.max(vals)
-                vals = vals * traveltimes["Rfamp"][0]
+                eta = arrival - gpsEnd
+                if eta < 0:
+                    continue 
+
+                epics_dicts[ifoShort]["eta"] = arrival - gpsEnd
+                epics_dicts[ifoShort]["amp"] = traveltimes["Rfamp"][0]
+                if len(attributeDics) > 1:
+                    epics_dicts[ifoShort]["mult"] = 1
+                else:
+                    epics_dicts[ifoShort]["mult"] = 0
+                if epics_dicts[ifoShort]["amp"] < 1e-6:
+                    epics_dicts[ifoShort]["prob"] = 1
+                elif epics_dicts[ifoShort]["amp"] < 5e-6:
+                    epics_dicts[ifoShort]["prob"] = 2
+                else:
+                    epics_dicts[ifoShort]["prob"] = 3     
+
+                #tstart = (max(traveltimes["Rfivetimes"]) + max(traveltimes["RthreePointFivetimes"]))/2.0
+                #tend = max(traveltimes["Rtwotimes"]) 
+                #x = np.arange(tstart,tend,1)
+                #x = tt
+                #y = (x - np.min(x))/600.0
+                #lamb = 1 + y[-1]/5.0
+                #vals = scipy.stats.gamma.pdf(y, lamb)
+                #vals = np.absolute(vals)
+                #vals = vals / np.max(vals)
+                #vals = vals * traveltimes["Rfamp"][0]
+                #amps = np.interp(tt,x,vals,left=0,right=0)
 
                 #epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps*traveltimes["Rfamp"][0]
-                epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + vals
-                epics_dicts[ifoShort]["eq"] = epics_dicts[ifoShort]["eq"] + amps
+                #epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps
+                #epics_dicts[ifoShort]["eq"] = epics_dicts[ifoShort]["eq"] + eqs
 
         f.close()
         write_info(earthquakesXMLFile,[attributeDic])
-
     
     if os.path.isdir(params["path"]):
+        if not os.path.isdir(params["currentpath"]):
+            sys_command = "mkdir %s"%(params["currentpath"])
+            os.system(sys_command)
         sys_command = "find %s -mtime +1 -exec rm -r {} \;"%params["currentpath"]
         os.system(sys_command)
         sys_command = "cp -r %s/* %s"%(params["path"],params["currentpath"])
         os.system(sys_command)
-    else:
-        sys_command = "mkdir %s"%(params["currentpath"])
-        os.system(sys_command)
 
     if params["doEPICs"]:
-        frameName = "%s/frames/S-SEISMON-%d-%d.gwf"%(params["epicsDirectory"],gpsStart,gpsEnd-gpsStart)
-        out_dicts = []
+
+        #fileName = "%s/S-SEISMON-%d-%d.txt"%(params["epicsDirectory"],gpsStart,gpsEnd-gpsStart)
+        fileName = "%s/epics.txt"%(params["epicsDirectory"])
+        fid = open(fileName,'w')
+        #out_dicts = []
+        #for ifo in ifos:
+        
+        #    channel_name =  "%s:AMP"%ifo
+        #    out_dict = {'name'  : channel_name,
+        #        'data'  : epics_dicts[ifo]["amp"],
+        #        'start' : tt[0],
+        #        'dx'    : tt[1]-tt[0],
+        #        'kind'  : 'ADC'}
+        #    out_dicts.append(out_dict)
+
+        #    channel_name =  "%s:EQ"%ifo
+        #    out_dict = {'name'  : channel_name,
+        #        'data'  : epics_dicts[ifo]["eq"],
+        #        'start' : tt[0],
+        #        'dx'    : tt[1]-tt[0],
+        #        'kind'  : 'ADC'}
+        #    out_dicts.append(out_dict)
+
+        #Fr.frputvect(frameName,out_dicts)
+        #print frameName, "completed"
+
         for ifo in ifos:
+            ifoShort = ifo
+            params["ifo"] = ifo
+            ifo = seismon.utils.getIfo(params)
 
-            channel_name =  "%s:AMP"%ifo
-            out_dict = {'name'  : channel_name,
-                'data'  : epics_dicts[ifo]["amp"],
-                'start' : tt[0],
-                'dx'    : tt[1]-tt[0],
-                'kind'  : 'ADC'}
-            out_dicts.append(out_dict)
-
-            channel_name =  "%s:EQ"%ifo
-            out_dict = {'name'  : channel_name,
-                'data'  : epics_dicts[ifo]["eq"],
-                'start' : tt[0],
-                'dx'    : tt[1]-tt[0],
-                'kind'  : 'ADC'}
-            out_dicts.append(out_dict)
-
-        Fr.frputvect(frameName,out_dicts)
-        print frameName, "completed"
-
-        for ifo in ifos:
-            filenamedir = "%s/txt/%s"%(params["epicsDirectory"],ifo)
-            if not os.path.isdir(filenamedir):
-                os.mkdir(filenamedir)
-            fileName = "%s/%s-SEISMON-%d-%d.txt"%(filenamedir,ifo,gpsStart,gpsEnd-gpsStart)
-            fid = open(fileName,'w')
-            for t, eq, amp in zip(tt,epics_dicts[ifo]["eq"],epics_dicts[ifo]["amp"]):
-                fid.write('%12.1f %d %10.5e\n'%(t,eq,amp))
-            fid.close()
+            #filenamedir = "%s/txt/%s"%(params["epicsDirectory"],ifo)
+            #if not os.path.isdir(filenamedir):
+            #    os.mkdir(filenamedir)
+            fid.write('%s %d %.5f %.5e %d\n'%(ifoShort,epics_dicts[ifoShort]["prob"],epics_dicts[ifoShort]["eta"],epics_dicts[ifoShort]["amp"],epics_dicts[ifoShort]["mult"]))
+        fid.close()
 
         if params["doPlots"]:
             plotsDirectory = os.path.join(params["path"],"plots")
@@ -1500,6 +1583,7 @@ def jsonread(event):
     attributeDic["eventID"] = event["properties"]["code"]
     attributeDic["eventName"] = event["properties"]["ids"].split(",")[1]
     attributeDic["Magnitude"] = event["properties"]["mag"]
+
     attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
     attributeDic["UTC"] = float(event["properties"]["time"]) / 1000.0
     attributeDic["DataSource"] = event["properties"]["sources"].replace(",","")
