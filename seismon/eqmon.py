@@ -45,7 +45,7 @@ def run_earthquakes(params,segment):
     seismon.utils.mkdir(noticesDirectory)
     segmentsDirectory = os.path.join(params["path"],"segments")
     seismon.utils.mkdir(segmentsDirectory)
-    predictionDirectory = params["dirPath"] + "/Text_Files/Prediction/"
+    predictionDirectory = params["dirPath"] + "/Text_Files/Prediction/%s/"%params["ifo"]
     seismon.utils.mkdir(predictionDirectory)
 
     ifo = seismon.utils.getIfo(params)

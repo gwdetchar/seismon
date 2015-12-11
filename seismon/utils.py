@@ -1306,7 +1306,7 @@ def retrieve_timeseries(params,channel,segment):
         #print "done"
 
         # make timeseries
-        dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
+        #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
 
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
