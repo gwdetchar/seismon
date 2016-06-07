@@ -297,8 +297,10 @@ def calculate_spectra(params,channel,dataFull):
     dataFFT = gwpy.spectrum.Spectrum(dataFFT, f0=np.min(freqFFT), df=(freqFFT[1]-freqFFT[0]))
 
     # manually set units (units in CIS aren't correct)
-    dataASD.unit = 'counts/Hz^(1/2)'
-    dataFFT.unit = 'counts/Hz^(1/2)'
+    #dataASD.unit = 'counts/Hz^(1/2)'
+    #dataFFT.unit = 'counts/Hz^(1/2)'
+    dataASD.override_unit('counts/Hz^(1/2)')
+    dataFFT.override_unit('counts/Hz^(1/2)')
 
     data = {}
     data["dataFull"] = dataFull

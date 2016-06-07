@@ -3,7 +3,7 @@ set(0,'DefaultAxesFontSize',20);
 set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
-site = 'LLO';
+%site = 'LLO';
 
 if strcmp(site,'LHO')
    eqfilename = 'LHO_O1.txt';

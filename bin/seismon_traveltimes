@@ -460,9 +460,9 @@ def iris_events(params):
     endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 
     client = obspy.fdsn.client.Client("IRIS")
+    client = obspy.fdsn.client.Client("http://earthquake.usgs.gov")
     events = client.get_events(minmagnitude=params["minMagnitude"],starttime=starttime,endtime=endtime)
 
-    print params["eventfilesLocation"] 
     ifos = ["LHO","LLO","GEO","VIRGO","Homestake","FortyMeter","MIT"]
 
     numEventsAdded = 0
