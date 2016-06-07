@@ -11,7 +11,19 @@ site = 'LHO';
 if strcmp(site,'LHO')
     S5 = load([folder 'LHO_S5.txt']);
     S6 = load([folder 'LHO_S6.txt']);
-    
+  
+    thresh = 1.3e-6;
+    cut1 = find(S5(:,15) > thresh);
+    S5 = S5(cut1,:);
+    cut1 = find(S6(:,15) > thresh);
+    S6 = S6(cut1,:);
+ 
+    %thresh = 6;
+    %cut1 = find(S5(:,2) > thresh);
+    %S5 = S5(cut1,:);
+    %cut1 = find(S6(:,2) > thresh);
+    %S6 = S6(cut1,:);
+
     [peakamp,iis] = sort([S5(:,15); S6(:,15)]);
     latitudes = [S5(:,11); S6(:,11)];
     latitudes = latitudes(iis);
@@ -25,6 +37,11 @@ if strcmp(site,'LHO')
 elseif strcmp(site,'LLO')
     S5 = load([folder 'LLO_S5.txt']);
     S6 = load([folder 'LLO_S6.txt']);
+
+    cut1 = find(S5(:,15) > thresh);
+    S5 = S5(cut1,:);
+    cut1 = find(S6(:,15) > thresh);
+    S6 = S6(cut1,:);
     
     [peakamp,iis] = sort([S5(:,15); S6(:,15)]);
     latitudes = [S5(:,11); S6(:,11)];
@@ -77,7 +94,7 @@ grid
 xlabel('Rf peak velocity, log10 [m/s]')
 axis tight
 
-% saveas(gcf,'./plots/Histograms.png')
+ saveas(gcf,'./plots/Histograms.png')
 
 %%
 figure(2)
@@ -136,7 +153,7 @@ grid
 ylabel('Peak Rf Motion [\mum/s]')
 legend('Prediction','Data','Location','SouthEast')
 
-% saveas(gcf,['./plots/Regression_' site '.pdf'])
+ saveas(gcf,['./plots/Regression_' site '.pdf'])
 
 
 figure(4)
@@ -152,5 +169,5 @@ set(gca,'yscale','log')
 % set(gca,'xscale','log','yscale','log')
 title([num2str(length(ii2)/N*100) '% within factor ' num2str(fac)])
 
-% saveas(gcf,['./plots/Accuracy_rel_F' num2str(fac) '_' site '.pdf'])
+ saveas(gcf,['./plots/Accuracy_rel_F' num2str(fac) '_' site '.pdf'])
 
