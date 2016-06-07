@@ -21,7 +21,7 @@ thresh = 1.3e-6;
 cut1 = find(eqs(:,15) > thresh);
 eqs = eqs(cut1,:);
 
-peakamp = eqs(:,15);
+peakamp = log10(eqs(:,15));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
@@ -64,12 +64,34 @@ for ii = 1:length(eqs)
    end
 
    fprintf(fid,'%.1f %.1f %.1f %.5e %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,15),flag);
+   flags = [flags flag];
 end
 fclose(fid);
 
 fprintf('%d %.5f %d %.5f\n',total_locks,total_time/86400,length(segments),sum(segments(:,2)-segments(:,1))/86400);
 
-figure(2)
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+indexes = find(flags == 0);
+scatter(distances(indexes),peakamp(indexes),40,'b','filled','Marker','o','MarkerEdgeColor','k')
+hold on
+indexes = find(flags == 1);
+scatter(distances(indexes),peakamp(indexes),40,'g','filled','Marker','o','MarkerEdgeColor','k')
+indexes = find(flags == 2);
+scatter(distances(indexes),peakamp(indexes),40,'r','filled','Marker','o','MarkerEdgeColor','k')
+hold off
+grid
+%caxis([-6 -3])
+set(gca,'xticklabel',{'0','5000','10000','15000','20000'})
+xlabel('Distance [km]')
+ylabel('Peak ground motion, log10 [m/s]')
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_vel_distance_' site '.pdf'])
+
+figure;
 set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
@@ -82,12 +104,11 @@ indexes = find(flags == 2);
 scatter(distances(indexes),magnitudes(indexes),40,'r','filled','Marker','o','MarkerEdgeColor','k')
 hold off
 grid
-caxis([-6 -3])
+%caxis([-6 -3])
 set(gca,'xticklabel',{'0','5000','10000','15000','20000'})
 xlabel('Distance [km]')
 ylabel('Magnitude')
-cb = colorbar;
-set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['./plots/lockloss_' site '.pdf'])
-
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_mag_distance_' site '.pdf'])
 
