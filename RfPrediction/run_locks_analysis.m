@@ -20,6 +20,8 @@ locklosses = segments(:,2);
 thresh = 1.3e-6;
 cut1 = find(eqs(:,15) > thresh);
 eqs = eqs(cut1,:);
+[~,indexes] = sort(eqs(:,15),'descend');
+eqs = eqs(indexes,:);
 
 peakamp = log10(eqs(:,15));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
@@ -31,6 +33,30 @@ fid = fopen(filename,'w+')
 total_locks = 0;
 total_time = 0;
 flags = [];
+
+indexes = [];
+for ii = 1:length(eqs)
+
+   eq = eqs(ii,:);
+   eqStart = eq(3); eqEnd = eq(7);
+   eqPeakAmp = eq(end);
+
+   over = 0;
+   for jj = 1:length(indexes)
+      eq2 = eqs(indexes(jj),:);
+      eqStart2 = eq2(3); eqEnd2 = eq2(7);
+      if sum(intersect(floor(eqStart):ceil(eqEnd),floor(eqStart2):ceil(eqEnd2))) > 0
+         over = 1;
+      end
+   end
+  
+   if over == 0
+      indexes = [indexes ii];
+   end
+end
+size(eqs)
+eqs = eqs(indexes,:);
+size(eqs)
 
 for ii = 1:length(eqs)
 
@@ -138,3 +164,4 @@ ylabel('Magnitude')
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_mag_distance_' site '.pdf'])
 
+save(['./plots/lockloss_' site '.mat'])
