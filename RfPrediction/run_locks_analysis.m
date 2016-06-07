@@ -70,6 +70,31 @@ fclose(fid);
 
 fprintf('%d %.5f %d %.5f\n',total_locks,total_time/86400,length(segments),sum(segments(:,2)-segments(:,1))/86400);
 
+indexes = find(flags == 1 | flags == 2);
+peakampcut = peakamp(indexes);
+flagscut = flags(indexes);
+flagscut(flagscut == 1) = 0;
+flagscut(flagscut == 2) = 1;
+[peakampcut,ii] = sort(peakampcut,'descend');
+flagscut = flagscut(ii);
+flagsall = ones(size(flagscut(ii)));
+flagscutsum = cumsum(flagscut) / cumsum(flagsall);
+peakampcut = fliplr(peakampcut);
+flagscutsum = fliplr(flagscutsum);
+
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+plot(peakampcut,flagscutsum,'kx')
+grid
+%caxis([-6 -3])
+xlabel('Peak ground motion, log10 [m/s]')
+ylabel('Lockloss');
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_vel_' site '.pdf'])
+
 figure;
 set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
