@@ -3,7 +3,7 @@ set(0,'DefaultAxesFontSize',20);
 set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
-%site = 'LLO';
+site = 'LLO';
 
 if strcmp(site,'LHO')
    eqfilename = 'LHO_O1.txt';
@@ -67,6 +67,7 @@ for ii = 1:length(eqs)
    flags = [flags flag];
 end
 fclose(fid);
+flags = flags';
 
 fprintf('%d %.5f %d %.5f\n',total_locks,total_time/86400,length(segments),sum(segments(:,2)-segments(:,1))/86400);
 
@@ -77,8 +78,8 @@ flagscut(flagscut == 1) = 0;
 flagscut(flagscut == 2) = 1;
 [peakampcut,ii] = sort(peakampcut,'descend');
 flagscut = flagscut(ii);
-flagsall = ones(size(flagscut(ii)));
-flagscutsum = cumsum(flagscut) / cumsum(flagsall);
+flagsall = ones(size(flagscut));
+flagscutsum = cumsum(flagscut) ./ cumsum(flagsall);
 peakampcut = fliplr(peakampcut);
 flagscutsum = fliplr(flagscutsum);
 
@@ -90,7 +91,7 @@ plot(peakampcut,flagscutsum,'kx')
 grid
 %caxis([-6 -3])
 xlabel('Peak ground motion, log10 [m/s]')
-ylabel('Lockloss');
+ylabel('Lockloss Probability');
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_vel_' site '.pdf'])
