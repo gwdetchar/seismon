@@ -3,7 +3,7 @@ set(0,'DefaultAxesFontSize',20);
 set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
-site = 'LLO';
+%site = 'LLO';
 
 if strcmp(site,'LHO')
    eqfilename = 'LHO_O1.txt';
@@ -108,6 +108,16 @@ flagsall = ones(size(flagscut));
 flagscutsum = cumsum(flagscut) ./ cumsum(flagsall);
 peakampcut = fliplr(peakampcut);
 flagscutsum = fliplr(flagscutsum);
+
+probs = [0.5 0.75 0.9 0.95];
+[~,ii] = unique(flagscutsum);
+flagscutsum_sort = flagscutsum(ii);
+peakampcut_sort = peakampcut(ii);
+
+thresholds = interp1(flagscutsum_sort,peakampcut_sort,probs);
+for ii = 1:length(probs)
+   fprintf('%.2f %.5e\n',probs(ii),10.^thresholds(ii));
+end
 
 figure;
 set(gcf, 'PaperSize',[8 6])
