@@ -6,11 +6,11 @@ site = 'LHO';
 %site = 'LLO';
 
 if strcmp(site,'LHO')
-   eqfilename = 'LHO_O1.txt';
-   segfilename = 'segs_Locked_H_1126569617_1136649617.txt';
+   eqfilename = 'data/LHO_O1.txt';
+   segfilename = 'data/segs_Locked_H_1126569617_1136649617.txt';
 elseif strcmp(site,'LLO')
-   eqfilename = 'LLO_O1.txt';
-   segfilename = 'segs_Locked_L_1126569617_1136649617.txt';
+   eqfilename = 'data/LLO_O1.txt';
+   segfilename = 'data/segs_Locked_L_1126569617_1136649617.txt';
 end
 
 eqs = load(eqfilename);
