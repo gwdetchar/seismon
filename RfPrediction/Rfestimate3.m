@@ -3,7 +3,7 @@ function Rfestimate3(threshinput, siteinput, datainput)
 set(0,'DefaultAxesFontSize',22);
 set(0,'DefaultTextFontSize',22);
 
-folder = '';
+folder = 'data/';
 
 site = siteinput;
 data = datainput;
@@ -65,7 +65,7 @@ grid
 xlabel('Rf peak velocity, log10 [m/s]')
 axis tight
 
-mkdir(['home/eric.coughlin/public_html/plots/' site '/' data]);
+mkdir(['home/eric.coughlin/public_html/plots/' site '/' data '/']);
 saveas(gcf,['/home/eric.coughlin/public_html/plots/' site '/' data '/Histograms.png'])
 
 %%
