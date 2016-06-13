@@ -6,11 +6,11 @@ site = 'LHO';
 %site = 'LLO';
 
 if strcmp(site,'LHO')
-   eqfilename = 'LHO_O1.txt';
-   segfilename = 'segs_Locked_H_1126569617_1136649617.txt';
+   eqfilename = 'data/LHO_O1.txt';
+   segfilename = 'data/segs_Locked_H_1126569617_1136649617.txt';
 elseif strcmp(site,'LLO')
-   eqfilename = 'LLO_O1.txt';
-   segfilename = 'segs_Locked_L_1126569617_1136649617.txt';
+   eqfilename = 'data/LLO_O1.txt';
+   segfilename = 'data/segs_Locked_L_1126569617_1136649617.txt';
 end
 
 eqs = load(eqfilename);
@@ -20,6 +20,8 @@ locklosses = segments(:,2);
 thresh = 1.3e-6;
 cut1 = find(eqs(:,15) > thresh);
 eqs = eqs(cut1,:);
+[~,indexes] = sort(eqs(:,15),'descend');
+eqs = eqs(indexes,:);
 
 peakamp = log10(eqs(:,15));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
@@ -31,6 +33,30 @@ fid = fopen(filename,'w+')
 total_locks = 0;
 total_time = 0;
 flags = [];
+
+indexes = [];
+for ii = 1:length(eqs)
+
+   eq = eqs(ii,:);
+   eqStart = eq(3); eqEnd = eq(7);
+   eqPeakAmp = eq(end);
+
+   over = 0;
+   for jj = 1:length(indexes)
+      eq2 = eqs(indexes(jj),:);
+      eqStart2 = eq2(3); eqEnd2 = eq2(7);
+      if sum(intersect(floor(eqStart):ceil(eqEnd),floor(eqStart2):ceil(eqEnd2))) > 0
+         over = 1;
+      end
+   end
+  
+   if over == 0
+      indexes = [indexes ii];
+   end
+end
+size(eqs)
+eqs = eqs(indexes,:);
+size(eqs)
 
 for ii = 1:length(eqs)
 
@@ -67,8 +93,44 @@ for ii = 1:length(eqs)
    flags = [flags flag];
 end
 fclose(fid);
+flags = flags';
 
 fprintf('%d %.5f %d %.5f\n',total_locks,total_time/86400,length(segments),sum(segments(:,2)-segments(:,1))/86400);
+
+indexes = find(flags == 1 | flags == 2);
+peakampcut = peakamp(indexes);
+flagscut = flags(indexes);
+flagscut(flagscut == 1) = 0;
+flagscut(flagscut == 2) = 1;
+[peakampcut,ii] = sort(peakampcut,'descend');
+flagscut = flagscut(ii);
+flagsall = ones(size(flagscut));
+flagscutsum = cumsum(flagscut) ./ cumsum(flagsall);
+peakampcut = fliplr(peakampcut);
+flagscutsum = fliplr(flagscutsum);
+
+probs = [0.5 0.75 0.9 0.95];
+[~,ii] = unique(flagscutsum);
+flagscutsum_sort = flagscutsum(ii);
+peakampcut_sort = peakampcut(ii);
+
+thresholds = interp1(flagscutsum_sort,peakampcut_sort,probs);
+for ii = 1:length(probs)
+   fprintf('%.2f %.5e\n',probs(ii),10.^thresholds(ii));
+end
+
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+plot(peakampcut,flagscutsum,'kx')
+grid
+%caxis([-6 -3])
+xlabel('Peak ground motion, log10 [m/s]')
+ylabel('Lockloss Probability');
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_vel_' site '.pdf'])
 
 figure;
 set(gcf, 'PaperSize',[8 6])
@@ -112,3 +174,4 @@ ylabel('Magnitude')
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_mag_distance_' site '.pdf'])
 
+save(['./plots/lockloss_' site '.mat'])
