@@ -1,4 +1,4 @@
-function Rfestimate3(threshinput, siteinput, datainput)
+function Rfestimate4(threshS5input, threshS6input, threshO1input, siteinput)
 
 set(0,'DefaultAxesFontSize',22);
 set(0,'DefaultTextFontSize',22);
@@ -6,23 +6,29 @@ set(0,'DefaultTextFontSize',22);
 folder = '';
 
 site = siteinput;
-data = datainput;
 
-datafile = load([folder site '_' data '.txt']);
-L1O1 = load([folder 'LLO_O1.txt']);
+S5 = load([folder site '_S5.txt']);
+S6 = load([folder site '_S6.txt']);
+O1 = load([folder site '_O1.txt']);
 
-thresh = threshinput;
-cut1 = find(datafile(:,15) > thresh);
-datafile = datafile(cut1,:);
+threshS5 = threshS5input;
+threshS6 = threshS6input;
+threshO1 = threshO1input;
+cut1 = find(S5(:,15) > threshS5);
+S5 = S5(cut1,:);
+cut2 = find(S6(:,15) > threshS6);
+S6 = S6(cut2,:);
+cut3 = find(O1(:,15) > threshO1);
+O1 = O1(cut3,:);
     
-[peakamp,iis] = sort([datafile(:,15)]);
-latitudes = [datafile(:,11)];
+[peakamp,iis] = sort([S5(:,15); S6(:,15); O1(:,15)]);
+latitudes = [S5(:,11); S6(:,11); O1(:,11)];
 latitudes = latitudes(iis);
-longitudes = [datafile(:,12)];
+longitudes = [S5(:,12); S6(:,12); O1(:,12)];
 longitudes = longitudes(iis);
-distances = [datafile(:,13)] / 1000;
+distances = [S5(:,13); S6(:,13); O1(:,13)] / 1000;
 distances = distances(iis);
-magnitudes = [datafile(:,2)];
+magnitudes = [S5(:,2); S6(:,2); O1(:,2)];
 magnitudes = magnitudes(iis);
 depths = zeros(size(magnitudes));
 N = length(magnitudes);
@@ -65,8 +71,9 @@ grid
 xlabel('Rf peak velocity, log10 [m/s]')
 axis tight
 
-mkdir(['home/eric.coughlin/public_html/plots/' site '/' data]);
-saveas(gcf,['/home/eric.coughlin/public_html/plots/' site '/' data '/Histograms.png'])
+foldir = 'home/eric.coughlin/public_html/secondplots/';
+mkdir(['/home/eric.coughlin/public_html/secondplots/' site]);
+saveas(gcf,['/home/eric.coughlin/public_html/secondplots/' site '/Histograms.png'])
 
 %%
 figure(2)
@@ -81,18 +88,18 @@ xlabel('Distance [km]')
 ylabel('Magnitude')
 cb = colorbar;
 set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['/home/eric.coughlin/public_html/plots/' site '/' data '/Histo_ground_' site '.pdf'])
+saveas(gcf,['/home/eric.coughlin/public_html/secondplots/' site '/Histo_ground_' site '.pdf'])
 
 %%
-optset =    optimset(        'TolFun', 1e-15, ...   % Termination tolerance on the function value
-					              'TolX', 1e-15, ...     % Termination tolerance on x
+optset =    optimset(        'TolFun', 1e-5, ...   % Termination tolerance on the function value
+					              'TolX', 1e-5, ...     % Termination tolerance on x
 							   'MaxIter',  5e4, ...     % Show the iteration steps ['iter' -> 'off']
-                                                                'MaxFunEval', inf);
+                                                                'MaxFunEval',inf);
 
 cost = @(x)norm(log10(ampRf(magnitudes,distances,depths,x(1),x(2),x(3),x(4),x(5),x(6),x(7))./peakamp));
 
 % function Rf = ampRf(M,r,h, Rf0,Rfs,Q0,Qs,cd,ch,rs)
-[ov, res] = fminsearch(cost, [20 11 2000 0 500 125 1], optset); %start values for each parameter, experiment friendly
+[ov, res] = fminsearch(cost, [10 1 1000 0 100 10 1], optset);
 
 disp(num2str(ov'))
 
@@ -103,7 +110,7 @@ ii = 1:N;
 %     ./ampRf(magnitudes,distances,depths,ov(1),ov(2),ov(3),ov(4),ov(5),ov(6),ov(7));
 
 acc_rel = max(peakamp./ampRf(magnitudes,distances,depths,ov(1),ov(2),ov(3),ov(4),ov(5),ov(6),ov(7)), ...
-    ampRf(magnitudes,distances,depths,ov(1),ov(2),ov(3),ov(4),ov(5),ov(6),ov(7))./peakamp); %Ratio of predicted to actual ground motion amplitude
+    ampRf(magnitudes,distances,depths,ov(1),ov(2),ov(3),ov(4),ov(5),ov(6),ov(7))./peakamp);
 
 fac = 5;
 ii2 = find(acc_rel<fac);
@@ -126,7 +133,7 @@ grid
 ylabel('Peak Rf Motion [\mum/s]')
 legend('Prediction','Data','Location','SouthEast')
 
- saveas(gcf,['/home/eric.coughlin/public_html/plots/' site '/' data '/Regression_' site '.pdf'])
+ saveas(gcf,['/home/eric.coughlin/public_html/secondplots/' site '/Regression_' site '.pdf'])
 
 
 figure(4)
@@ -142,5 +149,5 @@ set(gca,'yscale','log')
 % set(gca,'xscale','log','yscale','log')
 title([num2str(length(ii2)/N*100) '% within factor ' num2str(fac)])
 
- saveas(gcf,['/home/eric.coughlin/public_html/plots/' site '/' data '/Accuracy_rel_F' num2str(fac) '_' site '.pdf'])
+ saveas(gcf,['/home/eric.coughlin/public_html/secondplots/' site '/Accuracy_rel_F' num2str(fac) '_' site '.pdf'])
 
