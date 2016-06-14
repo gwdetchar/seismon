@@ -45,7 +45,9 @@ def parse_commandline():
 
     return opts
 ## LHO
-for direction in ['Z', 'X', 'Y']:
+os.system('mkdir -p /home/eric.coughlin/H1O1/')
+os.system('mkdir -p /home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/')
+for direction in ['Z']:
     H1_lock_time_list = []
     H1_lockloss_time_list = []
     H1_peak_ground_velocity_list = []
@@ -87,15 +89,29 @@ for direction in ['Z', 'X', 'Y']:
     H1_channel_lockstatus_data.close()
     eq_time_list = []
     locklosslist = []
+    pw_arrival_list = []
     resultfileplotH1 = open('/home/eric.coughlin/H1O1/organized_data_{0}.txt'.format(direction), 'r')
     for item in (line.strip().split() for line in resultfileplotH1):
         eq_time = item[0]
+        pw_arrival = item[1]
         peakgroundvelocity = item[2]
         lockloss = item[3]
         H1_peak_ground_velocity_list.append(float(peakgroundvelocity))
         locklosslist.append(lockloss)
         eq_time_list.append(eq_time)
+        pw_arrival_list.append(pw_arrival)
     
+    H1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_O1_binary_{0}.txt'.format(direction), 'w')
+
+    for eq_time, pw_arrival, peakgroundvelocity, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, locklosslist):
+        if lockloss == "Y":
+            H1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,'1'))
+        elif lockloss == "N":
+            H1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,'0'))
+        else:
+            pass
+    H1_binary_file.close()
+
     locklosslistZ = []
     locklosslistY = []
     locklosslistN = []
@@ -189,7 +205,9 @@ for direction in ['Z', 'X', 'Y']:
 
     probs = [0.5, 0.75, 0.9, 0.95]
     num_lock_prob_cumsum_sort = np.unique(num_lock_prob_cumsum)
+    print(num_lock_prob_cumsum_sort)
     YN_peak_list_sort = np.unique(YN_peak_list)
+    print(YN_peak_list_sort)
     num_lock_prob_cumsum_sort, YN_peak_list_sort = zip(*sorted(zip(num_lock_prob_cumsum_sort, YN_peak_list_sort)))
     thresholdsf = interp1d(num_lock_prob_cumsum_sort,YN_peak_list_sort)
     for item in probs:
@@ -201,7 +219,9 @@ for direction in ['Z', 'X', 'Y']:
     threshold_file_H1.close()
 
 ## LLO
-for direction in ['Z', 'X', 'Y']:
+os.system('mkdir -p /home/eric.coughlin/L1O1/')
+os.system('mkdir -p /home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/')
+for direction in ['Z']:
     L1_lock_time_list = []
     L1_lockloss_time_list = []
     options = parse_commandline()
@@ -240,14 +260,28 @@ for direction in ['Z', 'X', 'Y']:
     L1_channel_lockstatus_data.close()
     eq_time_list = []
     locklosslist = []
+    pw_arrival_list = []
     resultfileplotL1 = open('/home/eric.coughlin/L1O1/organized_data_{0}.txt'.format(direction), 'r')
     for item in (line.strip().split() for line in resultfileplotL1):
         eq_time = item[0]
+        pw_arrival = item[1]
         peakgroundvelocity = item[2]
         lockloss = item[3]
         H1_peak_ground_velocity_list.append(float(peakgroundvelocity))
         locklosslist.append(lockloss)
         eq_time_list.append(eq_time)
+        pw_arrival_list.append(pw_arrival)
+
+    L1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_binary_{0}.txt'.format(direction), 'w')
+
+    for eq_time, pw_arrival, peakgroundvelocity, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, locklosslist):
+        if lockloss == "Y":
+            L1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,'1'))
+        elif lockloss == "N":
+            L1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,'0'))
+        else:
+            pass
+    L1_binary_file.close()
 
     locklosslistZ = []
     locklosslistY = []
