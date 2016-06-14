@@ -12,7 +12,7 @@ title('LLO Test Data Vs. Actual Data')
 xlabel('Xtest(second half)')
 ylabel('y(predicted and actual)')
 legend('predicted','actual')
-saveas(gcf,'/home/eric.coughlin/public_html/LLO_comparision_test.png')
+saveas(gcf,'/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/LLO_comparision_test.png')
 
 LHO_file = load('data/LHO_O1_binary_Z.txt');
 Xtrain = [LHO_file(1:end/2,1) LHO_file(1:end/2,2) LHO_file(1:end/2,3)];
@@ -27,4 +27,4 @@ plot(Xtest, yfit, 'r', Xtest, LHO_file(end/2:end,4), 'b');
 title('LHO Test Data Vs. Actual Data')
 xlabel('Xtest(second half)')
 ylabel('y(predicted and actual)')
-saveas(gcf,'/home/eric.coughlin/public_html/LHO_comparision_test.png')
+saveas(gcf,'/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/LHO_comparision_test.png')
