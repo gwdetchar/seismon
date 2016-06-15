@@ -20,6 +20,18 @@ legend('predicted','actual')
 saveas(gcf,'/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/LLO_comparision_test.png')
 saveas(gcf,'/home/eric.coughlin/public_html/LLO_comparision_test.png')
 
+
+file1 = load('data/LLO_analysis_locks.txt');
+index = find(file1(:,16) == 1 | file1(:,16) == 2);
+indexcut = file1(index,16);
+indexcut(indexcut == 1) = 0;
+indexcut(indexcut == 2) = 1;
+file1Unique = unique([file1(index,1) file1(index,3) file1(index,15) indexcut],'rows','stable');
+index2 = find(Xunique(1:length(file1Unique),:) == file1Unique(:,:));
+Xunique(20,4) == file1Unique(20,4)
+
+
+
 LHO_file = load('data/LHO_O1_binary_Z.txt');
 Xunique = [LHO_file(:,1) LHO_file(:,2) LHO_file(:,3) LHO_file(:,4)];
 Xunique = unique(Xunique,'rows','stable');
