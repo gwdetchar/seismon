@@ -3,13 +3,13 @@ set(0,'DefaultAxesFontSize',20);
 set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
-%site = 'LLO';
+site = 'LLO';
 
 if strcmp(site,'LHO')
-   eqfilename = 'data/LHO_O1.txt';
+   eqfilename = 'data/LHO_O1_Z.txt';
    segfilename = 'data/segs_Locked_H_1126569617_1136649617.txt';
 elseif strcmp(site,'LLO')
-   eqfilename = 'data/LLO_O1.txt';
+   eqfilename = 'data/LLO_O1_Z.txt';
    segfilename = 'data/segs_Locked_L_1126569617_1136649617.txt';
 end
 
@@ -27,7 +27,7 @@ peakamp = log10(eqs(:,15));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
-filename = sprintf('%s_analysis_locks.txt',site)
+filename = sprintf('data/%s_analysis_locks.txt',site)
 fid = fopen(filename,'w+')
 
 total_locks = 0;
@@ -54,9 +54,10 @@ for ii = 1:length(eqs)
       indexes = [indexes ii];
    end
 end
-size(eqs)
 eqs = eqs(indexes,:);
-size(eqs)
+peakamp = log10(eqs(:,15));
+latitudes = eqs(:,11); longitudes = eqs(:,12); 
+distances = eqs(:,13); magnitudes = eqs(:,2);
 
 for ii = 1:length(eqs)
 
@@ -89,7 +90,7 @@ for ii = 1:length(eqs)
       total_locks = total_locks + 1;
    end
 
-   fprintf(fid,'%.1f %.1f %.1f %.5e %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,15),flag);
+   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),flag);
    flags = [flags flag];
 end
 fclose(fid);
