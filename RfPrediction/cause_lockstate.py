@@ -55,7 +55,7 @@ for direction in ['Z']:
     options = parse_commandline()
     predicted_peak_ground_velocity_list = []
     datafileH1 = open('{0}/gitrepo/seismon/RfPrediction/data/LHO_O1_{1}.txt'.format(hdir, direction), 'r')
-    resultfileH1 = open('/home/eric.coughlin/H1O1/organized_data_{0}.txt'.format(direction), 'w')
+    resultfileH1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_lockstatus_{0}.txt'.format(direction), 'w')
     H1_channel_lockstatus_data = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/segs_Locked_H_1126569617_1136649617.txt', 'r')
     # This next section of code is where the data is seperated into two lists to make this data easier to search through and process.
     for item in (line.strip().split() for line in H1_channel_lockstatus_data):
@@ -228,7 +228,7 @@ for direction in ['Z']:
     predicted_peak_ground_velocity_list = []
     H1_peak_ground_velocity_list =[]
     datafileL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_{0}.txt'.format(direction), 'r')
-    resultfileL1 = open('/home/eric.coughlin/L1O1/organized_data_{0}.txt'.format(direction), 'w')
+    resultfileL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_lockstatus_{0}.txt'.format(direction), 'w')
     L1_channel_lockstatus_data = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/segs_Locked_L_1126569617_1136649617.txt', 'r')
     for item in (line.strip().split() for line in L1_channel_lockstatus_data):
         L1_lock_time = item[0]
