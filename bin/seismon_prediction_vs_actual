@@ -140,7 +140,7 @@ def predict_events():
     plt.xlabel("Event number")
     plt.ylabel("Ground Velocity [m/s]")
     plt.xlim([-0.5,len(events[:,0])+0.5])
-    plt.ylim([1e-6,1e-3])
+    plt.ylim([1e-8,1e-3])
     plt.show()
     plotName = os.path.join(params["outputDirectory"],'prediction.png')
     plt.savefig(plotName)
@@ -162,7 +162,7 @@ def predict_events():
     ax.set_xscale('log')
     plt.xlabel("Ground velocity [m/s]")
     plt.ylabel("Earthquake velocity [m/s]")
-    plt.xlim([1e-6,1e-3])
+    plt.xlim([1e-8,1e-3])
     plt.ylim([2,5])
     plt.show()
     plotName = os.path.join(params["outputDirectory"],'velocity.png')
@@ -173,7 +173,7 @@ def predict_events():
     plt.savefig(plotName)
     plt.close()
 
-    vmin = -7
+    vmin = -8
     vmax = -4
 
     plt.figure()
