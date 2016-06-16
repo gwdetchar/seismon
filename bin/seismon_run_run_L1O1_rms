@@ -1,0 +1,52 @@
+#!/usr/bin/python
+
+"""
+%prog
+
+Michael Coughlin (coughlim@carleton.edu)
+
+This program runs seismon_run.py.
+
+"""
+
+# =============================================================================
+#
+#                               PREAMBLE
+#
+# =============================================================================
+
+
+import os, time
+import numpy as np
+
+__author__ = "Michael Coughlin <coughlim@carleton.edu>"
+__date__ = "2012/2/7"
+__version__ = "0.1"
+
+
+paramsFile = "/home/mcoughlin/Seismon/seismon/input/seismon_params_L1EQMon.txt"
+paramsFile = "/home/mcoughlin/Seismon/seismon/input/seismon_params_L1O1.txt"
+
+gpsStart = 1126051217
+gpsEnd = 1133795277
+
+gpsStart = 1126569617
+gpsEnd = 1136678417
+
+gpsStart = 1126073342
+gpsEnd = 1137283217
+ 
+#os.system("python seismon_run -p %s -s %d -e %d -c L1:ISI-GND_STS_HAM2_Z_DQ --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
+
+#os.system("python seismon_run -p %s -s %d -e %d -c L1:ISI-GND_STS_HAM2_Z_DQ,L1:ISI-GND_STS_HAM2_Y_DQ,L1:ISI-GND_STS_HAM2_X_DQ,L1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
+
+#print "python seismon_run -p %s -s %d -e %d -c L1:ISI-GND_STS_HAM2_Z_DQ,L1:ISI-GND_STS_HAM2_Y_DQ,L1:ISI-GND_STS_HAM2_X_DQ,L1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd)
+
+os.system("python seismon_run -p %s -s %d -e %d -c L1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
+
+print "python seismon_run -p %s -s %d -e %d -c L1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,L1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd)
+
+  
+#os.system("python seismon_run -p %s -s %d -e %d -c L1:ISI-GND_STS_HAM2_Z_DQ --doEarthquakes --doEarthquakesAnalysis --doPSD --doPlots --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
+
+
