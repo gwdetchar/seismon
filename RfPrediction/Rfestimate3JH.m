@@ -5,7 +5,7 @@ set(0,'DefaultTextFontSize',22);
 
 folder = './data/';
 
-site = 'LHO'; %LLO,LHO
+site = 'LLO'; %LLO,LHO
 data = 'O1_Z'; %S5,S6,O1_Z
 
 datafile = load([folder site '_' data '.txt']);
@@ -93,9 +93,10 @@ optset =    optimset(        'TolFun', 1e-16, ...   % Termination tolerance on t
 cost = @(x)norm(log10(ampRf(magnitudes,distances,depths,x(1),x(2),x(3),x(4),x(5),x(6),x(7))./peakamp));
 
 % function Rf = ampRf(M,r,h, Rf0,Rfs,Q0,Qs,cd,ch,rs)
-% [ov, res] = fminsearch(cost, [20 11 2000 0 500 125 1], optset); %start values for each parameter, experiment friendly
-% [ov, res] = fminsearch(cost, [10 1 1000 0 100 10 1], optset);
-[ov, res] = fminsearch(cost, 10*rand(1,7), optset);
+% [ov, res] = fminsearch(cost, 100*rand(1,7), optset);
+
+% ov = [280.6703 1.113023 41.342 26.3735 404.9048 -8.4239e-017 1.652343]; %S5, LHO
+ov = [183.61632 1.662635 7.1031912 -0.48252104 823.56256 -2246.8295 1.8035421]; %S5, LLO
 
 disp('Best-fit parameters (Rf0,Rfs,Q0,Qs,cd,ch,rs):')
 disp('   fc = 10.^(2.3-M/2)');
@@ -125,7 +126,7 @@ figure(3)
 set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
-semilogy(ii,ampRf(magnitudes,distances,depths,ov(1),ov(2),ov(3),ov(4),ov(5),ov(6),ov(7))/1e-6,'gx','LineWidth',2)
+semilogy(ii,ampRf(magnitudes,distances,depths,ov(1),ov(2),ov(3),ov(4),ov(5),ov(6),ov(7))/1e-6,'rx','LineWidth',2)
 hold on
 scatter(ii,peakamp(ii)/1e-6,[],dotcolors(ii),'filled','LineWidth',2)
 colormap('winter')
@@ -155,9 +156,8 @@ title([num2str(length(ii2)/N*100) '% within factor ' num2str(fac)])
 %%
 facfac = linspace(1,10,100);
 for k = 1:length(facfac) 
-    ii2 = find(acc_rel<facfac(k));
-    ii3 = find(acc_rel>=facfac(k));
-    ratio(k) = length(ii2)/N*100;
+    ii = find(acc_rel<facfac(k));
+    ratio(k) = length(ii)/N*100;
 end
 
 figure(5)
