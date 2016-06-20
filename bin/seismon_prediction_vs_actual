@@ -124,7 +124,7 @@ def predict_events():
             continue
         data_out = np.loadtxt(filename)
 
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],data_out[1,0],data_out[1,1]))
+        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],data_out[1,0],data_out[1,1]))
 
         print gpsMin, gpsMax
 
@@ -134,7 +134,7 @@ def predict_events():
     events = events[events[:,7].argsort()]
 
     plt.figure()
-    plt.semilogy(events[:,14],'kx',label='Measured')
+    plt.semilogy(events[:,15],'kx',label='Measured')
     plt.semilogy(events[:,7],'c*',label='Predicted')
     plt.legend(loc=2,numpoints=1)
     plt.xlabel("Event number")
@@ -178,7 +178,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,14]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,15]),vmin=vmin, vmax=vmax)
     ax.set_xscale('log')
     plt.xlabel("Distance [m]")
     plt.ylabel("Earthquake Magnitude")

@@ -77,13 +77,15 @@ for direction in ['Z']:
             H1_lock_time = min(H1_lock_time_list, key=lambda x:abs(x-float(pw_arrival_time)))
             H1_lockloss_time = min(H1_lockloss_time_list, key=lambda x:abs(x-float(float(pw_arrival_time) + float(options.time_after_p_wave))))
             lockloss = ""
-            if H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave)): # The if statements are designed to check if the interferometer is in lock or not and if it is. Did it lose lock around the time of the earthquake? 
+            if (float(peak_ground_velocity) > 1.3e-6) and (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))): # The if statements are designed to check if the interferometer is in lock or not and if it is. Did it lose lock around the time of the earthquake? 
                 lockloss = "Y"
-            elif H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave)):
+                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
+            elif (float(peak_ground_velocity) > 1.3e-6) and (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "N"
-            elif H1_lock_time > float(pw_arrival_time):
+                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
+            elif (float(peak_ground_velocity) > 1.3e-6) and (H1_lock_time > float(pw_arrival_time)):
                 lockloss = "Z"
-            resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss)) # Writes formatted string to text file.
+                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss)) # Writes formatted string to text file.
     datafileH1.close()
     resultfileH1.close()
     H1_channel_lockstatus_data.close()
@@ -248,13 +250,15 @@ for direction in ['Z']:
             L1_lock_time = min(L1_lock_time_list, key=lambda x:abs(x-float(pw_arrival_time)))
             L1_lockloss_time = min(L1_lockloss_time_list, key=lambda x:abs(x-float(float(pw_arrival_time) + float(options.time_after_p_wave))))
             lockloss = ""
-            if L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave)):
+            if (float(peak_ground_velocity) > 1.3e-6) and (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "Y"
-            elif L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave)):
+                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
+            elif (float(peak_ground_velocity) > 1.3e-6) and (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "N"
-            elif L1_lock_time > float(pw_arrival_time):
+                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
+            elif (float(peak_ground_velocity) > 1.3e-6) and (L1_lock_time > float(pw_arrival_time)):
                 lockloss = "Z"
-            resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
+                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
     datafileL1.close()
     resultfileL1.close()
     L1_channel_lockstatus_data.close()

@@ -3,13 +3,13 @@ function Rfestimate3(threshinput, siteinput, datainput)
 set(0,'DefaultAxesFontSize',22);
 set(0,'DefaultTextFontSize',22);
 
-folder = 'data/';
+folder = './data/';
 
 site = siteinput;
 data = datainput;
 
-datafile = load([folder site '_' data '.txt']);
-L1O1 = load([folder 'LLO_O1.txt']);
+datafile = load([folder site '_' data '.txt'])
+% L1O1 = load([folder 'LLO_O1.txt']);
 
 thresh = threshinput;
 cut1 = find(datafile(:,15) > thresh);

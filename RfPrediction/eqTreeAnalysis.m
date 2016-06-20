@@ -28,7 +28,8 @@ indexcut(indexcut == 1) = 0;
 indexcut(indexcut == 2) = 1;
 file1Unique = unique([file1(index,1) file1(index,3) file1(index,15) indexcut],'rows','stable');
 index2 = find(Xunique(1:length(file1Unique),:) == file1Unique(:,:));
-Xunique(20,4) == file1Unique(20,4)
+disp(length(Xunique))
+disp(length(file1Unique))
 
 
 
