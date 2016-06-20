@@ -6,10 +6,10 @@ site = 'LHO';
 %site = 'LLO';
 
 if strcmp(site,'LHO')
-   eqfilename = 'data/LHO_O1_Z.txt';
+   eqfilename = 'data/LHO_O1_RMS_Z.txt';
    segfilename = 'data/segs_Locked_H_1126569617_1136649617.txt';
 elseif strcmp(site,'LLO')
-   eqfilename = 'data/LLO_O1_Z.txt';
+   eqfilename = 'data/LLO_O1_RMS_Z.txt';
    segfilename = 'data/segs_Locked_L_1126569617_1136649617.txt';
 end
 
@@ -17,17 +17,17 @@ eqs = load(eqfilename);
 segments = load(segfilename);
 locklosses = segments(:,2);
 
-thresh = 1.3e-6;
-cut1 = find(eqs(:,16) > thresh);
-eqs = eqs(cut1,:);
-[~,indexes] = sort(eqs(:,16),'descend');
-eqs = eqs(indexes,:);
+%thresh = 1.3e-6;
+%cut1 = find(eqs(:,15) > thresh);
+%eqs = eqs(cut1,:);
+%[~,indexes] = sort(eqs(:,15),'descend');
+%eqs = eqs(indexes,:);
 
 peakamp = log10(eqs(:,16));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
-filename = sprintf('data/%s_analysis_locks.txt',site)
+filename = sprintf('data/%s_analysis_locks_RMS.txt',site)
 fid = fopen(filename,'w+')
 
 total_locks = 0;
@@ -90,7 +90,7 @@ for ii = 1:length(eqs)
       total_locks = total_locks + 1;
    end
 
-   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),eqs(ii,16),flag);
+   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),eqs(ii,16),flag);
    flags = [flags flag];
 end
 fclose(fid);
@@ -131,7 +131,7 @@ xlabel('Peak ground motion, log10 [m/s]')
 ylabel('Lockloss Probability');
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['./plots/lockloss_vel_' site '.pdf'])
+saveas(gcf,['./plots/lockloss_vel_RMS_' site '.pdf'])
 
 figure;
 set(gcf, 'PaperSize',[8 6])
@@ -152,7 +152,7 @@ xlabel('Distance [km]')
 ylabel('Peak ground motion, log10 [m/s]')
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['./plots/lockloss_vel_distance_' site '.pdf'])
+saveas(gcf,['./plots/lockloss_vel_distance_RMS_' site '.pdf'])
 
 figure;
 set(gcf, 'PaperSize',[8 6])
@@ -173,6 +173,6 @@ xlabel('Distance [km]')
 ylabel('Magnitude')
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['./plots/lockloss_mag_distance_' site '.pdf'])
+saveas(gcf,['./plots/lockloss_mag_distance_RMS_' site '.pdf'])
 
-save(['./plots/lockloss_' site '.mat'])
+save(['./plots/lockloss_RMS_' site '.mat'])
