@@ -3,7 +3,7 @@ set(0,'DefaultAxesFontSize',20);
 set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
-site = 'LLO';
+%site = 'LLO';
 
 if strcmp(site,'LHO')
    eqfilename = 'data/LHO_O1_Z.txt';
@@ -73,6 +73,7 @@ for ii = 1:length(eqs)
       end
    end
 
+   locklosstime = -1;
    if length(indexes) == 0
       flag = 0;
    else
@@ -82,6 +83,7 @@ for ii = 1:length(eqs)
          flag = 1;
       else
          flag = 2;
+         locklosstime = segs(checkloss(1),2);
       end
    end
 
@@ -90,7 +92,7 @@ for ii = 1:length(eqs)
       total_locks = total_locks + 1;
    end
 
-   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),eqs(ii,16),flag);
+   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),eqs(ii,16),flag,locklosstime);
    flags = [flags flag];
 end
 fclose(fid);
