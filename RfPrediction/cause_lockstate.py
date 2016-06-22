@@ -45,7 +45,7 @@ def parse_commandline():
 
     return opts
 ## LHO
-rms_toggle = ''
+rms_toggle = 'RMS_'
 os.system('mkdir -p /home/eric.coughlin/H1O1/')
 os.system('mkdir -p /home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/')
 for direction in ['Z','X','Y']:
@@ -158,6 +158,7 @@ for direction in ['Z','X','Y']:
     axarr.set_ylabel('peak ground velocity(m/s)')
     axarr.legend(loc='best')
     f.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/lockstatus_LHO_{0}{1}.png'.format(rms_toggle, direction))
+    f.savefig('/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/lockstatus_LHO_{0}{1}.png'.format(rms_toggle, direction))
     plt.figure(3)
     print(len(H1_peak_ground_velocity_sorted_list))
     print(len(predicted_peak_ground_velocity_sorted_list))
@@ -169,9 +170,10 @@ for direction in ['Z','X','Y']:
     plt.ylabel('predicted peak ground velocity(m/s)')
     plt.legend(loc='best')
     plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/check_prediction_LHO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.savefig('/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/check_prediction_LHO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
     
-    threshold_file_H1 = open('/home/eric.coughlin/H1O1/threshhold_data_{0}{1}.txt'.format(rms_toggle, direction), 'w')
+    threshold_file_H1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/threshhold_data_{0}{1}.txt'.format(rms_toggle, direction), 'w')
     num_of_lockloss = len(locklosslistY)
     total_lockstatus = num_of_lockloss + len(locklosslistN)
     total_lockstatus_all = num_of_lockloss + len(locklosslistN) + len(locklosslistZ)
@@ -220,6 +222,7 @@ for direction in ['Z','X','Y']:
     plt.ylabel('Lockloss Probablity')
     plt.legend(loc='best')
     plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/lockloss_probablity_LHO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.savefig('/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/lockloss_probablity_LHO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
 
 
@@ -333,6 +336,7 @@ for direction in ['Z','X','Y']:
     plt.ylabel('peak ground velocity(m/s)')
     plt.legend(loc='best')
     plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/lockstatus_LLO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.savefig('/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/lockstatus_LLO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
 
     plt.figure(9)
@@ -344,9 +348,10 @@ for direction in ['Z','X','Y']:
     plt.ylabel('predicted peak ground velocity(m/s)')
     plt.legend(loc='best')
     plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/check_predictionLLO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.savefig('/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/check_predictionLLO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
 
-    threshold_file_L1 = open('/home/eric.coughlin/L1O1/threshhold_data_{0}{1}.txt'.format(rms_toggle, direction), 'w')
+    threshold_file_L1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/threshhold_data_{0}{1}.txt'.format(rms_toggle, direction), 'w')
     num_of_lockloss = len(locklosslistY)
     total_lockstatus = num_of_lockloss + len(locklosslistN)
     total_lockstatus_all = num_of_lockloss + len(locklosslistN) + len(locklosslistZ)
@@ -395,4 +400,5 @@ for direction in ['Z','X','Y']:
     plt.ylabel('Lockloss Probablity')
     plt.legend(loc='best')
     plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/lockloss_probablity_LLO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.savefig('/home/eric.coughlin/gitrepo/seismon/RfPrediction/plots/lockloss_probablity_LLO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
