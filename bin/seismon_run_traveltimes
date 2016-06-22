@@ -31,7 +31,7 @@ while 1:
 
    gpsStart = int(os.popen(tconvert_command).readline()) - 86400
    gpsEnd = gpsStart + 2*86400
-   minMagnitude = 2.0
+   minMagnitude = 4.0
 
    start_time = time.time()
    os.system("/usr/bin/python seismon_traveltimes -p %s -s %d -e %d --minMagnitude %.1f --doPrivate --doPublic"%(paramsFile,gpsStart,gpsEnd,minMagnitude))

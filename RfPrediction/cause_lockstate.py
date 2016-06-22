@@ -45,17 +45,18 @@ def parse_commandline():
 
     return opts
 ## LHO
+rms_toggle = ''
 os.system('mkdir -p /home/eric.coughlin/H1O1/')
 os.system('mkdir -p /home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/')
-for direction in ['Z']:
+for direction in ['Z','X','Y']:
     H1_lock_time_list = []
     H1_lockloss_time_list = []
     H1_peak_ground_velocity_list = []
     hdir = os.environ["HOME"]
     options = parse_commandline()
     predicted_peak_ground_velocity_list = []
-    datafileH1 = open('{0}/gitrepo/seismon/RfPrediction/data/LHO_O1_{1}.txt'.format(hdir, direction), 'r')
-    resultfileH1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_lockstatus_{0}.txt'.format(direction), 'w')
+    datafileH1 = open('{0}/gitrepo/seismon/RfPrediction/data/LHO_O1_{1}{2}.txt'.format(hdir, rms_toggle, direction), 'r')
+    resultfileH1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_lockstatus_{0}{1}.txt'.format(rms_toggle, direction), 'w')
     H1_channel_lockstatus_data = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/segs_Locked_H_1126569617_1136649617.txt', 'r')
     # This next section of code is where the data is seperated into two lists to make this data easier to search through and process.
     for item in (line.strip().split() for line in H1_channel_lockstatus_data):
@@ -77,13 +78,13 @@ for direction in ['Z']:
             H1_lock_time = min(H1_lock_time_list, key=lambda x:abs(x-float(pw_arrival_time)))
             H1_lockloss_time = min(H1_lockloss_time_list, key=lambda x:abs(x-float(float(pw_arrival_time) + float(options.time_after_p_wave))))
             lockloss = ""
-            if (float(peak_ground_velocity) > 1.3e-6) and (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))): # The if statements are designed to check if the interferometer is in lock or not and if it is. Did it lose lock around the time of the earthquake? 
+            if (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))): # The if statements are designed to check if the interferometer is in lock or not and if it is. Did it lose lock around the time of the earthquake? 
                 lockloss = "Y"
                 resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
-            elif (float(peak_ground_velocity) > 1.3e-6) and (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
+            elif (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "N"
                 resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
-            elif (float(peak_ground_velocity) > 1.3e-6) and (H1_lock_time > float(pw_arrival_time)):
+            elif (H1_lock_time > float(pw_arrival_time)):
                 lockloss = "Z"
                 resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss)) # Writes formatted string to text file.
     datafileH1.close()
@@ -92,7 +93,7 @@ for direction in ['Z']:
     eq_time_list = []
     locklosslist = []
     pw_arrival_list = []
-    resultfileplotH1 = open('/home/eric.coughlin/H1O1/organized_data_{0}.txt'.format(direction), 'r')
+    resultfileplotH1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_lockstatus_{0}{1}.txt'.format(rms_toggle, direction), 'r')
     for item in (line.strip().split() for line in resultfileplotH1):
         eq_time = item[0]
         pw_arrival = item[1]
@@ -103,7 +104,7 @@ for direction in ['Z']:
         eq_time_list.append(eq_time)
         pw_arrival_list.append(pw_arrival)
     
-    H1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_O1_binary_{0}.txt'.format(direction), 'w')
+    H1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_O1_binary_{0}{1}.txt'.format(direction, rms_toggle), 'w')
 
     for eq_time, pw_arrival, peakgroundvelocity, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, locklosslist):
         if lockloss == "Y":
@@ -135,17 +136,6 @@ for direction in ['Z']:
             num_lock_list.append(0)
     num_lock_prob_cumsum = np.cumsum(num_lock_list) / np.cumsum(np.ones(len(num_lock_list)))
 
-    plt.figure(4)
-    plt.plot(YN_peak_list, num_lock_prob_cumsum, 'kx', label='probability of lockloss')
-    plt.title('H1 Lockloss Probability')
-    plt.xscale('log')
-    plt.grid(True)
-    plt.xlabel('peak ground velocity (m/s)')
-    plt.ylabel('Lockloss Probablity')
-    plt.legend(loc='best')
-    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/lockloss_probablity_LHO_{0}.png'.format(direction))
-    plt.clf()
-
     f, axarr = plt.subplots(1)
     for t,time,peak,lockloss in zip(range(len(eq_time_list)),eq_time_list,H1_peak_ground_velocity_list,locklosslist):
             if lockloss == "Z":
@@ -167,19 +157,21 @@ for direction in ['Z']:
     axarr.set_xlabel('earthquake count(eq)')
     axarr.set_ylabel('peak ground velocity(m/s)')
     axarr.legend(loc='best')
-    f.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/lockstatus_LHO_{0}.png'.format(direction))
+    f.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/lockstatus_LHO_{0}{1}.png'.format(rms_toggle, direction))
     plt.figure(3)
-    plt.plot(H1_peak_ground_velocity_list, predicted_peak_ground_velocity_list, 'o', label='actual vs predicted')
+    print(len(H1_peak_ground_velocity_sorted_list))
+    print(len(predicted_peak_ground_velocity_sorted_list))
+    plt.plot(H1_peak_ground_velocity_sorted_list, predicted_peak_ground_velocity_sorted_list, 'o', label='actual vs predicted')
     plt.title('H1 actual vs predicted ground velocity')
     plt.xscale('log')
     plt.yscale('log')
     plt.xlabel('peak ground velocity(m/s)')
     plt.ylabel('predicted peak ground velocity(m/s)')
     plt.legend(loc='best')
-    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/check_prediction_LHO_{0}.png'.format(direction))
+    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/check_prediction_LHO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
     
-    threshold_file_H1 = open('/home/eric.coughlin/H1O1/threshhold_data_{0}.txt'.format(direction), 'w')
+    threshold_file_H1 = open('/home/eric.coughlin/H1O1/threshhold_data_{0}{1}.txt'.format(rms_toggle, direction), 'w')
     num_of_lockloss = len(locklosslistY)
     total_lockstatus = num_of_lockloss + len(locklosslistN)
     total_lockstatus_all = num_of_lockloss + len(locklosslistN) + len(locklosslistZ)
@@ -211,7 +203,7 @@ for direction in ['Z']:
     YN_peak_list_sort = np.unique(YN_peak_list)
     print(YN_peak_list_sort)
     num_lock_prob_cumsum_sort, YN_peak_list_sort = zip(*sorted(zip(num_lock_prob_cumsum_sort, YN_peak_list_sort)))
-    thresholdsf = interp1d(num_lock_prob_cumsum_sort,YN_peak_list_sort)
+    thresholdsf = interp1d(num_lock_prob_cumsum_sort,YN_peak_list_sort, bounds_error=False)
     for item in probs:
         threshold = thresholdsf(item)
         threshold_file_H1.write('The threshhold at {0}% is {1}(m/s) \n'.format(item * 100, threshold))
@@ -219,18 +211,29 @@ for direction in ['Z']:
     threshold_file_H1.write('The number of times of no locklosses is {0}. \n'.format(len(locklosslistN)))
     threshold_file_H1.write('The number of times of not locked is {0}. \n'.format(len(locklosslistZ)))
     threshold_file_H1.close()
+    plt.figure(4)
+    plt.plot(YN_peak_list_sort, num_lock_prob_cumsum_sort, 'kx', label='probability of lockloss')
+    plt.title('H1 Lockloss Probability')
+    plt.xscale('log')
+    plt.grid(True)
+    plt.xlabel('peak ground velocity (m/s)')
+    plt.ylabel('Lockloss Probablity')
+    plt.legend(loc='best')
+    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LHO/lockloss_probablity_LHO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.clf()
+
 
 ## LLO
 os.system('mkdir -p /home/eric.coughlin/L1O1/')
 os.system('mkdir -p /home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/')
-for direction in ['Z']:
+for direction in ['Z','X','Y']:
     L1_lock_time_list = []
     L1_lockloss_time_list = []
     options = parse_commandline()
     predicted_peak_ground_velocity_list = []
     H1_peak_ground_velocity_list =[]
-    datafileL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_{0}.txt'.format(direction), 'r')
-    resultfileL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_lockstatus_{0}.txt'.format(direction), 'w')
+    datafileL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_{0}{1}.txt'.format(rms_toggle, direction), 'r')
+    resultfileL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_lockstatus_{0}{1}.txt'.format(rms_toggle, direction), 'w')
     L1_channel_lockstatus_data = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/segs_Locked_L_1126569617_1136649617.txt', 'r')
     for item in (line.strip().split() for line in L1_channel_lockstatus_data):
         L1_lock_time = item[0]
@@ -250,13 +253,13 @@ for direction in ['Z']:
             L1_lock_time = min(L1_lock_time_list, key=lambda x:abs(x-float(pw_arrival_time)))
             L1_lockloss_time = min(L1_lockloss_time_list, key=lambda x:abs(x-float(float(pw_arrival_time) + float(options.time_after_p_wave))))
             lockloss = ""
-            if (float(peak_ground_velocity) > 1.3e-6) and (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))):
+            if (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "Y"
                 resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
-            elif (float(peak_ground_velocity) > 1.3e-6) and (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
+            elif (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "N"
                 resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
-            elif (float(peak_ground_velocity) > 1.3e-6) and (L1_lock_time > float(pw_arrival_time)):
+            elif (L1_lock_time > float(pw_arrival_time)):
                 lockloss = "Z"
                 resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,lockloss))
     datafileL1.close()
@@ -265,7 +268,7 @@ for direction in ['Z']:
     eq_time_list = []
     locklosslist = []
     pw_arrival_list = []
-    resultfileplotL1 = open('/home/eric.coughlin/L1O1/organized_data_{0}.txt'.format(direction), 'r')
+    resultfileplotL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_lockstatus_{0}{1}.txt'.format(rms_toggle, direction), 'r')
     for item in (line.strip().split() for line in resultfileplotL1):
         eq_time = item[0]
         pw_arrival = item[1]
@@ -276,7 +279,7 @@ for direction in ['Z']:
         eq_time_list.append(eq_time)
         pw_arrival_list.append(pw_arrival)
 
-    L1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_binary_{0}.txt'.format(direction), 'w')
+    L1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_binary_{0}{1}.txt'.format(rms_toggle, direction), 'w')
 
     for eq_time, pw_arrival, peakgroundvelocity, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, locklosslist):
         if lockloss == "Y":
@@ -308,17 +311,6 @@ for direction in ['Z']:
             num_lock_list.append(0)
     num_lock_prob_cumsum = np.cumsum(num_lock_list) / np.cumsum(np.ones(len(num_lock_list)))
 
-    plt.figure(10)
-    plt.plot(YN_peak_list, num_lock_prob_cumsum, 'kx', label='probability of lockloss')
-    plt.title('L1 Lockloss Probability')
-    plt.xscale('log')
-    plt.grid(True)
-    plt.xlabel('peak ground velocity (m/s)')
-    plt.ylabel('Lockloss Probablity')
-    plt.legend(loc='best')
-    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/lockloss_probablity_LLO_{0}.png'.format(direction))
-    plt.clf()
-
     plt.figure(8)
     for t,time,peak,lockloss in zip(range(len(eq_time_list)),eq_time_list,H1_peak_ground_velocity_list,locklosslist):
             if lockloss == "Z":
@@ -340,7 +332,7 @@ for direction in ['Z']:
     plt.xlabel('earthquake count(eq)')
     plt.ylabel('peak ground velocity(m/s)')
     plt.legend(loc='best')
-    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/lockstatus_LLO_{0}.png'.format(direction))
+    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/lockstatus_LLO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
 
     plt.figure(9)
@@ -351,10 +343,10 @@ for direction in ['Z']:
     plt.xlabel('peak ground velocity(m/s)')
     plt.ylabel('predicted peak ground velocity(m/s)')
     plt.legend(loc='best')
-    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/check_predictionLLO_{0}.png'.format(direction))
+    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/check_predictionLLO_{0}{1}.png'.format(rms_toggle, direction))
     plt.clf()
 
-    threshold_file_L1 = open('/home/eric.coughlin/L1O1/threshhold_data_{0}.txt'.format(direction), 'w')
+    threshold_file_L1 = open('/home/eric.coughlin/L1O1/threshhold_data_{0}{1}.txt'.format(rms_toggle, direction), 'w')
     num_of_lockloss = len(locklosslistY)
     total_lockstatus = num_of_lockloss + len(locklosslistN)
     total_lockstatus_all = num_of_lockloss + len(locklosslistN) + len(locklosslistZ)
@@ -385,7 +377,7 @@ for direction in ['Z']:
     YN_peak_list_sort = np.unique(YN_peak_list)
     num_lock_prob_cumsum_sort, YN_peak_list_sort = zip(*sorted(zip(num_lock_prob_cumsum_sort, YN_peak_list_sort)))
     thresholds = []
-    thresholdsf = interp1d(num_lock_prob_cumsum_sort,YN_peak_list_sort)
+    thresholdsf = interp1d(num_lock_prob_cumsum_sort,YN_peak_list_sort,bounds_error=False)
     for item in probs:
         threshold = thresholdsf(item)
         threshold_file_L1.write('The threshhold at {0}% is {1}(m/s) \n'.format(item * 100, threshold))
@@ -393,3 +385,14 @@ for direction in ['Z']:
     threshold_file_L1.write('The number of times of no locklosses is {0}. \n'.format(len(locklosslistN)))
     threshold_file_L1.write('The number of times of not locked is {0}. \n'.format(len(locklosslistZ)))
     threshold_file_L1.close()
+    
+    plt.figure(10)
+    plt.plot(YN_peak_list_sort, num_lock_prob_cumsum_sort, 'kx', label='probability of lockloss')
+    plt.title('L1 Lockloss Probability')
+    plt.xscale('log')
+    plt.grid(True)
+    plt.xlabel('peak ground velocity (m/s)')
+    plt.ylabel('Lockloss Probablity')
+    plt.legend(loc='best')
+    plt.savefig('/home/eric.coughlin/public_html/lockloss_threshold_plots/LLO/lockloss_probablity_LLO_{0}{1}.png'.format(rms_toggle, direction))
+    plt.clf()
