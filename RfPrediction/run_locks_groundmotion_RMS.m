@@ -3,7 +3,7 @@ set(0,'DefaultAxesFontSize',20);
 set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
-site = 'LLO';
+%site = 'LLO';
 
 if strcmp(site,'LHO')
    channelx = 'H1_ISI-GND_STS_HAM5_X_BLRMS_30M_100M';
