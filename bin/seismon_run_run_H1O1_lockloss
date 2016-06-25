@@ -36,13 +36,19 @@ gpsEnd = 1136678417
 gpsStart = 1126073342
 gpsEnd = 1137283217  
 
+segsfile = '/home/mcoughlin/seismon/RfPrediction/data/segs_Locked_H_1126569617_1136649617.txt'
+segs = np.loadtxt(segsfile)
+
 #print "python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd)
  
 #os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
 
-os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
+for seg in segs:
+    gpsStart = int(seg[1]) - 60
+    gpsEnd = int(seg[1]) + 60
+    os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doPSD"%(paramsFile,gpsStart,gpsEnd))
 
-print "python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis --doPSD --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd)
+    print "python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doPSD"%(paramsFile,gpsStart,gpsEnd)
 
 #os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ --doEarthquakes --doEarthquakesAnalysis --doPSD --doPlots --eventfilesType iris --minMagnitude 5.0"%(paramsFile,gpsStart,gpsEnd))
 
