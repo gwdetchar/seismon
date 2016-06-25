@@ -76,22 +76,24 @@ fclose(fid);
 filename = sprintf('data/%s_groundmotion_locks.txt',site)
 data_out = load(filename);
 
+tt = (data_out(:,1) - data_out(1,1) + 60)/86400;
+
 figure;
 set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
-plot(data_out(:,1)+60,data_out(:,4),'kx')
+semilogy(tt,data_out(:,4),'kx')
 hold on
-plot(data_out(:,1)+60,data_out(:,6),'gx')
-plot(data_out(:,1)+60,data_out(:,8),'bx')
-plot(data_out(:,1)+60,data_out(:,10),'ko')
-plot(data_out(:,1)+60,data_out(:,12),'go')
-plot(data_out(:,1)+60,data_out(:,14),'bo')
+semilogy(tt,data_out(:,6),'gx')
+semilogy(tt,data_out(:,8),'bx')
+semilogy(tt,data_out(:,10),'ko')
+semilogy(tt,data_out(:,12),'go')
+semilogy(tt,data_out(:,14),'bo')
 hold off
 grid
 %caxis([-6 -3])
-xlabel('Lockloss gps time')
-ylabel('Peak ground motion and acceleration, (log10 [m/s],log10 [m/s^2])');
+xlabel('Lockloss time [days]')
+ylabel('Peak ground motion and acceleration, [m/s, m/s^2]');
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_groundmotion_' site '.pdf'])
