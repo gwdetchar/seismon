@@ -1,0 +1,208 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013 Michael Coughlin
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+"""Earthquake xml file generator.
+
+This script generates earthquake xml files using notices from the
+internet and USGS PDL client.
+
+Comments should be e-mailed to michael.coughlin@ligo.org.
+
+"""
+
+import os, sys, glob, optparse, warnings, time, json
+import numpy as np
+import subprocess
+from subprocess import Popen
+from lxml import etree
+
+import lal.gpstime
+
+from seismon import (eqmon, utils)
+
+import matplotlib
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-i", "--inputFileDirectory", help="Seismon files.",
+                      default ="/home/mcoughlin/Seismon/Text_Files/Timeseries/H0_PEM-LVEA_SEISZ/64/")
+    parser.add_option("-p", "--predictionFile", help="Seismon prediction file.",
+                      default ="/home/mcoughlin/Seismon/H1/H1S6/931035615-971654415/earthquakes/earthquakes.txt")
+    parser.add_option("-o", "--outputDirectory", help="output file.",
+                      default ="/home/mcoughlin/Seismon/Predictions/H1S6/")
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@create params structure
+
+    @param opts
+        command line options
+    """
+
+    params = {}
+    params["inputFileDirectory"] = opts.inputFileDirectory
+    params["predictionFile"] = opts.predictionFile
+    params["outputDirectory"] = opts.outputDirectory
+
+    return params
+
+def predict_events():
+    """@write pdl events
+
+    @param params
+        seismon params structure
+    """
+
+    warnings.filterwarnings("ignore")
+
+    # Parse command line
+    opts = parse_commandline()
+    params = params_struct(opts)
+
+    if not os.path.isdir(params["outputDirectory"]):
+        utils.mkdir(params["outputDirectory"])
+    outputFile = os.path.join(params["outputDirectory"],"earthquakes.txt")
+
+    fid = open(outputFile,'w')
+    events = np.loadtxt(params["predictionFile"])
+    for event in events:
+        gpsMin = event[8]
+        gpsMax = event[9]
+   
+        filename = os.path.join(params["inputFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
+        if not os.path.isfile(filename):
+            continue
+        data_out = np.loadtxt(filename)
+
+        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],data_out[1,0],data_out[1,1]))
+
+        print gpsMin, gpsMax
+
+    fid.close()
+
+    events = np.loadtxt(outputFile)
+    events = events[events[:,7].argsort()]
+
+    plt.figure()
+    plt.semilogy(events[:,14],'kx',label='Measured')
+    plt.semilogy(events[:,7],'c*',label='Predicted')
+    plt.legend(loc=2,numpoints=1)
+    plt.xlabel("Event number")
+    plt.ylabel("Ground Velocity [m/s]")
+    plt.xlim([-0.5,len(events[:,0])+0.5])
+    plt.ylim([1e-6,1e-3])
+    plt.show()
+    plotName = os.path.join(params["outputDirectory"],'prediction.png')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'prediction.eps')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'prediction.pdf')
+    plt.savefig(plotName)
+    plt.close()
+
+    vel = (events[:,12]/1000.0)/(events[:,13]-events[:,0])
+
+    distances = np.linspace(0,100000,1000)
+    times = distances / 3.5
+    plt.figure()
+    ax = plt.gca()
+    ax.plot(events[:,7],vel,'kx')
+    ax.plot([1e-7,1e-3],[3.5,3.5],'k--')
+    #ax.set_yscale('log')
+    ax.set_xscale('log')
+    plt.xlabel("Ground velocity [m/s]")
+    plt.ylabel("Earthquake velocity [m/s]")
+    plt.xlim([1e-6,1e-3])
+    plt.ylim([2,5])
+    plt.show()
+    plotName = os.path.join(params["outputDirectory"],'velocity.png')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'velocity.eps')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'velocity.pdf')
+    plt.savefig(plotName)
+    plt.close()
+
+    vmin = -7
+    vmax = -4
+
+    plt.figure()
+    ax = plt.gca()
+    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,14]),vmin=vmin, vmax=vmax)
+    ax.set_xscale('log')
+    plt.xlabel("Distance [m]")
+    plt.ylabel("Earthquake Magnitude")
+    cbar = plt.colorbar(sc)
+    cbar.set_label("log10(Ground velocity [m/s])")
+    #plt.xlim([1e-6,1e-3])
+    #plt.ylim([5,9])
+    plt.show()
+    plotName = os.path.join(params["outputDirectory"],'mag_distance.png')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'mag_distance.eps')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'mag_distance.pdf')
+    plt.savefig(plotName)
+    plt.close()
+
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+if __name__=="__main__":
+
+    predict_events()
+
