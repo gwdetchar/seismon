@@ -57,6 +57,9 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     timeseriesDirectory = params["dirPath"] + "/Text_Files/Timeseries/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(timeseriesDirectory)
 
+    accelerationDirectory = params["dirPath"] + "/Text_Files/Acceleration/" + channel.station_underscore + "/" + str(params["fftDuration"])
+    seismon.utils.mkdir(accelerationDirectory)
+
     earthquakesDirectory = params["dirPath"] + "/Text_Files/Earthquakes/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(earthquakesDirectory)
 
@@ -81,6 +84,15 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     f = open(timeseriesFile,"wb")
     f.write("%.10f %e\n"%(tt[np.argmin(data["dataLowpass"].data)],np.min(data["dataLowpass"].data)))
     f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].data)],np.max(data["dataLowpass"].data)))
+    f.close()
+
+    acc = np.diff(data["dataLowpass"].data)/np.diff(tt)
+    ttacc = np.array(data["dataLowpass"].times)[:-1]
+
+    accelerationFile = os.path.join(accelerationDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+    f = open(accelerationFile,"wb")
+    f.write("%.10f %e\n"%(tt[np.argmin(acc)],np.min(acc)))
+    f.write("%.10f %e\n"%(tt[np.argmax(acc)],np.max(acc)))
     f.close()
 
     if params["doPowerLawFit"]:
