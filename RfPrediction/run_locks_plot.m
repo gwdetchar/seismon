@@ -19,7 +19,7 @@ semilogx(10.^llo.peakampcut,llo.flagscutsumvel,'go')
 hold off
 grid
 %caxis([-6 -3])
-xlim([min(10.^lho.peakampcut) 1e-4])
+xlim([min([min(10.^lho.peakampcut) min(10.^llo.peakampcut)]) 1e-4])
 xlabel('Peak ground motion, log10 [m/s]')
 ylabel('Lockloss Probability');
 leg1 = legend({'LHO','LLO'},'Location','SouthEast');
@@ -37,7 +37,7 @@ semilogx(10.^llo.peakacccut,llo.flagscutsumacc,'go')
 hold off
 grid
 %caxis([-6 -3])
-xlim([min([min(10.^lho.peakampcut) min(10.^llo.peakampcut)]) 1e-4])
+xlim([min([min(10.^lho.peakacccut) min(10.^llo.peakacccut)]) 1e-4])
 xlabel('Peak ground acceleration, log10 [m/s^2]')
 ylabel('Lockloss Probability');
 leg1 = legend({'LHO','LLO'},'Location','SouthEast');
