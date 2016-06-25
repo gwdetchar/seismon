@@ -58,6 +58,10 @@ def parse_commandline():
 
     parser.add_option("-i", "--inputFileDirectory", help="Seismon files.",
                       default ="/home/mcoughlin/Seismon/Text_Files/Timeseries/H0_PEM-LVEA_SEISZ/64/")
+
+    parser.add_option("-a", "--accelerationFileDirectory", help="Seismon acceleration files.",
+                      default ="/home/mcoughlin/Seismon/Text_Files/Acceleration/H0_PEM-LVEA_SEISZ/64/")
+
     parser.add_option("-p", "--predictionFile", help="Seismon prediction file.",
                       default ="/home/mcoughlin/Seismon/H1/H1S6/931035615-971654415/earthquakes/earthquakes.txt")
     parser.add_option("-o", "--outputDirectory", help="output file.",
@@ -91,6 +95,7 @@ def params_struct(opts):
 
     params = {}
     params["inputFileDirectory"] = opts.inputFileDirectory
+    params["accelerationFileDirectory"] = opts.accelerationFileDirectory
     params["predictionFile"] = opts.predictionFile
     params["outputDirectory"] = opts.outputDirectory
 
@@ -122,9 +127,15 @@ def predict_events():
         filename = os.path.join(params["inputFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
         if not os.path.isfile(filename):
             continue
-        data_out = np.loadtxt(filename)
+        data_out_vel = np.loadtxt(filename)
 
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],data_out[1,0],data_out[1,1]))
+        filename = os.path.join(params["accelerationFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
+        if not os.path.isfile(filename):
+            data_out_acc = -1*np.ones(data_out_vel.shape)
+        else:
+            data_out_acc = np.loadtxt(filename)
+
+        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1]))
 
         print gpsMin, gpsMax
 
