@@ -12,16 +12,21 @@ Getting Started
 In order to get started, we want to look and see where the files we need are located within SeisMon's directory. SeisMon's directory should be located here.
 
 .. code:: bash
+
    ~/gitrepo/seismon
 
 Many of the files that we need to run are located within the folders of the seismon directory itself, usually located within the seismon/bin directory. Run the ls command inside of the seismon directory like this
 
 .. code:: bash
+
    ls
 
 to make note of the folders and files. For this example, the user will want to take note of both the bin directory and the input directory. The next step is to make sure gwpy is sourced before running any of the scripts mentioned in this file. The user can do this by running 
+
 .. code:: bash
+
    pip install --user gwpy
+
 Once gwpy is ready to go, then we can move onto the next step of generating the list of xml files needed to do the analysis.
 
 First Stage: seismon_traveltimes
@@ -37,4 +42,10 @@ In order to get seismon_traveltimes running we have to go to our home directory 
    mkdir iris
    cd ~
 
-The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find. If you look at the fourth line, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
+The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find. 
+
+.. literalinclude:: seismon/input/seismon_params_traveltimes.txt
+
+   :emphasize-lines: 4
+
+If you look at the fourth line, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
