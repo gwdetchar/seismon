@@ -60,6 +60,9 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     accelerationDirectory = params["dirPath"] + "/Text_Files/Acceleration/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(accelerationDirectory)
 
+    displacementDirectory = params["dirPath"] + "/Text_Files/Displacement/" + channel.station_underscore + "/" + str(params["fftDuration"])
+    seismon.utils.mkdir(displacementDirectory)
+
     earthquakesDirectory = params["dirPath"] + "/Text_Files/Earthquakes/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(earthquakesDirectory)
 
@@ -86,13 +89,18 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].data)],np.max(data["dataLowpass"].data)))
     f.close()
 
-    acc = np.diff(data["dataLowpass"].data)/np.diff(tt)
-    ttacc = np.array(data["dataLowpass"].times)[:-1]
-
+    ttacc = np.array(data["dataLowpassAcc"].times)
     accelerationFile = os.path.join(accelerationDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(accelerationFile,"wb")
-    f.write("%.10f %e\n"%(tt[np.argmin(acc)],np.min(acc)))
-    f.write("%.10f %e\n"%(tt[np.argmax(acc)],np.max(acc)))
+    f.write("%.10f %e\n"%(ttacc[np.argmin(data["dataLowpassAcc"].data)],np.min(data["dataLowpassAcc"].data)))
+    f.write("%.10f %e\n"%(ttacc[np.argmax(data["dataLowpassAcc"].data)],np.max(data["dataLowpassAcc"].data)))
+    f.close()
+
+    ttdisp = np.array(data["dataLowpassDisp"].times)
+    displacementFile = os.path.join(displacementDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+    f = open(displacementFile,"wb")    
+    f.write("%.10f %e\n"%(ttdisp[np.argmin(data["dataLowpassDisp"].data)],np.min(data["dataLowpassDisp"].data)))
+    f.write("%.10f %e\n"%(ttdisp[np.argmax(data["dataLowpassDisp"].data)],np.max(data["dataLowpassDisp"].data)))
     f.close()
 
     if params["doPowerLawFit"]:
@@ -234,15 +242,19 @@ def calculate_spectra(params,channel,dataFull):
     else:
         cutoff_high = 0.5 # 10 MHz
         cutoff_low = 0.3
+        cutoff_band = 0.01
     n = 3
     worN = 16384
     B_low, A_low = scipy.signal.butter(n, cutoff_low / (fs / 2.0), btype='lowpass')
+    #B_low, A_low = scipy.signal.butter(n, [cutoff_band/(fs / 2.0), cutoff_low/(fs / 2.0)], btype='band')
     #w_low, h_low = scipy.signal.freqz(B_low,A_low)
     w_low, h_low = scipy.signal.freqz(B_low,A_low,worN=worN)
     B_high, A_high = scipy.signal.butter(n, cutoff_high / (fs / 2.0), btype='highpass') 
     w_high, h_high = scipy.signal.freqz(B_high,A_high,worN=worN)
 
     w = w_high * (fs / (2.0*np.pi))
+
+    B_band, A_band = scipy.signal.butter(n, cutoff_band / (fs / 2.0), btype='high')
 
     if params["doPlots"]:
 
@@ -261,10 +273,18 @@ def calculate_spectra(params,channel,dataFull):
     #dataLowpass = dataFull.lowpass(1.0)
     dataLowpass = scipy.signal.lfilter(B_low, A_low, dataFull,
                                         axis=0).view(dataFull.__class__)
+    dataLowpass = scipy.signal.lfilter(B_band, A_band, dataLowpass,
+                                        axis=0).view(dataLowpass.__class__)
+    dataLowpass.data[np.isnan(dataLowpass.data)] = 0.0
     dataLowpass.data[:2*channel.samplef] = dataLowpass.data[2*channel.samplef]
     dataLowpass.data[-2*channel.samplef:] = dataLowpass.data[-2*channel.samplef]
     dataLowpass.dx =  dataFull.dx
     dataLowpass.epoch = dataFull.epoch
+
+    dataLowpassAcc = dataLowpass.copy()
+    dataLowpassAcc.data[:-1] = np.diff(dataLowpass.data)/dataLowpass.dx
+    dataLowpassDisp = dataLowpass.copy()
+    dataLowpassDisp.data[:-1] = scipy.integrate.cumtrapz(dataLowpass.data, dx=dataLowpass.dx)
 
     #dataHighpass = dataFull.highpass(1.0)
     dataHighpass = scipy.signal.lfilter(B_high, A_high, dataFull,
@@ -317,6 +337,8 @@ def calculate_spectra(params,channel,dataFull):
     data = {}
     data["dataFull"] = dataFull
     data["dataLowpass"] = dataLowpass
+    data["dataLowpassAcc"] = dataLowpassAcc
+    data["dataLowpassDisp"] = dataLowpassDisp
     data["dataHighpass"] = dataHighpass
     data["dataASD"] = dataASD
     data["dataFFT"] = dataFFT
@@ -529,7 +551,9 @@ def spectra(params, channel, segment):
         dataHighpass = data["dataHighpass"].resample(16)
         dataFull = data["dataFull"].resample(16)
         dataLowpass = data["dataLowpass"].resample(16)
-      
+        dataLowpassAcc = data["dataLowpassAcc"].resample(16)     
+        dataLowpassDisp = data["dataLowpassDisp"].resample(16) 
+
         #dataHighpass = data["dataHighpass"]
         #dataFull = data["dataFull"]
         #dataLowpass = data["dataLowpass"]
@@ -537,6 +561,8 @@ def spectra(params, channel, segment):
         dataHighpass *= 1e6
         #dataFull *= 1e6
         dataLowpass *= 1e6
+        dataLowpassAcc *= 1e6
+        dataLowpassDisp *= 1e6
 
         if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
             #plot.add_timeseries(dataHighpass,label="data")
@@ -755,7 +781,34 @@ def spectra(params, channel, segment):
             plot.save(pngFile)
             plot.close()
 
+        pngFile = os.path.join(plotDirectory,"acc.png")
+        plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+        plot.add_timeseries(dataLowpassAcc,label="highpass")
+
+        plot.ylabel = r"Acceleration [$\mu$m/s$^2$]"
+        plot.title = channel.station.replace("_","\_")
+        #plot.xlim = xlim
+        #plot.ylim = ylim
+
+        plot.save(pngFile)
+        plot.close()
+
+        pngFile = os.path.join(plotDirectory,"disp.png")
+        plot = gwpy.plotter.TimeSeriesPlot(figsize=[14,8])
+
+        plot.add_timeseries(dataLowpassDisp,label="highpass")
+
+        plot.ylabel = r"Displacement [$\mu$m]"
+        plot.title = channel.station.replace("_","\_")
+        #plot.xlim = xlim
+        #plot.ylim = ylim
+
+        plot.save(pngFile)
+        plot.close()
+
         fl, low, fh, high = seismon.NLNM.NLNM(2)
+
 
         pngFile = os.path.join(plotDirectory,"psd.png")
         label = channel.station.replace("_","\_")
