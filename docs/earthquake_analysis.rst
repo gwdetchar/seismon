@@ -45,7 +45,6 @@ In order to get seismon_traveltimes running we have to go to our home directory 
 The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find. 
 
 .. literalinclude:: seismon/input/seismon_params_traveltimes.txt
-
    :emphasize-lines: 4
 
 If you look at the fourth line, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
