@@ -45,9 +45,27 @@ leg1 = legend({'LHO','LLO'},'Location','SouthEast');
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_acc.pdf'])
 
-indexes = find(eqs_lho(:,20)~=-1);
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+semilogx(10.^lho.peakdispcut,lho.flagscutsumdisp,'kx')
+hold on
+semilogx(10.^llo.peakdispcut,llo.flagscutsumdisp,'go')
+hold off
+grid
+%caxis([-6 -3])
+xlim([min([min(10.^lho.peakdispcut) min(10.^llo.peakdispcut)]) 1e-4])
+xlabel('Peak ground displacement, log10 [m]')
+ylabel('Lockloss Probability');
+leg1 = legend({'LHO','LLO'},'Location','SouthEast');
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_disp.pdf'])
+
+indexes = find(eqs_lho(:,22)~=-1);
 eqs_lho_cut = eqs_lho(indexes,:);
-indexes = find(eqs_llo(:,20)~=-1);
+indexes = find(eqs_llo(:,22)~=-1);
 eqs_llo_cut = eqs_llo(indexes,:);
 
 eqs_lho_timediff = eqs_lho_cut(:,18) - eqs_lho_cut(:,15); 

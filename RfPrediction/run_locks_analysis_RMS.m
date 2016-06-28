@@ -23,8 +23,9 @@ cut1 = find(eqs(:,16) > thresh);
 [~,indexes] = sort(eqs(:,16),'descend');
 eqs = eqs(indexes,:);
 
-peakamp = log10(eqs(:,16));
-peakacc = log10(eqs(:,18));
+peakamp = log10(abs(eqs(:,16)));
+peakacc = log10(abs(eqs(:,18)));
+peakdisp = log10(abs(eqs(:,20)));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
@@ -56,8 +57,9 @@ for ii = 1:length(eqs)
    end
 end
 eqs = eqs(indexes,:);
-peakamp = log10(eqs(:,16));
-peakacc = log10(eqs(:,18));
+peakamp = log10(abs(eqs(:,16)));
+peakacc = log10(abs(eqs(:,18)));
+peakdisp = log10(abs(eqs(:,20)));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
@@ -94,7 +96,7 @@ for ii = 1:length(eqs)
       total_locks = total_locks + 1;
    end
 
-   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %d %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),eqs(ii,16),eqs(ii,17),eqs(ii,18),flag,locklosstime);
+   fprintf(fid,'%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %d %d\n',eqs(ii,1),eqs(ii,2),eqs(ii,3),eqs(ii,4),eqs(ii,5),eqs(ii,6),eqs(ii,7),eqs(ii,8),eqs(ii,9),eqs(ii,10),eqs(ii,11),eqs(ii,12),eqs(ii,13),eqs(ii,14),eqs(ii,15),eqs(ii,16),eqs(ii,17),eqs(ii,18),eqs(ii,19),eqs(ii,20),flag,locklosstime);
    flags = [flags flag];
 end
 fclose(fid);
@@ -105,6 +107,7 @@ fprintf('%d %.5f %d %.5f\n',total_locks,total_time/86400,length(segments),sum(se
 indexes = find(flags == 1 | flags == 2);
 peakampcut = peakamp(indexes);
 peakacccut = peakacc(indexes);
+peakdispcut = peakdisp(indexes);
 flagscut = flags(indexes);
 flagscut(flagscut == 1) = 0;
 flagscut(flagscut == 2) = 1;
@@ -123,6 +126,14 @@ flagscutsumacc = cumsum(flagscutacc) ./ cumsum(flagsallacc);
 peakacccut = fliplr(peakacccut);
 flagscutsumacc = fliplr(flagscutsumacc);
 
+[peakdispcut,ii] = sort(peakdispcut,'descend');
+flagscutdisp = flagscut(ii);
+flagsalldisp = ones(size(flagscutdisp));
+flagscutsumdisp = cumsum(flagscutdisp) ./ cumsum(flagsalldisp);
+peakdispcut = fliplr(peakdispcut);
+flagscutsumdisp = fliplr(flagscutsumdisp);
+
+
 probs = [0.5 0.75 0.9 0.95];
 [~,ii] = unique(flagscutsumvel);
 flagscutsumvel_sort = flagscutsumvel(ii);
@@ -135,11 +146,20 @@ end
 
 [~,ii] = unique(flagscutsumacc);
 flagscutsumacc_sort = flagscutsumacc(ii);
-peakacccut_sort = peakampcut(ii);
+peakacccut_sort = peakacccut(ii);
 
 thresholds = interp1(flagscutsumacc_sort,peakacccut_sort,probs);
 for ii = 1:length(probs)
    fprintf('acc: %.2f %.5e\n',probs(ii),10.^thresholds(ii));
+end
+
+[~,ii] = unique(flagscutsumdisp);
+flagscutsumdisp_sort = flagscutsumdisp(ii);
+peakdispcut_sort = peakdispcut(ii);
+
+thresholds = interp1(flagscutsumdisp_sort,peakdispcut_sort,probs);
+for ii = 1:length(probs)
+   fprintf('disp: %.2f %.5e\n',probs(ii),10.^thresholds(ii));
 end
 
 figure;
@@ -167,6 +187,19 @@ ylabel('Lockloss Probability');
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_acc_RMS_' site '.pdf'])
+
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+plot(peakdispcut,flagscutsumdisp,'kx')
+grid
+%caxis([-6 -3])
+xlabel('Peak ground displacement, log10 [m]')
+ylabel('Lockloss Probability');
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_disp_RMS_' site '.pdf'])
 
 figure;
 set(gcf, 'PaperSize',[8 6])
@@ -215,6 +248,27 @@ set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
 indexes = find(flags == 0);
+scatter(distances(indexes),peakdisp(indexes),40,'b','filled','Marker','o','MarkerEdgeColor','k')
+hold on
+indexes = find(flags == 1);
+scatter(distances(indexes),peakdisp(indexes),40,'g','filled','Marker','o','MarkerEdgeColor','k')
+indexes = find(flags == 2);
+scatter(distances(indexes),peakdisp(indexes),40,'r','filled','Marker','o','MarkerEdgeColor','k')
+hold off
+grid
+%caxis([-6 -3])
+set(gca,'xticklabel',{'0','5000','10000','15000','20000'})
+xlabel('Distance [km]')
+ylabel('Peak ground displacement, log10 [m]')
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/lockloss_disp_distance_RMS_' site '.pdf'])
+
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+indexes = find(flags == 0);
 scatter(distances(indexes),magnitudes(indexes),40,'b','filled','Marker','o','MarkerEdgeColor','k')
 hold on
 indexes = find(flags == 1);
@@ -229,6 +283,6 @@ xlabel('Distance [km]')
 ylabel('Magnitude')
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['./plots/lockloss_mag_distance_' site '.pdf'])
+saveas(gcf,['./plots/lockloss_mag_distance_RMS_' site '.pdf'])
 
 save(['./plots/lockloss_RMS_' site '.mat'])
