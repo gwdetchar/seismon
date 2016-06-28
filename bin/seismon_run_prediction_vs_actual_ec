@@ -1,0 +1,177 @@
+#!/usr/bin/python
+
+import os, sys
+import numpy as np
+
+import matplotlib
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_X_DQ/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_X_DQ/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1X/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_Y_DQ/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_Y_DQ/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1Y/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM5_Z_BLRMS_30M_100M/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM5_Z_BLRMS_30M_100M/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1RMS/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM5_X_BLRMS_30M_100M/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM5_X_BLRMS_30M_100M/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1RMSX/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM5_Y_BLRMS_30M_100M/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM5_Y_BLRMS_30M_100M/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1RMSY/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/L1_ISI-GND_STS_HAM2_Z_DQ/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/L1_ISI-GND_STS_HAM2_Z_DQ/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/L1O1/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/L1_ISI-GND_STS_HAM2_Y_DQ/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/L1_ISI-GND_STS_HAM2_Y_DQ/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/L1O1Y/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/L1_ISI-GND_STS_HAM2_X_DQ/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/L1_ISI-GND_STS_HAM2_X_DQ/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/L1O1X/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/L1_ISI-GND_STS_HAM5_Z_BLRMS_30M_100M/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/L1_ISI-GND_STS_HAM5_Z_BLRMS_30M_100M/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/L1O1RMS/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/L1_ISI-GND_STS_HAM5_Y_BLRMS_30M_100M/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/L1_ISI-GND_STS_HAM5_Y_BLRMS_30M_100M/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/L1O1RMSY/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/L1_ISI-GND_STS_HAM5_X_BLRMS_30M_100M/64/"
+#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/L1_ISI-GND_STS_HAM5_X_BLRMS_30M_100M/64/"
+#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+predictionFile="/home/eric.coughlin/gitrepo/L1/L1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/L1O1RMSX/"
+
+#os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory))
+os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s "%(inputFileDirectory,predictionFile,outputDirectory))
+
+filenames = ["/home/eric.coughlin/gitrepo/Predictions/H1O1/earthquakes.txt","/home/eric.coughlin/gitrepo/Predictions/L1O1/earthquakes.txt"]
+
+outputDirectory="/home/eric.coughlin/gitrepo/Predictions/ALL/"
+outputFile = os.path.join(outputDirectory,"earthquakes.txt")
+
+fid = open(outputFile,'w') 
+for filename in filenames:
+    lines = [line.rstrip() for line in open(filename)]
+    for line in lines:
+        fid.write("%s\n"%line)
+fid.close()
+
+events = np.loadtxt(outputFile)
+events = events[events[:,7].argsort()]
+
+plt.figure()
+plt.semilogy(events[:,14],'kx',label='Measured')
+plt.semilogy(events[:,7],'c*',label='Predicted')
+plt.legend(loc=2,numpoints=1)
+plt.xlabel("Event number")
+plt.ylabel("Ground Velocity [m/s]")
+plt.xlim([-0.5,len(events[:,0])+0.5])
+plt.ylim([1e-6,1e-3])
+plt.show()
+plotName = os.path.join(outputDirectory,'prediction.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'prediction.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'prediction.pdf')
+plt.savefig(plotName)
+plt.close()
+
+vel = (events[:,12]/1000.0)/(events[:,13]-events[:,0])
+
+distances = np.linspace(0,100000,1000)
+times = distances / 3.5
+plt.figure()
+ax = plt.gca()
+ax.plot(events[:,7],vel,'kx')
+ax.plot([1e-7,1e-3],[3.5,3.5],'k--')
+#ax.set_yscale('log')
+ax.set_xscale('log')
+plt.xlabel("Ground velocity [m/s]")
+plt.ylabel("Earthquake velocity [m/s]")
+plt.xlim([1e-6,1e-3])
+plt.ylim([2,5])
+plt.show()
+plotName = os.path.join(outputDirectory,'velocity.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'velocity.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'velocity.pdf')
+plt.savefig(plotName)
+plt.close()
+
+print "Median velocity: %.5f"%np.median(vel)
+
