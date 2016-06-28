@@ -270,7 +270,7 @@ def params_struct(opts):
     #params["dateString"] = "%d-%d-%d %d:%d:%d"%(params["date"][0],params["date"][1],params["date"][2],params["date"][3],params["date"][4],params["date"][5])
 
     if params["doEarthquakesAnalysis"]:
-       params["earthquakesMinMag"] = 5.0
+       params["earthquakesMinMag"] = 4.0
     else:
        params["earthquakesMinMag"] = 0
 
