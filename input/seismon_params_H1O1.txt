@@ -2,9 +2,9 @@ ifo H1
 frameType H1_R
 runName H1O1
 user eric.coughlin
-dirPath /home/eric.coughlin/gitrepo/seismon
+dirPath /home/eric.coughlin/gitrepo
 publicPath /home/eric.coughlin/public_html
-codePath /home/eric.coughlin/gitrepo/seismon
+codePath /home/eric.coughlin/gitrepo
 executableDir /home/eric.coughlin/gitrepo/seismon/bin
 eventfilesLocation /home/eric.coughlin/eventfiles
 #eventfilesLocation /home/mcoughlin/Seismon/eventfiles/database
