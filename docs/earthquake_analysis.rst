@@ -44,7 +44,32 @@ In order to get seismon_traveltimes running we have to go to our home directory 
 
 The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find. 
 
-.. include:: seismon/input/seismon_params_traveltimes.txt
-   start-line:3
+| dataLocation /home/mcoughlin/Seismon/ProductClient/data/receiver_storage/origin
+| publicdataLocation /home/mcoughlin/Seismon/publicdata
+| databasedataLocation /home/mcoughlin/Seismon/databasedata
+| **eventfilesLocation /home/eric.coughlin/eventfiles**
 
-If you look at the fourth line, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
+If you look at the fourth line, which I bolded for clarity, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
+The next step is to cd back to bin then.
+
+..code:: bash 
+
+  screen
+  python seismon_traveltimes -p /home/$USER/gitrepo/seismon/input/seismon_params_traveltimes.txt -s 1126569617 -e 1136649617 --minMagnitude 4.0 --doIRIS
+
+Screen is a program designed to use multiple windows within one terminal session. These screen will continue to operate even if you use disconnect from the session. In order to get back to your regular session, just detach from the process by clicking ctrl + a and then d. If you want to reatach just use the following commands.
+
+..code:: bash 
+
+  screen -ls
+  screen -r [Whatever process you want to reatach]
+
+Just copy and paste whichever screen you want to go to from the output of screen -ls after the screen -r command.
+This process will take quite a bit of time to complete, think days instead of hours. This is why using screen is a must.
+
+Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1
+-----------------------------------------------------------
+
+After completing the first stage, the next step is to run both H1O1 and L1O1. 
+You should use screen again to run both seismon_run_run_H1O1 and seismon_run_run_L1O1.
+This will also take some time.
