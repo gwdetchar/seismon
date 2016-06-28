@@ -43,6 +43,7 @@ In order to get seismon_traveltimes running we have to go to our home directory 
    cd ~
 
 The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find. 
+
 .. code:: bash
    
    dataLocation /home/mcoughlin/Seismon/ProductClient/data/receiver_storage/origin
