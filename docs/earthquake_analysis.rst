@@ -131,7 +131,8 @@ The next step is to cd back to bin then.
 .. code:: bash 
 
   screen
-  python seismon_traveltimes -p /home/$USER/gitrepo/seismon/input/seismon_params_traveltimes.txt -s 1126569617 -e 1136649617 --minMagnitude 4.0 --doIRIS
+  python seismon_traveltimes -p /home/$USER/gitrepo/seismon/input/seismon_params_traveltimes.txt 
+  -s 1126569617 -e 1136649617 --minMagnitude 4.0 --doIRIS [still on the same line]
 
 Screen is a program designed to use multiple windows within one terminal session. These screens will continue to operate even if you disconnect from the session. In order to get back to your regular session, just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just use the following commands.
 

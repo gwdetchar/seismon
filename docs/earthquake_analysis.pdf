@@ -56,7 +56,7 @@ endobj
 << /Outlines 19 0 R /PageLabels 34 0 R /PageMode /UseNone /Pages 29 0 R /Type /Catalog >>
 endobj
 18 0 obj
-<< /Author () /CreationDate (D:20160629090849+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160629090849+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+<< /Author () /CreationDate (D:20160629091140+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160629091140+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
   /Subject (\(unspecified\)) /Title (Getting Earthquake Analysis) /Trapped /False >>
 endobj
 19 0 obj
@@ -85,7 +85,7 @@ endobj
 << /Dest [ 13 0 R /XYZ 62.69291 301.0236 0 ] /Next 27 0 R /Parent 19 0 R /Prev 25 0 R /Title (First Stage: seismon_traveltimes) >>
 endobj
 27 0 obj
-<< /Dest [ 15 0 R /XYZ 62.69291 427.4236 0 ] /Next 28 0 R /Parent 19 0 R /Prev 26 0 R /Title (Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1) >>
+<< /Dest [ 15 0 R /XYZ 62.69291 415.4236 0 ] /Next 28 0 R /Parent 19 0 R /Prev 26 0 R /Title (Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1) >>
 endobj
 28 0 obj
 << /Dest [ 16 0 R /XYZ 62.69291 484.6236 0 ] /Parent 19 0 R /Prev 27 0 R /Title (Third Stage: seismon_run_prediction_vs_actual_ec) >>
@@ -541,7 +541,7 @@ Q
 endstream
 endobj
 32 0 obj
-<< /Length 5312 >>
+<< /Length 5493 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -572,7 +572,7 @@ BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .860488 Tw (If you look at the fourth line, w
 Q
 Q
 q
-1 0 0 1 62.69291 614.6236 cm
+1 0 0 1 62.69291 602.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -582,26 +582,30 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 912 36 re B*
+n -6 -6 576 48 re B*
 Q
 q
 .960784 .960784 .862745 rg
-n 216 0 30 12 re f*
-BT 1 0 0 1 0 14 Tm 12 TL /F3 10 Tf 0 0 0 rg (screen) Tj T* (python seismon_traveltimes -p /home/) Tj .098039 .090196 .486275 rg ($USER) Tj 0 0 0 rg (/gitrepo/seismon/input/seismon_params_traveltimes.txt -s 1126569617 -e 1136649617 --minMagnitude 4.0 --doIRIS) Tj T* ET
+n 216 12 30 12 re f*
+.960784 .960784 .862745 rg
+n 336 0 6 12 re f*
+.960784 .960784 .862745 rg
+n 474 0 6 12 re f*
+BT 1 0 0 1 0 26 Tm 12 TL /F3 10 Tf 0 0 0 rg (screen) Tj T* (python seismon_traveltimes -p /home/) Tj .098039 .090196 .486275 rg ($USER) Tj 0 0 0 rg (/gitrepo/seismon/input/seismon_params_traveltimes.txt) Tj T* (-s 1126569617 -e 1136649617 --minMagnitude 4.0 --doIRIS ) Tj .4 .4 .4 rg ([) Tj 0 0 0 rg (still on the same line) Tj .4 .4 .4 rg (]) Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 558.6236 cm
+1 0 0 1 62.69291 546.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 38 Tm /F1 10 Tf 12 TL 1.167318 Tw (Screen is a program designed to use multiple windows within one terminal session. These screens will) Tj T* 0 Tw .443876 Tw (continue to operate even if you disconnect from the session. In order to get back to your regular session,) Tj T* 0 Tw .605703 Tw (just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just) Tj T* 0 Tw (use the following commands.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 501.4236 cm
+1 0 0 1 62.69291 489.4236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -629,48 +633,48 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 469.4236 cm
+1 0 0 1 62.69291 457.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .622488 Tw (Just copy and paste whichever screen you want to go to from the output of screen -ls after the screen -r) Tj T* 0 Tw (command.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 439.4236 cm
+1 0 0 1 62.69291 427.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .123988 Tw (This process will take quite a bit of time to complete, think days instead of hours. This is why using screen) Tj T* 0 Tw (is a strong recommendation.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 385.4236 cm
+1 0 0 1 62.69291 373.4236 cm
 q
 BT 1 0 0 1 0 24.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Second Stage: seismon_run_run_H1O1 and) Tj T* (seismon_run_run_L1O1) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 355.4236 cm
+1 0 0 1 62.69291 343.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .533984 Tw (These scripts grab the earthquake data from the eventfiles database specifically inside the iris folder and) Tj T* 0 Tw (then looks at specific channels in order to get user friendly data output.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 337.4236 cm
+1 0 0 1 62.69291 325.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (After completing the first stage, the next step is to run both H1O1 and L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 319.4236 cm
+1 0 0 1 62.69291 307.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The first thing to do in order to run both of these scripts is to) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 274.2236 cm
+1 0 0 1 62.69291 262.2236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -692,14 +696,14 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 254.2236 cm
+1 0 0 1 62.69291 242.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Inside you'll find a file that looks like this.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 101.0236 cm
+1 0 0 1 62.69291 89.02362 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -912,17 +916,17 @@ xref
 0000004664 00000 n
 0000012700 00000 n
 0000018462 00000 n
-0000023831 00000 n
-0000027193 00000 n
-0000027264 00000 n
-0000027301 00000 n
-0000027338 00000 n
-0000027375 00000 n
+0000024012 00000 n
+0000027374 00000 n
+0000027445 00000 n
+0000027482 00000 n
+0000027519 00000 n
+0000027556 00000 n
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com)
- [(\201\314\002\216\022W\325\254<\342\236h\276\3135\306) (\201\314\002\216\022W\325\254<\342\236h\276\3135\306)]
+ [(\035Z4\302L&[\366y\3170$\363\367\360\205) (\035Z4\302L&[\366y\3170$\363\367\360\205)]
  /Info 18 0 R /Root 17 0 R /Size 39 >>
 startxref
-27412
+27593
 %%EOF
