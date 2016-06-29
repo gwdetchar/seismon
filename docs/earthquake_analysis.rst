@@ -32,7 +32,9 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
    ssh albert.einstein@ssh.ligo.org
    [there will be a query that pops up asking you to trust the key of the server, type y and you won't have to worry about it. This applies only to the LIGO clusters.]
    [It will then ask you to type in your LIGO Password]
-   [once that's done, you should see options to log in to various ligo clusters, please type 2 to go to CIT(which is CalTech) and then pcdev 1, 2, or 3. Don't worry, it tells which letter to type to get to that particular server.]
+   [once that's done, you should see options to log in to various ligo clusters, 
+   please type 2 to go to CIT(which is CalTech) and then pcdev 1, 2, or 3. 
+   Don't worry, it tells which letter to type to get to that particular server.]
    [Now you should be on the cluster proper.]
 
 
@@ -45,7 +47,7 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
 .. _guide: https://support.microsoft.com/en-us/help/13443/windows-which-operating-system
 
 SSH on Mac OS and Linux
-+++++++++++++
++++++++++++++++++++++++
 
 Open up a terminal and then run 
 
@@ -120,7 +122,8 @@ The next step after this is to cd into the input directory of seismon. Open up t
    dataLocation /home/mcoughlin/Seismon/ProductClient/data/receiver_storage/origin
    publicdataLocation /home/mcoughlin/Seismon/publicdata
    databasedataLocation /home/mcoughlin/Seismon/databasedata
-   **eventfilesLocation /home/eric.coughlin/eventfiles** -> **eventfileslocation /home/albert.einstein/eventfiles**
+   **eventfilesLocation /home/eric.coughlin/eventfiles** ->
+   **eventfileslocation /home/albert.einstein/eventfiles**
 
 If you look at the fourth line, which I bolded for clarity, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
 The next step is to cd back to bin then.
@@ -200,7 +203,7 @@ Once you are done, you should use screen again to run both seismon_run_run_H1O1 
 This will also take some time.
 
 Third Stage: seismon_run_prediction_vs_actual_ec
----------------------------------------------
+------------------------------------------------
 
 seismon_run_prediction_vs_actual_ec is designed to compare the predicted measurements and the actual measurements to create a nice succinct text file for each channel.
 

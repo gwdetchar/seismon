@@ -56,7 +56,7 @@ endobj
 << /Outlines 19 0 R /PageLabels 34 0 R /PageMode /UseNone /Pages 29 0 R /Type /Catalog >>
 endobj
 18 0 obj
-<< /Author () /CreationDate (D:20160629090356+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160629090356+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+<< /Author () /CreationDate (D:20160629090849+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160629090849+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
   /Subject (\(unspecified\)) /Title (Getting Earthquake Analysis) /Trapped /False >>
 endobj
 19 0 obj
@@ -73,7 +73,7 @@ endobj
 << /Dest [ 11 0 R /XYZ 62.69291 555.0236 0 ] /Next 23 0 R /Parent 21 0 R /Title (SSH on Windows) >>
 endobj
 23 0 obj
-<< /Dest [ 11 0 R /XYZ 62.69291 137.8236 0 ] /Parent 21 0 R /Prev 22 0 R /Title (SSH on Mac OS and Linux) >>
+<< /Dest [ 11 0 R /XYZ 62.69291 113.8236 0 ] /Parent 21 0 R /Prev 22 0 R /Title (SSH on Mac OS and Linux) >>
 endobj
 24 0 obj
 << /Dest [ 13 0 R /XYZ 62.69291 691.8236 0 ] /Next 25 0 R /Parent 19 0 R /Prev 21 0 R /Title (Getting SeisMon from github) >>
@@ -85,16 +85,16 @@ endobj
 << /Dest [ 13 0 R /XYZ 62.69291 301.0236 0 ] /Next 27 0 R /Parent 19 0 R /Prev 25 0 R /Title (First Stage: seismon_traveltimes) >>
 endobj
 27 0 obj
-<< /Dest [ 15 0 R /XYZ 62.69291 439.4236 0 ] /Next 28 0 R /Parent 19 0 R /Prev 26 0 R /Title (Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1) >>
+<< /Dest [ 15 0 R /XYZ 62.69291 427.4236 0 ] /Next 28 0 R /Parent 19 0 R /Prev 26 0 R /Title (Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1) >>
 endobj
 28 0 obj
-<< /Dest [ 16 0 R /XYZ 62.69291 514.6236 0 ] /Parent 19 0 R /Prev 27 0 R /Title (Third Stage: seismon_run_prediction_vs_actual_ec) >>
+<< /Dest [ 16 0 R /XYZ 62.69291 484.6236 0 ] /Parent 19 0 R /Prev 27 0 R /Title (Third Stage: seismon_run_prediction_vs_actual_ec) >>
 endobj
 29 0 obj
 << /Count 4 /Kids [ 11 0 R 13 0 R 15 0 R 16 0 R ] /Type /Pages >>
 endobj
 30 0 obj
-<< /Length 7967 >>
+<< /Length 7979 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -242,7 +242,7 @@ q
 1 0 0 1 62.69291 255.0236 cm
 Q
 q
-1 0 0 1 62.69291 149.8236 cm
+1 0 0 1 62.69291 125.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -252,57 +252,57 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 1374 96 re B*
+n -6 -6 996 120 re B*
 Q
 q
 .960784 .960784 .862745 rg
+n 0 84 6 12 re f*
+.960784 .960784 .862745 rg
+n 156 84 6 12 re f*
+.960784 .960784 .862745 rg
 n 0 60 6 12 re f*
 .960784 .960784 .862745 rg
-n 156 60 6 12 re f*
+n 474 60 24 12 re f*
 .960784 .960784 .862745 rg
-n 0 36 6 12 re f*
+n 582 60 402 12 re f*
 .960784 .960784 .862745 rg
-n 474 36 24 12 re f*
+n 0 48 312 12 re f*
 .960784 .960784 .862745 rg
-n 582 36 402 12 re f*
+n 0 36 66 12 re f*
 .960784 .960784 .862745 rg
-n 0 24 312 12 re f*
+n 78 36 24 12 re f*
 .960784 .960784 .862745 rg
-n 0 12 66 12 re f*
+n 42 24 24 12 re f*
 .960784 .960784 .862745 rg
-n 78 12 24 12 re f*
+n 156 24 6 12 re f*
 .960784 .960784 .862745 rg
-n 510 12 24 12 re f*
+n 258 24 6 12 re f*
 .960784 .960784 .862745 rg
-n 624 12 6 12 re f*
+n 294 24 24 12 re f*
 .960784 .960784 .862745 rg
-n 726 12 6 12 re f*
+n 18 12 6 12 re f*
 .960784 .960784 .862745 rg
-n 762 12 24 12 re f*
+n 228 12 24 12 re f*
 .960784 .960784 .862745 rg
-n 918 12 6 12 re f*
-.960784 .960784 .862745 rg
-n 1128 12 24 12 re f*
-.960784 .960784 .862745 rg
-n 1356 12 6 12 re f*
+n 456 12 6 12 re f*
 .960784 .960784 .862745 rg
 n 0 0 6 12 re f*
 .960784 .960784 .862745 rg
 n 246 0 6 12 re f*
-BT 1 0 0 1 0 74 Tm 12 TL /F3 10 Tf 0 0 0 rg (ssh) Tj T* .4 .4 .4 rg ([) Tj 0 0 0 rg (Hopefully output from ssh) Tj .4 .4 .4 rg (]) Tj 0 0 0 rg  T* (ssh albert.einstein@ssh.ligo.org) Tj T* .4 .4 .4 rg ([) Tj 0 0 0 rg (there will be a query that pops up asking you to trust the key of the server, ) Tj 0 .501961 0 rg (type ) Tj 0 0 0 rg (y and you won) Tj .729412 .129412 .129412 rg ('t have to worry about it. This applies only to the LIGO clusters.]) Tj T* ([It will then ask you to type in your LIGO Password]) Tj T* ([once that') Tj 0 0 0 rg (s ) Tj /F4 10 Tf 0 .501961 0 rg (done) Tj /F3 10 Tf 0 0 0 rg (, you should see options to log in to various ligo clusters, please ) Tj 0 .501961 0 rg (type ) Tj 0 0 0 rg (2 to go to CIT) Tj .4 .4 .4 rg (\() Tj 0 0 0 rg (which is CalTech) Tj .4 .4 .4 rg (\)) Tj 0 0 0 rg ( and ) Tj /F4 10 Tf 0 .501961 0 rg (then ) Tj /F3 10 Tf 0 0 0 rg (pcdev 1, 2, or 3. Don) Tj 0 0 0 rg (') Tj 0 0 0 rg (t worry, it tells which letter to ) Tj 0 .501961 0 rg (type ) Tj 0 0 0 rg (to get to that particular server.) Tj .4 .4 .4 rg (]) Tj 0 0 0 rg  T* .4 .4 .4 rg ([) Tj 0 0 0 rg (Now you should be on the cluster proper.) Tj .4 .4 .4 rg (]) Tj T* ET
+BT 1 0 0 1 0 98 Tm 12 TL /F3 10 Tf 0 0 0 rg (ssh) Tj T* .4 .4 .4 rg ([) Tj 0 0 0 rg (Hopefully output from ssh) Tj .4 .4 .4 rg (]) Tj 0 0 0 rg  T* (ssh albert.einstein@ssh.ligo.org) Tj T* .4 .4 .4 rg ([) Tj 0 0 0 rg (there will be a query that pops up asking you to trust the key of the server, ) Tj 0 .501961 0 rg (type ) Tj 0 0 0 rg (y and you won) Tj .729412 .129412 .129412 rg ('t have to worry about it. This applies only to the LIGO clusters.]) Tj T* ([It will then ask you to type in your LIGO Password]) Tj T* ([once that') Tj 0 0 0 rg (s ) Tj /F4 10 Tf 0 .501961 0 rg (done) Tj /F3 10 Tf 0 0 0 rg (, you should see options to log in to various ligo clusters,) Tj T* (please ) Tj 0 .501961 0 rg (type ) Tj 0 0 0 rg (2 to go to CIT) Tj .4 .4 .4 rg (\() Tj 0 0 0 rg (which is CalTech) Tj .4 .4 .4 rg (\)) Tj 0 0 0 rg ( and ) Tj /F4 10 Tf 0 .501961 0 rg (then ) Tj /F3 10 Tf 0 0 0 rg (pcdev 1, 2, or 3.) Tj T* (Don) Tj 0 0 0 rg (') Tj 0 0 0 rg (t worry, it tells which letter to ) Tj 0 .501961 0 rg (type ) Tj 0 0 0 rg (to get to that particular server.) Tj .4 .4 .4 rg (]) Tj 0 0 0 rg  T* .4 .4 .4 rg ([) Tj 0 0 0 rg (Now you should be on the cluster proper.) Tj .4 .4 .4 rg (]) Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 119.8236 cm
+1 0 0 1 62.69291 95.82362 cm
 q
 BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (SSH on Mac OS and Linux) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 101.8236 cm
+1 0 0 1 62.69291 77.82362 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Open up a terminal and then run) Tj T* ET
@@ -541,11 +541,11 @@ Q
 endstream
 endobj
 32 0 obj
-<< /Length 5555 >>
+<< /Length 5312 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 703.8236 cm
+1 0 0 1 62.69291 691.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -555,24 +555,24 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 684 60 re B*
+n -6 -6 486 72 re B*
 Q
 q
-BT 1 0 0 1 0 38 Tm 12 TL /F3 10 Tf 0 0 0 rg (dataLocation /home/mcoughlin/Seismon/ProductClient/data/receiver_storage/origin) Tj T* (publicdataLocation /home/mcoughlin/Seismon/publicdata) Tj T* (databasedataLocation /home/mcoughlin/Seismon/databasedata) Tj T* (**eventfilesLocation /home/eric.coughlin/eventfiles** -) Tj (>) Tj ( **eventfileslocation /home/albert.einstein/eventfiles**) Tj T* ET
+BT 1 0 0 1 0 50 Tm 12 TL /F3 10 Tf 0 0 0 rg (dataLocation /home/mcoughlin/Seismon/ProductClient/data/receiver_storage/origin) Tj T* (publicdataLocation /home/mcoughlin/Seismon/publicdata) Tj T* (databasedataLocation /home/mcoughlin/Seismon/databasedata) Tj T* (**eventfilesLocation /home/eric.coughlin/eventfiles** -) Tj (>) Tj  T* (**eventfileslocation /home/albert.einstein/eventfiles**) Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 671.8236 cm
+1 0 0 1 62.69291 659.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .860488 Tw (If you look at the fourth line, which I bolded for clarity, you'll want to change this parameter to your own) Tj T* 0 Tw (home directory as long as you followed the above steps correctly. The next step is to cd back to bin then.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 626.6236 cm
+1 0 0 1 62.69291 614.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -594,14 +594,14 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 570.6236 cm
+1 0 0 1 62.69291 558.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 38 Tm /F1 10 Tf 12 TL 1.167318 Tw (Screen is a program designed to use multiple windows within one terminal session. These screens will) Tj T* 0 Tw .443876 Tw (continue to operate even if you disconnect from the session. In order to get back to your regular session,) Tj T* 0 Tw .605703 Tw (just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just) Tj T* 0 Tw (use the following commands.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 513.4236 cm
+1 0 0 1 62.69291 501.4236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -629,48 +629,48 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 481.4236 cm
+1 0 0 1 62.69291 469.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .622488 Tw (Just copy and paste whichever screen you want to go to from the output of screen -ls after the screen -r) Tj T* 0 Tw (command.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 451.4236 cm
+1 0 0 1 62.69291 439.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .123988 Tw (This process will take quite a bit of time to complete, think days instead of hours. This is why using screen) Tj T* 0 Tw (is a strong recommendation.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 397.4236 cm
+1 0 0 1 62.69291 385.4236 cm
 q
 BT 1 0 0 1 0 24.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Second Stage: seismon_run_run_H1O1 and) Tj T* (seismon_run_run_L1O1) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 367.4236 cm
+1 0 0 1 62.69291 355.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .533984 Tw (These scripts grab the earthquake data from the eventfiles database specifically inside the iris folder and) Tj T* 0 Tw (then looks at specific channels in order to get user friendly data output.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 349.4236 cm
+1 0 0 1 62.69291 337.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (After completing the first stage, the next step is to run both H1O1 and L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 331.4236 cm
+1 0 0 1 62.69291 319.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The first thing to do in order to run both of these scripts is to) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 286.2236 cm
+1 0 0 1 62.69291 274.2236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -692,14 +692,14 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 266.2236 cm
+1 0 0 1 62.69291 254.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Inside you'll find a file that looks like this.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 113.0236 cm
+1 0 0 1 62.69291 101.0236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -720,29 +720,29 @@ Q
 Q
 Q
 Q
+ 
+endstream
+endobj
+33 0 obj
+<< /Length 3305 >>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 81.02362 cm
+1 0 0 1 62.69291 741.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .019318 Tw (You'll want to change the eric.coughlin or albert.einstein directories to your own, don't touch the mcoughlin) Tj T* 0 Tw (directories.) Tj T* ET
 Q
 Q
- 
-endstream
-endobj
-33 0 obj
-<< /Length 3059 >>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 753.0236 cm
+1 0 0 1 62.69291 723.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (A nice way to do that is to use within vim) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 707.8236 cm
+1 0 0 1 62.69291 677.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -763,28 +763,28 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 687.8236 cm
+1 0 0 1 62.69291 657.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (It'll ask you to confirm each change made.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 669.8236 cm
+1 0 0 1 62.69291 639.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Now do the same steps with L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 639.8236 cm
+1 0 0 1 62.69291 609.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 5.40229 Tw (Once you are done, you should use screen again to run both seismon_run_run_H1O1 and) Tj T* 0 Tw (seismon_run_run_L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 546.6236 cm
+1 0 0 1 62.69291 516.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -812,27 +812,27 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 526.6236 cm
+1 0 0 1 62.69291 496.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (This will also take some time.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 493.6236 cm
+1 0 0 1 62.69291 463.6236 cm
 q
 BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Third Stage: seismon_run_prediction_vs_actual_ec) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 463.6236 cm
+1 0 0 1 62.69291 433.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 3.113307 Tw (seismon_run_prediction_vs_actual_ec is designed to compare the predicted measurements and the) Tj T* 0 Tw (actual measurements to create a nice succinct text file for each channel.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 370.4236 cm
+1 0 0 1 62.69291 340.4236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -910,19 +910,19 @@ xref
 0000004426 00000 n
 0000004579 00000 n
 0000004664 00000 n
-0000012688 00000 n
-0000018450 00000 n
-0000024062 00000 n
-0000027178 00000 n
-0000027249 00000 n
-0000027286 00000 n
-0000027323 00000 n
-0000027360 00000 n
+0000012700 00000 n
+0000018462 00000 n
+0000023831 00000 n
+0000027193 00000 n
+0000027264 00000 n
+0000027301 00000 n
+0000027338 00000 n
+0000027375 00000 n
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com)
- [(s\023\345]?,\353\310F\231\201d\3040\352%) (s\023\345]?,\353\310F\231\201d\3040\352%)]
+ [(\201\314\002\216\022W\325\254<\342\236h\276\3135\306) (\201\314\002\216\022W\325\254<\342\236h\276\3135\306)]
  /Info 18 0 R /Root 17 0 R /Size 39 >>
 startxref
-27397
+27412
 %%EOF
