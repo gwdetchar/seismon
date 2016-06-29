@@ -13,7 +13,7 @@ endobj
 << /A << /S /URI /Type /Action /URI (https://en.wikipedia.org/wiki/Secure_Shell) >> /Border [ 0 0 0 ] /Rect [ 209.4329 567.0236 229.9929 579.0236 ] /Subtype /Link /Type /Annot >>
 endobj
 5 0 obj
-<< /A << /S /URI /Type /Action /URI (https://cygwin.com/install.html) >> /Border [ 0 0 0 ] /Rect [ 214.0929 474.0236 275.7729 486.0236 ] /Subtype /Link /Type /Annot >>
+<< /A << /S /URI /Type /Action /URI (https://cygwin.com/install.html) >> /Border [ 0 0 0 ] /Rect [ 214.0929 474.0236 272.9929 486.0236 ] /Subtype /Link /Type /Annot >>
 endobj
 6 0 obj
 << /A << /S /URI /Type /Action /URI (https://cygwin.com/setup-x86.exe) >> /Border [ 0 0 0 ] /Rect [ 393.5178 456.0236 415.4427 468.0236 ] /Subtype /Link /Type /Annot >>
@@ -60,7 +60,7 @@ endobj
 << /Outlines 20 0 R /PageLabels 36 0 R /PageMode /UseNone /Pages 30 0 R /Type /Catalog >>
 endobj
 19 0 obj
-<< /Author () /CreationDate (D:20160629103531+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160629103531+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+<< /Author () /CreationDate (D:20160629110801+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160629110801+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
   /Subject (\(unspecified\)) /Title (Getting Earthquake Analysis) /Trapped /False >>
 endobj
 20 0 obj
@@ -165,7 +165,7 @@ Q
 q
 1 0 0 1 23 -3 cm
 q
-BT 1 0 0 1 0 2 Tm 12 TL /F1 10 Tf 0 0 0 rg (Read the following webpage ) Tj 0 0 .501961 rg (cygwin_install) Tj 0 0 0 rg (.) Tj T* ET
+BT 1 0 0 1 0 2 Tm 12 TL /F1 10 Tf 0 0 0 rg (Read the following webpage ) Tj 0 0 .501961 rg (cygwin install) Tj 0 0 0 rg (.) Tj T* ET
 Q
 Q
 q
@@ -1257,7 +1257,7 @@ xref
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com)
- [(N\036\020\235\034\3244}\206\243\272\2773O_\015) (N\036\020\235\034\3244}\206\243\272\2773O_\015)]
+ [(Z\224k3\324Y\311\237\364\013\327\251:\006Q\316) (Z\224k3\324Y\311\237\364\013\327\251:\006Q\316)]
  /Info 19 0 R /Root 18 0 R /Size 42 >>
 startxref
 32066

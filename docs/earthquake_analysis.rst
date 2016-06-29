@@ -20,7 +20,7 @@ SSH on Windows
 
 Since windows does not come with a UNIX-based terminal, we'll have to grab one from the web. Personally, cgywin is probably the best choice for this kind of environment. Its also pretty much the only one I know, so there's that.
 
-1. Read the following webpage cygwin_install_.
+1. Read the following webpage `cygwin install`_.
 2. Depending on your version of Windows, you will either download the 32bit_ or 64bit_ version. To figure out which version of windows you're running please check out this guide_ provided by Microsoft.
 3. install cygwin by running the file you just downloaded.
  
@@ -48,7 +48,7 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
    [Now you should be on the cluster proper.]
 
 
-.. _cygwin_install: https://cygwin.com/install.html
+.. _`cygwin install`: https://cygwin.com/install.html
 
 .. _32bit: https://cygwin.com/setup-x86.exe
 
