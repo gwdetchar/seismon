@@ -22,13 +22,15 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
 
 1. Read the following webpage cygwin_install_.
 2. Depending on your version of Windows, you will either download the 32bit_ or 64bit_ version. To figure out which version of windows you're running please check out this guide_ provided by Microsoft.
-3. install cygwin by running the file you just downloaded. 
+3. install cygwin by running the file you just downloaded.
+ 
    #. It'll ask how you want to install, pick download files from the internet. 
    #. The next step will ask you where you want to save cygwin, stick it in your documents, just don't leave it on default(there could be problems just leaving it directly in your root c drive). 
    #. Next it'll ask you where you want to save these files, just put them in a directory that you know isn't temporary. 
    #. Then you'll get a screen asking you to pick a download mirror site, just pick the first one, it should work just fine. 
    #. Then it'll download the listing of the site and you'll be taken to a screen with lists of a whole bunch of packages. Don't worry about these for now, as you'll most of these things alone. Just type ssh into the search bar at the top and then when its done searching, click default on the three categories to tell cygwin to install those packages along with the default ones, 
    #. then click next towards the bottom right corner of the screen. Cygwin may ask you to install dependencies just say yes or rather click next. Cygwin will then download and install the packages that you chose and then when its finished, it'll ask you if you want to have a desktop shortcut and put it on the start menu, just leave both of those options ticked. Congratulations! You should now have a working cygwin. 
+
 4. Open up cygwin using the shortcut on your desktop. It should run without a hitch at this point. now run on the terminal
 
 .. code:: bash
