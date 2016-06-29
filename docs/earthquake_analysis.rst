@@ -1,10 +1,10 @@
-===========================
-Getting Earthquake Analysis
-===========================
+================================
+Earthquake Analysis with SeisMon
+================================
 
 Preface
 -------
-This is a document designed to get the user started on generating data from earthquakes using SeisMon. This particular example is designed to grab and organize data from 6 channels during O1. These channels are two seismometers that measure the motion of three translation degrees of freedom X, Y, and Z under the LIGO optic support structure(two Horizontal and one Vertical). **Important Note:** SeisMon is designed to run from the CIT servers on LIGO so the user should log onto there in order to make sure that things will even begin to work properly. On the use of brackets within this document, they represent extra explanations and not necessarily exact commands to write out.
+This document is designed to get the user started on generating data from earthquakes using SeisMon. This particular example is grabbing and organizing data from 6 channels during O1. These channels are two seismometers that measure the motion of three translation degrees of freedom X, Y, and Z under the LIGO optic support structure(two Horizontal and one Vertical). **Important Note:** SeisMon is designed to run from the CIT Cluster on the LIGO servers so the user must log onto there in order to have SeisMon work properly. On the use of brackets within this document, they represent extra explanations and not necessarily exact commands to write out.
 
 Remote access to LIGO clusters
 ------------------------------
@@ -63,10 +63,19 @@ Open up a terminal and then run
 
 .. code:: bash 
 
+   ssh
+   [Hopefully output from ssh]
    ssh albert.einstein@ssh.ligo.org
-   [type in password]
-   [CIT]
-   [One of the servers: pcdev-1, 2, or 3]
+   [there will be a query that pops up asking you to trust the key of the server,
+   type y and you won't have to worry about it.
+   This applies only to the LIGO clusters.]
+   [It will then ask you to type in your LIGO Password]
+   [once that's done, you should see options to log in to various ligo clusters,
+   please type 2 to go to CIT(which is CalTech) and then pcdev 1, 2, or 3.
+   Don't worry, it tells which letter to type to get to that particular server.]
+   [Now you should be on a server within the cluster proper.]
+
+This is done so that we can have access to all of the data required for SeisMon to run properly.
    
 
 Getting SeisMon from github
@@ -76,6 +85,7 @@ The following code will provide access to seismon which is needed to run the res
 
 .. code:: bash
 
+   cd ~
    mkdir gitrepo
    cd gitrepo
    git clone https://github.com/ligovirgo/seismon.git
@@ -97,6 +107,14 @@ Many of the files that we need to run are located within the folders of the seis
 .. code:: bash
 
    ls
+   [Output of files and directories in seismon]
+   cd bin
+   ls
+   [Output of files and directories in bin]
+   cd ..
+   cd input
+   ls
+   [Output of files and directories in input]
 
 to make note of the folders and files. For this example, the user will want to take note of both the bin directory and the input directory. The next step is to make sure gwpy_ is sourced before running any of the scripts mentioned in this file. The user can do this by running 
 
@@ -113,7 +131,16 @@ Once gwpy is ready to go, then we can move onto the next step of generating the 
 First Stage: seismon_traveltimes
 --------------------------------
 
-seismon_traveltimes is designed to take data from usgs seismic monitering channels and write this data to xml files located within the eventfiles database.
+seismon_traveltimes is designed to read data from `usgs seismic monitering channels`_. This data is stored as a series of xml files inside of /home/albert.einstein/eventfiles/iris.
+
+.. _`usgs seismic monitering channels`: http://earthquake.usgs.gov/earthquakes/map/
+
+seismon_traveltimes has two overall purposes:
+
+1. It reads the data from usgs seismic monitoring channels.
+2. It writes the output to a series of xml files located in the eventfiles directory. This contains the actual earthquake data measured by usgs.
+
+
 
 In order to get seismon_traveltimes running we have to go to our home directory and make a directory called eventfiles and then inside eventfiles create a directory called iris.
 
@@ -125,7 +152,12 @@ In order to get seismon_traveltimes running we have to go to our home directory 
    mkdir iris
    cd ~
 
-The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find. 
+The next step after this is to cd into the input directory of seismon. Open up the file seismon_params_traveltimes.txt and inside you should find.
+
+.. code:: bash 
+
+   cd gitrepo/seismon/input
+   vi seismon_params_traveltimes.txt 
 
 .. code:: bash
    
@@ -135,11 +167,13 @@ The next step after this is to cd into the input directory of seismon. Open up t
    **eventfilesLocation /home/eric.coughlin/eventfiles** ->
    **eventfileslocation /home/albert.einstein/eventfiles**
 
-If you look at the fourth line, which I bolded for clarity, you'll want to change this parameter to your own home directory as long as you followed the above steps correctly.
+If you look at the fourth line, which I bolded for clarity, you'll want to change eric.coughlin to your own albert.einstein directory as long as you followed the above steps correctly.
 The next step is to cd back to bin then.
 
 .. code:: bash 
 
+  cd ..
+  cd bin
   screen
   python seismon_traveltimes -p /home/albert.einstein/gitrepo/seismon/input/
   seismon_params_traveltimes.txt -s 1126569617 -e 1136649617 
@@ -157,7 +191,7 @@ Screen is a program designed to use multiple windows within one terminal session
 
   screen -ls
   [insert output of screen -ls here]
-  screen -r [Whatever process you want to reatach]
+  screen -r [Whatever process you want to reattach]
 
 Just copy and paste whichever screen you want to go to from the output of screen -ls after the screen -r command.
 
@@ -193,7 +227,7 @@ Inside you'll find a file that looks like this.
    #eventfilesLocation /home/mcoughlin/Seismon/eventfiles/database
    velocitymapsLocation /home/mcoughlin/Seismon/velocity_maps
 
-You'll want to change the eric.coughlin or albert.einstein directories to your own, don't touch the mcoughlin directories.
+You'll want to change the eric.coughlin directories to your own albert.einstein, don't touch the mcoughlin directories.
 
 A nice way to do that is to use within vim 
 
@@ -220,18 +254,22 @@ Once you are done, you should use screen again to run both seismon_run_run_H1O1 
 
 This will also take some time.
 
+The output will be found in /home/albert.einstein/gitrepo/, within these are a series of directories and files that encompass the output from the two scripts.
+
 Third Stage: seismon_run_prediction_vs_actual_ec
 ------------------------------------------------
 
-seismon_run_prediction_vs_actual_ec is designed to compare the predicted measurements and the actual measurements to create a nice succinct text file for each channel.
+seismon_run_prediction_vs_actual_ec is designed to compare the predicted measurements and the actual measurements to create a nice succinct text file for each channel. For more information check out this document_.
+
+.. _document: https://dcc.ligo.org/LIGO-T1400487
 
 .. code:: bash 
 
    vi seismon_run_prediction_vs_actual_ec
-   :%s/eric.coughlin/$USER/gc
+   :%s/eric.coughlin/albert.einstein/gc
    :wq
    screen
    python seismon_run_prediction_vs_actual_ec
    [ctrl-a then d]
 
-
+The output directory will be in /home/albert.einstein/gitrepo/Predictions/*
