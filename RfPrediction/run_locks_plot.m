@@ -55,7 +55,7 @@ semilogx(10.^llo.peakdispcut,llo.flagscutsumdisp,'go')
 hold off
 grid
 %caxis([-6 -3])
-xlim([min([min(10.^lho.peakdispcut) min(10.^llo.peakdispcut)]) 1e-4])
+xlim([1e-6 1e-4])
 xlabel('Peak ground displacement, log10 [m]')
 ylabel('Lockloss Probability');
 leg1 = legend({'LHO','LLO'},'Location','SouthEast');
