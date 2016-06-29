@@ -22,7 +22,13 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
 
 1. Read the following webpage cygwin_install_.
 2. Depending on your version of Windows, you will either download the 32bit_ or 64bit_ version. To figure out which version of windows you're running please check out this guide_ provided by Microsoft.
-3. install cygwin by running the file you just downloaded. It'll ask how you want to install, pick download files from the internet. The next step will ask you where you want to save cygwin, stick in your documents, don't leave it on default. Next it'll ask you where you want to save these files, just put them in a directory that you know isn't temporary. Then you'll get a screen asking you to pick a download mirror site, just pick the first one, it should work just fine. Then it'll download the listing of the site and you'll be taken to a screen with lists of a whole bunch of packages. Don't worry about these for now, as you'll most of these things alone. Just type ssh into the search bar at the top and then when its done searching, click default on the three categories to tell cygwin to install those packages along with the default ones, then click next towards the bottom right corner of the screen. Cygwin may ask you to install dependencies just say yes or rather click next. Cygwin will then download and install the packages that you chose and then when its finished, it'll ask you if you want to have a desktop shortcut and put it on the start menu, just leave both of those options ticked. Congratulations! You should now have a working cygwin. 
+3. install cygwin by running the file you just downloaded. 
+   #. It'll ask how you want to install, pick download files from the internet. 
+   #. The next step will ask you where you want to save cygwin, stick it in your documents, just don't leave it on default(there could be problems just leaving it directly in your root c drive). 
+   #. Next it'll ask you where you want to save these files, just put them in a directory that you know isn't temporary. 
+   #. Then you'll get a screen asking you to pick a download mirror site, just pick the first one, it should work just fine. 
+   #. Then it'll download the listing of the site and you'll be taken to a screen with lists of a whole bunch of packages. Don't worry about these for now, as you'll most of these things alone. Just type ssh into the search bar at the top and then when its done searching, click default on the three categories to tell cygwin to install those packages along with the default ones, 
+   #. then click next towards the bottom right corner of the screen. Cygwin may ask you to install dependencies just say yes or rather click next. Cygwin will then download and install the packages that you chose and then when its finished, it'll ask you if you want to have a desktop shortcut and put it on the start menu, just leave both of those options ticked. Congratulations! You should now have a working cygwin. 
 4. Open up cygwin using the shortcut on your desktop. It should run without a hitch at this point. now run on the terminal
 
 .. code:: bash
@@ -136,6 +142,12 @@ The next step is to cd back to bin then.
   python seismon_traveltimes -p /home/albert.einstein/gitrepo/seismon/input/
   seismon_params_traveltimes.txt -s 1126569617 -e 1136649617 
   --minMagnitude 4.0 --doIRIS [still on the same line]
+
+-p  this is the location of the parameters file
+-s  this is the gps start time of the program
+-e  this is the gps end time of the program, this also completes the range of time between start and end
+--minMagnitude  This defines the minimum magnitude of the earthquakes grabbed by seismon_traveltimes
+--doIRIS  This tells seismon_traveltimes to grab data from the Incorporated Research Institutions for Seismology(IRIS)'s seismic moniter database
 
 Screen is a program designed to use multiple windows within one terminal session. These screens will continue to operate even if you disconnect from the session. In order to get back to your regular session, just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just use the following commands.
 
