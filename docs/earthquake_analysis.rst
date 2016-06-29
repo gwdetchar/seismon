@@ -30,7 +30,9 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
    ssh
    [Hopefully output from ssh]
    ssh albert.einstein@ssh.ligo.org
-   [there will be a query that pops up asking you to trust the key of the server, type y and you won't have to worry about it. This applies only to the LIGO clusters.]
+   [there will be a query that pops up asking you to trust the key of the server,
+   type y and you won't have to worry about it.
+   This applies only to the LIGO clusters.]
    [It will then ask you to type in your LIGO Password]
    [once that's done, you should see options to log in to various ligo clusters, 
    please type 2 to go to CIT(which is CalTech) and then pcdev 1, 2, or 3. 
@@ -131,8 +133,9 @@ The next step is to cd back to bin then.
 .. code:: bash 
 
   screen
-  python seismon_traveltimes -p /home/$USER/gitrepo/seismon/input/seismon_params_traveltimes.txt 
-  -s 1126569617 -e 1136649617 --minMagnitude 4.0 --doIRIS [still on the same line]
+  python seismon_traveltimes -p /home/albert.einstein/gitrepo/seismon/input/
+  seismon_params_traveltimes.txt -s 1126569617 -e 1136649617 
+  --minMagnitude 4.0 --doIRIS [still on the same line]
 
 Screen is a program designed to use multiple windows within one terminal session. These screens will continue to operate even if you disconnect from the session. In order to get back to your regular session, just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just use the following commands.
 
