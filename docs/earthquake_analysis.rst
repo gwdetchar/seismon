@@ -282,8 +282,12 @@ If you'd like to change the parameters for this script to look at different chan
 Don't worry about the %s and %d's
 
 
--%s  String formater for Python, replaces %s with variable defined by user
--%d  decimal replacer for Python, %d with a variable defined by user
+%s  
+   String formater for Python, replaces %s with variable defined by user
+
+
+%d  
+   decimal replacer for Python, %d with a variable defined by user
 
 
 
