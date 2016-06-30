@@ -281,8 +281,11 @@ If you'd like to change the parameters for this script to look at different chan
 
 Don't worry about the %s and %d's
 
-%s  String formater for Python, replaces %s with variable defined by user
-%d  decimal replacer for Python, %d with a variable defined by user
+
+-%s  String formater for Python, replaces %s with variable defined by user
+-%d  decimal replacer for Python, %d with a variable defined by user
+
+
 
 Once you are done, you should use screen again to run both seismon_run_run_H1O1 and seismon_run_run_L1O1.
 
@@ -320,10 +323,14 @@ If you've adjusted the channels then you'll need to make the proper changes to s
 
 .. code:: python
 
-   inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
-   #accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
-   #predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
-   predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+   inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files
+   /Timeseries/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
+   #accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files
+   /Acceleration/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
+   #predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1
+   /1126569617-1136678417/earthquakes/earthquakes.txt"
+   predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1
+   /1126073342-1137283217/earthquakes/earthquakes.txt"
    outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1/"
 
 1. You will want to change the inputFileDirectory to the channel names that you looked at.
@@ -333,7 +340,8 @@ If you've adjusted the channels then you'll need to make the proper changes to s
 
 .. code:: python
 
-   filenames = ["/home/eric.coughlin/gitrepo/Predictions/H1O1/earthquakes.txt","/home/eric.coughlin/gitrepo/Predictions/L1O1/earthquakes.txt"]
+   filenames = ["/home/eric.coughlin/gitrepo/Predictions/H1O1/earthquakes.txt",
+   "/home/eric.coughlin/gitrepo/Predictions/L1O1/earthquakes.txt"]
 
 1. add channel directories to these filenames keeping the same format but just changing H1O1 to the channel name
 

@@ -70,7 +70,7 @@ endobj
 << /Outlines 23 0 R /PageLabels 40 0 R /PageMode /UseNone /Pages 33 0 R /Type /Catalog >>
 endobj
 22 0 obj
-<< /Author () /CreationDate (D:20160630065816+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160630065816+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+<< /Author () /CreationDate (D:20160630070347+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160630070347+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
   /Subject (\(unspecified\)) /Title (Earthquake Analysis with SeisMon) /Trapped /False >>
 endobj
 23 0 obj
@@ -1211,7 +1211,7 @@ Q
 endstream
 endobj
 38 0 obj
-<< /Length 14066 >>
+<< /Length 14070 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -1775,7 +1775,7 @@ q
 1 0 0 1 62.69291 177.4236 cm
 q
 0 0 0 rg
-BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .29436 Tw (%s String formater for Python, replaces %s with variable defined by user %d decimal replacer for Python,) Tj T* 0 Tw (%d with a variable defined by user) Tj T* ET
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 2.315984 Tw (-%s String formater for Python, replaces %s with variable defined by user -%d decimal replacer for) Tj T* 0 Tw (Python, %d with a variable defined by user) Tj T* ET
 Q
 Q
 q
@@ -1817,7 +1817,7 @@ Q
 endstream
 endobj
 39 0 obj
-<< /Length 6910 >>
+<< /Length 9824 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -1899,7 +1899,7 @@ BT 1 0 0 1 0 14 Tm 9.383059 Tw 12 TL /F1 10 Tf 0 0 0 rg (If you've adjusted the 
 Q
 Q
 q
-1 0 0 1 62.69291 396.4236 cm
+1 0 0 1 62.69291 348.4236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1909,45 +1909,129 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 666 72 re B*
+n -6 -6 468.6898 120 re B*
 Q
 q
 .960784 .960784 .862745 rg
-n 0 48 108 12 re f*
+n 0 96 108 12 re f*
 .960784 .960784 .862745 rg
-n 108 48 6 12 re f*
+n 108 96 6 12 re f*
 .960784 .960784 .862745 rg
-n 114 48 480 12 re f*
+n 114 96 234 12 re f*
 .960784 .960784 .862745 rg
-n 0 36 654 12 re f*
+n 0 84 6 12 re f*
 .960784 .960784 .862745 rg
-n 0 24 618 12 re f*
+n 6 84 60 12 re f*
 .960784 .960784 .862745 rg
-n 0 12 84 12 re f*
+n 66 84 6 12 re f*
 .960784 .960784 .862745 rg
-n 84 12 6 12 re f*
+n 72 84 36 12 re f*
 .960784 .960784 .862745 rg
-n 90 12 522 12 re f*
+n 108 84 6 12 re f*
+.960784 .960784 .862745 rg
+n 114 84 102 12 re f*
+.960784 .960784 .862745 rg
+n 216 84 6 12 re f*
+.960784 .960784 .862745 rg
+n 222 84 12 12 re f*
+.960784 .960784 .862745 rg
+n 234 84 6 12 re f*
+.960784 .960784 .862745 rg
+n 240 84 6 12 re f*
+.960784 .960784 .862745 rg
+n 0 72 396 12 re f*
+.960784 .960784 .862745 rg
+n 0 60 6 12 re f*
+.960784 .960784 .862745 rg
+n 6 60 72 12 re f*
+.960784 .960784 .862745 rg
+n 78 60 6 12 re f*
+.960784 .960784 .862745 rg
+n 84 60 36 12 re f*
+.960784 .960784 .862745 rg
+n 120 60 6 12 re f*
+.960784 .960784 .862745 rg
+n 126 60 102 12 re f*
+.960784 .960784 .862745 rg
+n 228 60 6 12 re f*
+.960784 .960784 .862745 rg
+n 234 60 12 12 re f*
+.960784 .960784 .862745 rg
+n 246 60 6 12 re f*
+.960784 .960784 .862745 rg
+n 252 60 6 12 re f*
+.960784 .960784 .862745 rg
+n 0 48 312 12 re f*
+.960784 .960784 .862745 rg
+n 0 36 6 12 re f*
+.960784 .960784 .862745 rg
+n 6 36 60 12 re f*
+.960784 .960784 .862745 rg
+n 66 36 6 12 re f*
+.960784 .960784 .862745 rg
+n 72 36 60 12 re f*
+.960784 .960784 .862745 rg
+n 132 36 6 12 re f*
+.960784 .960784 .862745 rg
+n 138 36 66 12 re f*
+.960784 .960784 .862745 rg
+n 204 36 6 12 re f*
+.960784 .960784 .862745 rg
+n 210 36 66 12 re f*
+.960784 .960784 .862745 rg
+n 276 36 6 12 re f*
+.960784 .960784 .862745 rg
+n 282 36 18 12 re f*
+.960784 .960784 .862745 rg
+n 300 36 6 12 re f*
+.960784 .960784 .862745 rg
+n 0 24 84 12 re f*
+.960784 .960784 .862745 rg
+n 84 24 6 12 re f*
+.960784 .960784 .862745 rg
+n 90 24 216 12 re f*
+.960784 .960784 .862745 rg
+n 0 12 6 12 re f*
+.960784 .960784 .862745 rg
+n 6 12 60 12 re f*
+.960784 .960784 .862745 rg
+n 66 12 6 12 re f*
+.960784 .960784 .862745 rg
+n 72 12 60 12 re f*
+.960784 .960784 .862745 rg
+n 132 12 6 12 re f*
+.960784 .960784 .862745 rg
+n 138 12 66 12 re f*
+.960784 .960784 .862745 rg
+n 204 12 6 12 re f*
+.960784 .960784 .862745 rg
+n 210 12 66 12 re f*
+.960784 .960784 .862745 rg
+n 276 12 6 12 re f*
+.960784 .960784 .862745 rg
+n 282 12 18 12 re f*
+.960784 .960784 .862745 rg
+n 300 12 6 12 re f*
 .960784 .960784 .862745 rg
 n 0 0 90 12 re f*
 .960784 .960784 .862745 rg
 n 90 0 6 12 re f*
 .960784 .960784 .862745 rg
 n 96 0 282 12 re f*
-BT 1 0 0 1 0 50 Tm 12 TL /F3 10 Tf 0 0 0 rg (inputFileDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_Z_DQ/64/") Tj 0 0 0 rg  T* /F5 10 Tf .25098 .501961 .501961 rg (#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_Z_DQ/64/") Tj /F3 10 Tf 0 0 0 rg  T* /F5 10 Tf .25098 .501961 .501961 rg (#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt") Tj /F3 10 Tf 0 0 0 rg  T* 0 0 0 rg (predictionFile) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt") Tj 0 0 0 rg  T* 0 0 0 rg (outputDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/H1O1/") Tj T* ET
+BT 1 0 0 1 0 98 Tm 12 TL /F3 10 Tf 0 0 0 rg (inputFileDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Text_Files) Tj 0 0 0 rg  T* .4 .4 .4 rg (/) Tj 0 0 0 rg (Timeseries) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (H1_ISI) Tj .4 .4 .4 rg (-) Tj 0 0 0 rg (GND_STS_HAM2_Z_DQ) Tj .4 .4 .4 rg (/) Tj .4 .4 .4 rg (64) Tj .4 .4 .4 rg (/) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* /F5 10 Tf .25098 .501961 .501961 rg (#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files) Tj /F3 10 Tf 0 0 0 rg  T* .4 .4 .4 rg (/) Tj 0 0 0 rg (Acceleration) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (H1_ISI) Tj .4 .4 .4 rg (-) Tj 0 0 0 rg (GND_STS_HAM2_Z_DQ) Tj .4 .4 .4 rg (/) Tj .4 .4 .4 rg (64) Tj .4 .4 .4 rg (/) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* /F5 10 Tf .25098 .501961 .501961 rg (#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1) Tj /F3 10 Tf 0 0 0 rg  T* .4 .4 .4 rg (/) Tj .4 .4 .4 rg (1126569617) Tj .4 .4 .4 rg (-) Tj .4 .4 .4 rg (1136678417) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (.) Tj 0 0 0 rg (txt) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* 0 0 0 rg (predictionFile) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/H1/H1O1) Tj 0 0 0 rg  T* .4 .4 .4 rg (/) Tj .4 .4 .4 rg (1126073342) Tj .4 .4 .4 rg (-) Tj .4 .4 .4 rg (1137283217) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (.) Tj 0 0 0 rg (txt) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* 0 0 0 rg (outputDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/H1O1/") Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 382.4236 cm
+1 0 0 1 62.69291 334.4236 cm
 Q
 q
-1 0 0 1 62.69291 382.4236 cm
+1 0 0 1 62.69291 334.4236 cm
 Q
 q
-1 0 0 1 62.69291 370.4236 cm
+1 0 0 1 62.69291 322.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1968,10 +2052,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 364.4236 cm
+1 0 0 1 62.69291 316.4236 cm
 Q
 q
-1 0 0 1 62.69291 352.4236 cm
+1 0 0 1 62.69291 304.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1992,10 +2076,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 346.4236 cm
+1 0 0 1 62.69291 298.4236 cm
 Q
 q
-1 0 0 1 62.69291 334.4236 cm
+1 0 0 1 62.69291 286.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2016,10 +2100,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 328.4236 cm
+1 0 0 1 62.69291 280.4236 cm
 Q
 q
-1 0 0 1 62.69291 316.4236 cm
+1 0 0 1 62.69291 268.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2040,10 +2124,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 316.4236 cm
+1 0 0 1 62.69291 268.4236 cm
 Q
 q
-1 0 0 1 62.69291 283.2236 cm
+1 0 0 1 62.69291 223.2236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -2053,37 +2137,37 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 846 24 re B*
+n -6 -6 468.6898 36 re B*
 Q
 q
 .960784 .960784 .862745 rg
-n 0 0 54 12 re f*
+n 0 12 54 12 re f*
 .960784 .960784 .862745 rg
-n 60 0 6 12 re f*
+n 60 12 6 12 re f*
 .960784 .960784 .862745 rg
-n 72 0 6 12 re f*
+n 72 12 6 12 re f*
 .960784 .960784 .862745 rg
-n 78 0 372 12 re f*
+n 78 12 372 12 re f*
 .960784 .960784 .862745 rg
-n 450 0 6 12 re f*
+n 450 12 6 12 re f*
 .960784 .960784 .862745 rg
-n 456 0 372 12 re f*
+n 0 0 372 12 re f*
 .960784 .960784 .862745 rg
-n 828 0 6 12 re f*
-BT 1 0 0 1 0 2 Tm 12 TL /F3 10 Tf 0 0 0 rg (filenames) Tj 0 0 0 rg ( ) Tj .4 .4 .4 rg (=) Tj 0 0 0 rg ( ) Tj 0 0 0 rg ([) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/H1O1/earthquakes.txt") Tj 0 0 0 rg (,) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/L1O1/earthquakes.txt") Tj 0 0 0 rg (]) Tj T* ET
+n 372 0 6 12 re f*
+BT 1 0 0 1 0 14 Tm 12 TL /F3 10 Tf 0 0 0 rg (filenames) Tj 0 0 0 rg ( ) Tj .4 .4 .4 rg (=) Tj 0 0 0 rg ( ) Tj 0 0 0 rg ([) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/H1O1/earthquakes.txt") Tj 0 0 0 rg (,) Tj 0 0 0 rg  T* .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/L1O1/earthquakes.txt") Tj 0 0 0 rg (]) Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 269.2236 cm
+1 0 0 1 62.69291 209.2236 cm
 Q
 q
-1 0 0 1 62.69291 269.2236 cm
+1 0 0 1 62.69291 209.2236 cm
 Q
 q
-1 0 0 1 62.69291 245.2236 cm
+1 0 0 1 62.69291 185.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2104,10 +2188,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 245.2236 cm
+1 0 0 1 62.69291 185.2236 cm
 Q
 q
-1 0 0 1 62.69291 227.2236 cm
+1 0 0 1 62.69291 167.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The output directory will be in /home/albert.einstein/gitrepo/Predictions/*) Tj T* ET
@@ -2179,19 +2263,19 @@ xref
 0000021453 00000 n
 0000028010 00000 n
 0000033725 00000 n
-0000047849 00000 n
-0000054816 00000 n
-0000054909 00000 n
-0000054946 00000 n
-0000054983 00000 n
-0000055020 00000 n
-0000055057 00000 n
-0000055094 00000 n
+0000047853 00000 n
+0000057734 00000 n
+0000057827 00000 n
+0000057864 00000 n
+0000057901 00000 n
+0000057938 00000 n
+0000057975 00000 n
+0000058012 00000 n
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com)
- [(\271\353\377\014:G_%\210\036\330\\N.\005\211) (\271\353\377\014:G_%\210\036\330\\N.\005\211)]
+ [(\246\247l[\202\006|\([\351\263\220\256]\203\363) (\246\247l[\202\006|\([\351\263\220\256]\203\363)]
  /Info 22 0 R /Root 21 0 R /Size 47 >>
 startxref
-55131
+58049
 %%EOF
