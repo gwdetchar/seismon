@@ -259,13 +259,17 @@ If you'd like to change the parameters for this script to look at different chan
 
 .. code:: python
 
-   os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ,
-   H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,
+   os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,
+   H1:ISI-GND_STS_HAM2_Y_DQ,
+   H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,
+   H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,
    H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis
     --doPSD --eventfilesType iris --minMagnitude 4.0"%(paramsFile,gpsStart,gpsEnd))
 
-   print "python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ
-   ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M
+   print "python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,
+   H1:ISI-GND_STS_HAM2_Y_DQ
+   ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M
+   ,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M
    ,H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis 
    --doPSD --eventfilesType iris --minMagnitude 4.0"%(paramsFile,gpsStart,gpsEnd)
 
