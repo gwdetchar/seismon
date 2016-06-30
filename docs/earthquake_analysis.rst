@@ -18,7 +18,12 @@ LIGO clusters use the method of SSH_ (Secure SHell) to establish remote connecti
 SSH on Windows
 ++++++++++++++
 
-Since windows does not come with a UNIX-based terminal, we'll have to grab one from the web. Personally, cgywin is probably the best choice for this kind of environment. Its also pretty much the only one I know, so there's that.
+Since windows does not come with a UNIX-based terminal, we'll have to grab one from the web. This guide has two options for SSH on Windows, cygwin and PuTTY.
+
+Cygwin
+******
+ 
+Personally, cgywin is probably the best choice for this kind of environment. Its also pretty much the only one I know, so there's that.
 
 1. Read the following webpage `cygwin install`_.
 2. Depending on your version of Windows, you will either download the 32bit_ or 64bit_ version. To figure out which version of windows you're running please check out this guide_ provided by Microsoft.
@@ -55,6 +60,21 @@ Since windows does not come with a UNIX-based terminal, we'll have to grab one f
 .. _64bit: https://cygwin.com/setup-x86_64.exe
 
 .. _guide: https://support.microsoft.com/en-us/help/13443/windows-which-operating-system
+
+
+PuTTY
+*****
+
+If you want a simpler to use program, you can download PuTTY which is an SSH and Telnet client.
+
+1. download PuTTY_
+2. run PuTTY.exe
+3. Inside hostname textbox type: albert.einstein@ssh.ligo.org
+4. Then click open in the bottom right corner
+
+
+.. _PuTTY: https://the.earth.li/~sgtatham/putty/latest/x86/putty.exe
+
 
 SSH on Mac OS and Linux
 +++++++++++++++++++++++
