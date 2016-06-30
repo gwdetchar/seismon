@@ -238,7 +238,51 @@ A nice way to do that is to use within vim
 
 It'll ask you to confirm each change made.
 
+The next step is to
+
+.. code:: bash
+
+   cd ~/gitrepo/seismon/bin
+   vi seismon_run_run_H1O1
+
+Inside you'll find this line
+
+.. code python
+
+   paramsFile = "/home/eric.coughlin/gitrepo/seismon/input/seismon_params_H1O1.txt"
+
+Change the eric.coughlin to albert.einstein
+
 Now do the same steps with L1O1.
+
+If you'd like to change the parameters for this script to look at different channels, you'll want to go to seismon_run_run_H1O1. Inside you'll find these two lines
+
+.. code:: python
+
+   os.system("python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ,
+   H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M,
+   H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis
+    --doPSD --eventfilesType iris --minMagnitude 4.0"%(paramsFile,gpsStart,gpsEnd))
+
+   print "python seismon_run -p %s -s %d -e %d -c H1:ISI-GND_STS_HAM2_Z_DQ,H1:ISI-GND_STS_HAM2_Y_DQ
+   ,H1:ISI-GND_STS_HAM2_X_DQ,H1:ISI-GND_STS_HAM5_Z_BLRMS_30M_100M,H1:ISI-GND_STS_HAM5_Y_BLRMS_30M_100M
+   ,H1:ISI-GND_STS_HAM5_X_BLRMS_30M_100M --doEarthquakes --doEarthquakesAnalysis 
+   --doPSD --eventfilesType iris --minMagnitude 4.0"%(paramsFile,gpsStart,gpsEnd)
+
+-p  This is the location of the parameters file
+-s  This is the gps start time 
+-e  This is the gps end time
+-c  These are the LIGO channels that you would like to look at for LHO
+--doEarthquakes  This looks for the earthquake events and gets their information
+--doEarthquakesAnalysis  This analysizes the earthquakes
+--doPSD  This looks at the Particle Size Distribution?
+--eventfilesType  This determines the database that is used, only option in this guide is iris
+--minMagnitude  This determines the minimum magnitude of the earthquakes looked at, only goes as low as the database generated from the previous script
+
+Don't worry about the %s and %d's
+
+%s  String formater for Python, replaces %s with variable defined by user
+%d  decimal replacer for Python, %d with a variable defined by user
 
 Once you are done, you should use screen again to run both seismon_run_run_H1O1 and seismon_run_run_L1O1.
 
@@ -271,5 +315,26 @@ seismon_run_prediction_vs_actual_ec is designed to compare the predicted measure
    screen
    python seismon_run_prediction_vs_actual_ec
    [ctrl-a then d]
+
+If you've adjusted the channels then you'll need to make the proper changes to seismon_run_prediction_vs_actual_ec
+
+.. code:: python
+
+   inputFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
+   #accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
+   #predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126569617-1136678417/earthquakes/earthquakes.txt"
+   predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1/1126073342-1137283217/earthquakes/earthquakes.txt"
+   outputDirectory="/home/eric.coughlin/gitrepo/Predictions/H1O1/"
+
+1. You will want to change the inputFileDirectory to the channel names that you looked at.
+2. change predictionFile  to the time range that you looked at.
+3. change outputDirectory from H1O1 to the channel names that you looked at
+4. repeat for all of the channels.
+
+.. code:: python
+
+   filenames = ["/home/eric.coughlin/gitrepo/Predictions/H1O1/earthquakes.txt","/home/eric.coughlin/gitrepo/Predictions/L1O1/earthquakes.txt"]
+
+1. add channel directories to these filenames keeping the same format but just changing H1O1 to the channel name
 
 The output directory will be in /home/albert.einstein/gitrepo/Predictions/*
