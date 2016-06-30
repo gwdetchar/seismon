@@ -71,6 +71,10 @@ If you want a simpler to use program, you can download PuTTY which is an SSH and
 2. run PuTTY.exe
 3. Inside hostname textbox type: albert.einstein@ssh.ligo.org
 4. Then click open in the bottom right corner
+5. In the terminal that just opened up, it will ask you for your ligo password, on the first time it will ask you to confirm that you wish to connect. Just click yes. Type in your password.
+6. Then use the key prompts to get to CIT
+7. Then pick one of the servers, it's recommended to pick pcdev-1,2 or 3(although at time of writing, 2 is still down for upgrades)
+8. You're all set to move onto the next part of the guide.
 
 
 .. _PuTTY: https://the.earth.li/~sgtatham/putty/latest/x86/putty.exe

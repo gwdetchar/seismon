@@ -48,10 +48,10 @@ endobj
   /Trans <<  >> /Type /Page >>
 endobj
 16 0 obj
-<< /A << /S /URI /Type /Action /URI (https://gwpy.github.io/docs/latest/) >> /Border [ 0 0 0 ] /Rect [ 345.2122 579.8236 368.798 591.8236 ] /Subtype /Link /Type /Annot >>
+<< /A << /S /URI /Type /Action /URI (https://gwpy.github.io/docs/latest/) >> /Border [ 0 0 0 ] /Rect [ 345.2122 487.6236 368.798 499.6236 ] /Subtype /Link /Type /Annot >>
 endobj
 17 0 obj
-<< /A << /S /URI /Type /Action /URI (http://earthquake.usgs.gov/earthquakes/map/) >> /Border [ 0 0 0 ] /Rect [ 292.3628 451.6236 443.3399 463.6236 ] /Subtype /Link /Type /Annot >>
+<< /A << /S /URI /Type /Action /URI (http://earthquake.usgs.gov/earthquakes/map/) >> /Border [ 0 0 0 ] /Rect [ 292.3628 359.4236 443.3399 371.4236 ] /Subtype /Link /Type /Annot >>
 endobj
 18 0 obj
 << /Annots [ 16 0 R 17 0 R ] /Contents 42 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 39 0 R /Resources << /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] >> /Rotate 0 
@@ -69,7 +69,7 @@ endobj
   /Type /Page >>
 endobj
 22 0 obj
-<< /A << /S /URI /Type /Action /URI (https://dcc.ligo.org/LIGO-T1400487) >> /Border [ 0 0 0 ] /Rect [ 81.03291 355.6236 124.9429 367.6236 ] /Subtype /Link /Type /Annot >>
+<< /A << /S /URI /Type /Action /URI (https://dcc.ligo.org/LIGO-T1400487) >> /Border [ 0 0 0 ] /Rect [ 81.03291 256.0236 124.9429 268.0236 ] /Subtype /Link /Type /Annot >>
 endobj
 23 0 obj
 << /Annots [ 22 0 R ] /Contents 45 0 R /MediaBox [ 0 0 595.2756 841.8898 ] /Parent 39 0 R /Resources << /Font 1 0 R /ProcSet [ /PDF /Text /ImageB /ImageC /ImageI ] >> /Rotate 0 
@@ -83,7 +83,7 @@ endobj
 << /Outlines 27 0 R /PageLabels 47 0 R /PageMode /UseNone /Pages 39 0 R /Type /Catalog >>
 endobj
 26 0 obj
-<< /Author () /CreationDate (D:20160630093615+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160630093615+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
+<< /Author () /CreationDate (D:20160630094507+08'00') /Creator (\(unspecified\)) /Keywords () /ModDate (D:20160630094507+08'00') /Producer (ReportLab PDF Library - www.reportlab.com) 
   /Subject (\(unspecified\)) /Title (Earthquake Analysis with SeisMon) /Trapped /False >>
 endobj
 27 0 obj
@@ -107,22 +107,22 @@ endobj
 << /Dest [ 15 0 R /XYZ 62.69291 631.8236 0 ] /Parent 30 0 R /Prev 31 0 R /Title (PuTTY) >>
 endobj
 33 0 obj
-<< /Dest [ 15 0 R /XYZ 62.69291 514.8236 0 ] /Parent 29 0 R /Prev 30 0 R /Title (SSH on Mac OS and Linux) >>
+<< /Dest [ 15 0 R /XYZ 62.69291 418.8236 0 ] /Parent 29 0 R /Prev 30 0 R /Title (SSH on Mac OS and Linux) >>
 endobj
 34 0 obj
-<< /Dest [ 15 0 R /XYZ 62.69291 293.6236 0 ] /Next 35 0 R /Parent 27 0 R /Prev 29 0 R /Title (Getting SeisMon from github) >>
+<< /Dest [ 15 0 R /XYZ 62.69291 197.6236 0 ] /Next 35 0 R /Parent 27 0 R /Prev 29 0 R /Title (Getting SeisMon from github) >>
 endobj
 35 0 obj
-<< /Dest [ 15 0 R /XYZ 62.69291 161.4236 0 ] /Next 36 0 R /Parent 27 0 R /Prev 34 0 R /Title (Getting Started) >>
+<< /Dest [ 18 0 R /XYZ 62.69291 765.0236 0 ] /Next 36 0 R /Parent 27 0 R /Prev 34 0 R /Title (Getting Started) >>
 endobj
 36 0 obj
-<< /Dest [ 18 0 R /XYZ 62.69291 490.6236 0 ] /Next 37 0 R /Parent 27 0 R /Prev 35 0 R /Title (First Stage: seismon_traveltimes) >>
+<< /Dest [ 18 0 R /XYZ 62.69291 398.4236 0 ] /Next 37 0 R /Parent 27 0 R /Prev 35 0 R /Title (First Stage: seismon_traveltimes) >>
 endobj
 37 0 obj
-<< /Dest [ 19 0 R /XYZ 62.69291 307.2236 0 ] /Next 38 0 R /Parent 27 0 R /Prev 36 0 R /Title (Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1) >>
+<< /Dest [ 19 0 R /XYZ 62.69291 226.0236 0 ] /Next 38 0 R /Parent 27 0 R /Prev 36 0 R /Title (Second Stage: seismon_run_run_H1O1 and seismon_run_run_L1O1) >>
 endobj
 38 0 obj
-<< /Dest [ 23 0 R /XYZ 62.69291 418.6236 0 ] /Parent 27 0 R /Prev 37 0 R /Title (Third Stage: seismon_run_prediction_vs_actual_ec) >>
+<< /Dest [ 23 0 R /XYZ 62.69291 319.0236 0 ] /Parent 27 0 R /Prev 37 0 R /Title (Third Stage: seismon_run_prediction_vs_actual_ec) >>
 endobj
 39 0 obj
 << /Count 7 /Kids [ 11 0 R 15 0 R 18 0 R 19 0 R 21 0 R 23 0 R 24 0 R ] /Type /Pages >>
@@ -466,7 +466,7 @@ Q
 endstream
 endobj
 41 0 obj
-<< /Length 8373 >>
+<< /Length 9325 >>
 stream
 1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
@@ -632,23 +632,119 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 526.8236 cm
+1 0 0 1 62.69291 520.8236 cm
 Q
 q
 1 0 0 1 62.69291 496.8236 cm
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 9 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 5.66 0 Td (5.) Tj T* -5.66 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .663798 Tw (In the terminal that just opened up, it will ask you for your ligo password, on the first time it will ask) Tj T* 0 Tw (you to confirm that you wish to connect. Just click yes. Type in your password.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 490.8236 cm
+Q
+q
+1 0 0 1 62.69291 478.8236 cm
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 5.66 0 Td (6.) Tj T* -5.66 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Then use the key prompts to get to CIT) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 472.8236 cm
+Q
+q
+1 0 0 1 62.69291 448.8236 cm
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 9 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 5.66 0 Td (7.) Tj T* -5.66 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .575868 Tw (Then pick one of the servers, it's recommended to pick pcdev-1,2 or 3\(although at time of writing, 2) Tj T* 0 Tw (is still down for upgrades\)) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 442.8236 cm
+Q
+q
+1 0 0 1 62.69291 430.8236 cm
+0 0 0 rg
+BT /F1 10 Tf 12 TL ET
+q
+1 0 0 1 6 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL 5.66 0 Td (8.) Tj T* -5.66 0 Td ET
+Q
+Q
+q
+1 0 0 1 23 -3 cm
+q
+0 0 0 rg
+BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (You're all set to move onto the next part of the guide.) Tj T* ET
+Q
+Q
+q
+Q
+Q
+q
+1 0 0 1 62.69291 430.8236 cm
+Q
+q
+1 0 0 1 62.69291 400.8236 cm
 q
 BT 1 0 0 1 0 3 Tm 18 TL /F2 15 Tf 0 0 0 rg (SSH on Mac OS and Linux) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 478.8236 cm
+1 0 0 1 62.69291 382.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Open up a terminal and then run) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 325.6236 cm
+1 0 0 1 62.69291 229.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -704,27 +800,27 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 305.6236 cm
+1 0 0 1 62.69291 209.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (This is done so that we can have access to all of the data required for SeisMon to run properly.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 272.6236 cm
+1 0 0 1 62.69291 176.6236 cm
 q
 BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Getting SeisMon from github) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 254.6236 cm
+1 0 0 1 62.69291 158.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The following code will provide access to seismon which is needed to run the rest of the guide.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 173.4236 cm
+1 0 0 1 62.69291 77.42362 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -751,21 +847,28 @@ Q
 Q
 Q
 Q
+ 
+endstream
+endobj
+42 0 obj
+<< /Length 6269 >>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 140.4236 cm
+1 0 0 1 62.69291 744.0236 cm
 q
 BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Getting Started) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 110.4236 cm
+1 0 0 1 62.69291 714.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 1.285777 Tw (In order to get started, we want to look and see where the files we need are located within SeisMon's) Tj T* 0 Tw (directory. SeisMon's directory should be located here.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 77.22362 cm
+1 0 0 1 62.69291 680.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -786,22 +889,15 @@ Q
 Q
 Q
 Q
- 
-endstream
-endobj
-42 0 obj
-<< /Length 6122 >>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 741.0236 cm
+1 0 0 1 62.69291 648.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .509461 Tw (Many of the files that we need to run are located within the folders of the seismon directory itself, usually) Tj T* 0 Tw (located within the seismon/bin directory. Run the ls command inside of the seismon directory like this) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 611.8236 cm
+1 0 0 1 62.69291 519.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -839,13 +935,13 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 567.8236 cm
+1 0 0 1 62.69291 475.6236 cm
 q
 BT 1 0 0 1 0 26 Tm 1.359513 Tw 12 TL /F1 10 Tf 0 0 0 rg (to make note of the folders and files. For this example, the user will want to take note of both the bin) Tj T* 0 Tw .245777 Tw (directory and the input directory. The next step is to make sure ) Tj 0 0 .501961 rg (gwpy ) Tj 0 0 0 rg (is sourced before running any of the) Tj T* 0 Tw (scripts mentioned in this file. The user can do this by running) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 534.6236 cm
+1 0 0 1 62.69291 442.4236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -866,37 +962,37 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 502.6236 cm
+1 0 0 1 62.69291 410.4236 cm
 q
 BT 1 0 0 1 0 14 Tm .432846 Tw 12 TL /F1 10 Tf 0 0 0 rg (Once gwpy is ready to go, then we can move onto the next step of generating the list of xml files needed) Tj T* 0 Tw (to do the analysis.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 469.6236 cm
+1 0 0 1 62.69291 377.4236 cm
 q
 BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (First Stage: seismon_traveltimes) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 439.6236 cm
+1 0 0 1 62.69291 347.4236 cm
 q
 BT 1 0 0 1 0 14 Tm .495697 Tw 12 TL /F1 10 Tf 0 0 0 rg (seismon_traveltimes is designed to read data from ) Tj 0 0 .501961 rg (usgs seismic monitering channels) Tj 0 0 0 rg (. This data is stored) Tj T* 0 Tw (as a series of xml files inside of /home/albert.einstein/eventfiles/iris.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 421.6236 cm
+1 0 0 1 62.69291 329.4236 cm
 q
 BT 1 0 0 1 0 2 Tm 12 TL /F1 10 Tf 0 0 0 rg (seismon_traveltimes has two overall purposes:) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 415.6236 cm
+1 0 0 1 62.69291 323.4236 cm
 Q
 q
-1 0 0 1 62.69291 415.6236 cm
+1 0 0 1 62.69291 323.4236 cm
 Q
 q
-1 0 0 1 62.69291 403.6236 cm
+1 0 0 1 62.69291 311.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -917,10 +1013,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 397.6236 cm
+1 0 0 1 62.69291 305.4236 cm
 Q
 q
-1 0 0 1 62.69291 373.6236 cm
+1 0 0 1 62.69291 281.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -941,17 +1037,17 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 373.6236 cm
+1 0 0 1 62.69291 281.4236 cm
 Q
 q
-1 0 0 1 62.69291 343.6236 cm
+1 0 0 1 62.69291 251.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 1.125868 Tw (In order to get seismon_traveltimes running we have to go to our home directory and make a directory) Tj T* 0 Tw (called eventfiles and then inside eventfiles create a directory called iris.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 262.4236 cm
+1 0 0 1 62.69291 170.2236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -977,14 +1073,14 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 230.4236 cm
+1 0 0 1 62.69291 138.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 6.191751 Tw (The next step after this is to cd into the input directory of seismon. Open up the file) Tj T* 0 Tw (seismon_params_traveltimes.txt and inside you should find.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 185.2236 cm
+1 0 0 1 62.69291 93.02362 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1005,8 +1101,15 @@ Q
 Q
 Q
 Q
+ 
+endstream
+endobj
+43 0 obj
+<< /Length 6368 >>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 104.0236 cm
+1 0 0 1 62.69291 691.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1025,22 +1128,15 @@ Q
 Q
 Q
 Q
- 
-endstream
-endobj
-43 0 obj
-<< /Length 6583 >>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 729.0236 cm
+1 0 0 1 62.69291 647.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 26 Tm /F1 10 Tf 12 TL 1.315251 Tw (If you look at the fourth line, which I bolded for clarity, you'll want to change eric.coughlin to your own) Tj T* 0 Tw .56832 Tw (albert.einstein directory as long as you followed the above steps correctly. The next step is to cd back to) Tj T* 0 Tw (bin then.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 635.8236 cm
+1 0 0 1 62.69291 554.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1068,7 +1164,7 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 612.6236 cm
+1 0 0 1 62.69291 531.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1097,7 +1193,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 597.4236 cm
+1 0 0 1 62.69291 516.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1126,7 +1222,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 558.4236 cm
+1 0 0 1 62.69291 477.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1155,7 +1251,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 531.4236 cm
+1 0 0 1 62.69291 450.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1184,7 +1280,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 492.4236 cm
+1 0 0 1 62.69291 411.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1213,14 +1309,14 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 438.4236 cm
+1 0 0 1 62.69291 357.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 38 Tm /F1 10 Tf 12 TL 1.167318 Tw (Screen is a program designed to use multiple windows within one terminal session. These screens will) Tj T* 0 Tw .443876 Tw (continue to operate even if you disconnect from the session. In order to get back to your regular session,) Tj T* 0 Tw .605703 Tw (just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just) Tj T* 0 Tw (use the following commands.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 381.2236 cm
+1 0 0 1 62.69291 300.0236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1248,48 +1344,55 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 349.2236 cm
+1 0 0 1 62.69291 268.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .622488 Tw (Just copy and paste whichever screen you want to go to from the output of screen -ls after the screen -r) Tj T* 0 Tw (command.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 319.2236 cm
+1 0 0 1 62.69291 238.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .123988 Tw (This process will take quite a bit of time to complete, think days instead of hours. This is why using screen) Tj T* 0 Tw (is a strong recommendation.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 265.2236 cm
+1 0 0 1 62.69291 184.0236 cm
 q
 BT 1 0 0 1 0 24.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Second Stage: seismon_run_run_H1O1 and) Tj T* (seismon_run_run_L1O1) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 235.2236 cm
+1 0 0 1 62.69291 154.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .533984 Tw (These scripts grab the earthquake data from the eventfiles database specifically inside the iris folder and) Tj T* 0 Tw (then looks at specific channels in order to get user friendly data output.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 217.2236 cm
+1 0 0 1 62.69291 136.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (After completing the first stage, the next step is to run both H1O1 and L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 199.2236 cm
+1 0 0 1 62.69291 118.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The first thing to do in order to run both of these scripts is to) Tj T* ET
 Q
 Q
+ 
+endstream
+endobj
+44 0 obj
+<< /Length 12149 >>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 154.0236 cm
+1 0 0 1 62.69291 727.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1311,14 +1414,14 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 134.0236 cm
+1 0 0 1 62.69291 707.8236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Inside you'll find a file that looks like this.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 88.82362 cm
+1 0 0 1 62.69291 554.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1328,60 +1431,33 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 468.6898 36 re B*
-Q
-q
-BT 1 0 0 1 0 14 Tm 12 TL /F4 10 Tf 0 0 0 rg (ifo H1) Tj T* (frameType H1_R) Tj T* ET
-Q
-Q
-Q
-Q
-Q
- 
-endstream
-endobj
-44 0 obj
-<< /Length 13422 >>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
-q
-1 0 0 1 62.69291 643.8236 cm
-q
-q
-1 0 0 1 0 0 cm
-q
-1 0 0 1 6.6 6.6 cm
-q
-.662745 .662745 .662745 RG
-.5 w
-.960784 .960784 .862745 rg
-n -6 -6 468.6898 120 re B*
+n -6 -6 468.6898 144 re B*
 Q
 q
 .960784 .960784 .862745 rg
 n 0 12 378 12 re f*
-BT 1 0 0 1 0 98 Tm 12 TL /F4 10 Tf 0 0 0 rg (runName H1O1) Tj T* (user eric.coughlin) Tj T* (dirPath /home/eric.coughlin/gitrepo) Tj T* (publicPath /home/eric.coughlin/public_html) Tj T* (codePath /home/eric.coughlin/gitrepo) Tj T* (executableDir /home/eric.coughlin/gitrepo/seismon/bin) Tj T* (eventfilesLocation /home/eric.coughlin/eventfiles) Tj T* /F6 10 Tf .25098 .501961 .501961 rg (#eventfilesLocation /home/mcoughlin/Seismon/eventfiles/database) Tj T* /F4 10 Tf 0 0 0 rg (velocitymapsLocation /home/mcoughlin/Seismon/velocity_maps) Tj T* ET
+BT 1 0 0 1 0 122 Tm 12 TL /F4 10 Tf 0 0 0 rg (ifo H1) Tj T* (frameType H1_R) Tj T* (runName H1O1) Tj T* (user eric.coughlin) Tj T* (dirPath /home/eric.coughlin/gitrepo) Tj T* (publicPath /home/eric.coughlin/public_html) Tj T* (codePath /home/eric.coughlin/gitrepo) Tj T* (executableDir /home/eric.coughlin/gitrepo/seismon/bin) Tj T* (eventfilesLocation /home/eric.coughlin/eventfiles) Tj T* /F6 10 Tf .25098 .501961 .501961 rg (#eventfilesLocation /home/mcoughlin/Seismon/eventfiles/database) Tj T* /F4 10 Tf 0 0 0 rg (velocitymapsLocation /home/mcoughlin/Seismon/velocity_maps) Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 611.8236 cm
+1 0 0 1 62.69291 522.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .854269 Tw (You'll want to change the eric.coughlin directories to your own albert.einstein, don't touch the mcoughlin) Tj T* 0 Tw (directories.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 593.8236 cm
+1 0 0 1 62.69291 504.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (A nice way to do that is to use within vim) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 548.6236 cm
+1 0 0 1 62.69291 459.4236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1402,21 +1478,21 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 528.6236 cm
+1 0 0 1 62.69291 439.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (It'll ask you to confirm each change made.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 510.6236 cm
+1 0 0 1 62.69291 421.4236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The next step is to) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 465.4236 cm
+1 0 0 1 62.69291 376.2236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1438,35 +1514,35 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 445.4236 cm
+1 0 0 1 62.69291 356.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Inside you'll find this line) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 427.4236 cm
+1 0 0 1 62.69291 338.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Change the eric.coughlin to albert.einstein) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 409.4236 cm
+1 0 0 1 62.69291 320.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Now do the same steps with L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 379.4236 cm
+1 0 0 1 62.69291 290.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 1.623672 Tw (If you'd like to change the parameters for this script to look at different channels, you'll want to go to) Tj T* 0 Tw (seismon_run_run_H1O1. Inside you'll find these two lines) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 202.2236 cm
+1 0 0 1 62.69291 113.0236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -1692,7 +1768,7 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 179.0236 cm
+1 0 0 1 62.69291 89.82362 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1720,8 +1796,15 @@ Q
 q
 Q
 Q
+ 
+endstream
+endobj
+45 0 obj
+<< /Length 8085 >>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 163.8236 cm
+1 0 0 1 62.69291 749.8236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1740,7 +1823,7 @@ Q
 Q
 Q
 q
-1 0 0 1 240.9449 3.2 cm
+1 0 0 1 252.7449 3.2 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (This is the gps start time) Tj T* ET
@@ -1750,7 +1833,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 148.6236 cm
+1 0 0 1 62.69291 734.6236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1779,7 +1862,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 121.6236 cm
+1 0 0 1 62.69291 707.6236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1808,7 +1891,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 94.62362 cm
+1 0 0 1 62.69291 680.6236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1837,7 +1920,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 79.42362 cm
+1 0 0 1 62.69291 665.4236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1865,15 +1948,8 @@ Q
 q
 Q
 Q
- 
-endstream
-endobj
-45 0 obj
-<< /Length 9572 >>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 749.8236 cm
+1 0 0 1 62.69291 650.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1892,7 +1968,7 @@ Q
 Q
 Q
 q
-1 0 0 1 252.7449 3.2 cm
+1 0 0 1 240.9449 3.2 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (This looks at the Particle Size Distribution?) Tj T* ET
@@ -1902,7 +1978,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 722.8236 cm
+1 0 0 1 62.69291 623.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1931,7 +2007,7 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 683.8236 cm
+1 0 0 1 62.69291 584.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -1960,21 +2036,21 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 665.8236 cm
+1 0 0 1 62.69291 566.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (Don't worry about the %s and %d's) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 649.8236 cm
+1 0 0 1 62.69291 550.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (%s) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 634.8236 cm
+1 0 0 1 62.69291 535.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 BT 1 0 0 1 0 2 Tm  T* ET
@@ -1989,14 +2065,14 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 618.8236 cm
+1 0 0 1 62.69291 519.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F2 10 Tf 12 TL (%d) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 603.8236 cm
+1 0 0 1 62.69291 504.2236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 BT 1 0 0 1 0 2 Tm  T* ET
@@ -2011,14 +2087,14 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 573.8236 cm
+1 0 0 1 62.69291 474.2236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL 5.40229 Tw (Once you are done, you should use screen again to run both seismon_run_run_H1O1 and) Tj T* 0 Tw (seismon_run_run_L1O1.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 480.6236 cm
+1 0 0 1 62.69291 381.0236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -2046,33 +2122,33 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 460.6236 cm
+1 0 0 1 62.69291 361.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (This will also take some time.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 430.6236 cm
+1 0 0 1 62.69291 331.0236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 14 Tm /F1 10 Tf 12 TL .533984 Tw (The output will be found in /home/albert.einstein/gitrepo/, within these are a series of directories and files) Tj T* 0 Tw (that encompass the output from the two scripts.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 397.6236 cm
+1 0 0 1 62.69291 298.0236 cm
 q
 BT 1 0 0 1 0 3.5 Tm 21 TL /F2 17.5 Tf 0 0 0 rg (Third Stage: seismon_run_prediction_vs_actual_ec) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 355.6236 cm
+1 0 0 1 62.69291 256.0236 cm
 q
 BT 1 0 0 1 0 26 Tm 3.113307 Tw 12 TL /F1 10 Tf 0 0 0 rg (seismon_run_prediction_vs_actual_ec is designed to compare the predicted measurements and the) Tj T* 0 Tw .571235 Tw (actual measurements to create a nice succinct text file for each channel. For more information check out) Tj T* 0 Tw (this ) Tj 0 0 .501961 rg (document) Tj 0 0 0 rg (.) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 262.4236 cm
+1 0 0 1 62.69291 162.8236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -2098,13 +2174,13 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 230.4236 cm
+1 0 0 1 62.69291 130.8236 cm
 q
 BT 1 0 0 1 0 14 Tm 9.383059 Tw 12 TL /F1 10 Tf 0 0 0 rg (If you've adjusted the channels then you'll need to make the proper changes to) Tj T* 0 Tw (seismon_run_prediction_vs_actual_ec) Tj T* ET
 Q
 Q
 q
-1 0 0 1 62.69291 101.2236 cm
+1 0 0 1 62.69291 85.62362 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -2114,35 +2190,62 @@ q
 .662745 .662745 .662745 RG
 .5 w
 .960784 .960784 .862745 rg
-n -6 -6 468.6898 120 re B*
+n -6 -6 468.6898 36 re B*
 Q
 q
 .960784 .960784 .862745 rg
-n 0 96 108 12 re f*
+n 0 12 108 12 re f*
 .960784 .960784 .862745 rg
-n 108 96 6 12 re f*
+n 108 12 6 12 re f*
 .960784 .960784 .862745 rg
-n 114 96 234 12 re f*
+n 114 12 234 12 re f*
 .960784 .960784 .862745 rg
-n 0 84 6 12 re f*
+n 0 0 6 12 re f*
 .960784 .960784 .862745 rg
-n 6 84 60 12 re f*
+n 6 0 60 12 re f*
 .960784 .960784 .862745 rg
-n 66 84 6 12 re f*
+n 66 0 6 12 re f*
 .960784 .960784 .862745 rg
-n 72 84 36 12 re f*
+n 72 0 36 12 re f*
 .960784 .960784 .862745 rg
-n 108 84 6 12 re f*
+n 108 0 6 12 re f*
 .960784 .960784 .862745 rg
-n 114 84 102 12 re f*
+n 114 0 102 12 re f*
 .960784 .960784 .862745 rg
-n 216 84 6 12 re f*
+n 216 0 6 12 re f*
 .960784 .960784 .862745 rg
-n 222 84 12 12 re f*
+n 222 0 12 12 re f*
 .960784 .960784 .862745 rg
-n 234 84 6 12 re f*
+n 234 0 6 12 re f*
 .960784 .960784 .862745 rg
-n 240 84 6 12 re f*
+n 240 0 6 12 re f*
+BT 1 0 0 1 0 14 Tm 12 TL /F4 10 Tf 0 0 0 rg (inputFileDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Text_Files) Tj 0 0 0 rg  T* .4 .4 .4 rg (/) Tj 0 0 0 rg (Timeseries) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (H1_ISI) Tj .4 .4 .4 rg (-) Tj 0 0 0 rg (GND_STS_HAM2_Z_DQ) Tj .4 .4 .4 rg (/) Tj .4 .4 .4 rg (64) Tj .4 .4 .4 rg (/) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* ET
+Q
+Q
+Q
+Q
+Q
+ 
+endstream
+endobj
+46 0 obj
+<< /Length 6637 >>
+stream
+1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
+q
+1 0 0 1 62.69291 667.8236 cm
+q
+q
+1 0 0 1 0 0 cm
+q
+1 0 0 1 6.6 6.6 cm
+q
+.662745 .662745 .662745 RG
+.5 w
+.960784 .960784 .862745 rg
+n -6 -6 468.6898 96 re B*
+Q
+q
 .960784 .960784 .862745 rg
 n 0 72 396 12 re f*
 .960784 .960784 .862745 rg
@@ -2223,27 +2326,20 @@ n 0 0 90 12 re f*
 n 90 0 6 12 re f*
 .960784 .960784 .862745 rg
 n 96 0 282 12 re f*
-BT 1 0 0 1 0 98 Tm 12 TL /F4 10 Tf 0 0 0 rg (inputFileDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Text_Files) Tj 0 0 0 rg  T* .4 .4 .4 rg (/) Tj 0 0 0 rg (Timeseries) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (H1_ISI) Tj .4 .4 .4 rg (-) Tj 0 0 0 rg (GND_STS_HAM2_Z_DQ) Tj .4 .4 .4 rg (/) Tj .4 .4 .4 rg (64) Tj .4 .4 .4 rg (/) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* /F6 10 Tf .25098 .501961 .501961 rg (#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files) Tj /F4 10 Tf 0 0 0 rg  T* .4 .4 .4 rg (/) Tj 0 0 0 rg (Acceleration) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (H1_ISI) Tj .4 .4 .4 rg (-) Tj 0 0 0 rg (GND_STS_HAM2_Z_DQ) Tj .4 .4 .4 rg (/) Tj .4 .4 .4 rg (64) Tj .4 .4 .4 rg (/) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* /F6 10 Tf .25098 .501961 .501961 rg (#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1) Tj /F4 10 Tf 0 0 0 rg  T* .4 .4 .4 rg (/) Tj .4 .4 .4 rg (1126569617) Tj .4 .4 .4 rg (-) Tj .4 .4 .4 rg (1136678417) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (.) Tj 0 0 0 rg (txt) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* 0 0 0 rg (predictionFile) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/H1/H1O1) Tj 0 0 0 rg  T* .4 .4 .4 rg (/) Tj .4 .4 .4 rg (1126073342) Tj .4 .4 .4 rg (-) Tj .4 .4 .4 rg (1137283217) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (.) Tj 0 0 0 rg (txt) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* 0 0 0 rg (outputDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/H1O1/") Tj T* ET
+BT 1 0 0 1 0 74 Tm 12 TL /F6 10 Tf .25098 .501961 .501961 rg (#accelerationFileDirectory="/home/eric.coughlin/gitrepo/Text_Files) Tj /F4 10 Tf 0 0 0 rg  T* .4 .4 .4 rg (/) Tj 0 0 0 rg (Acceleration) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (H1_ISI) Tj .4 .4 .4 rg (-) Tj 0 0 0 rg (GND_STS_HAM2_Z_DQ) Tj .4 .4 .4 rg (/) Tj .4 .4 .4 rg (64) Tj .4 .4 .4 rg (/) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* /F6 10 Tf .25098 .501961 .501961 rg (#predictionFile="/home/eric.coughlin/gitrepo/H1/H1O1) Tj /F4 10 Tf 0 0 0 rg  T* .4 .4 .4 rg (/) Tj .4 .4 .4 rg (1126569617) Tj .4 .4 .4 rg (-) Tj .4 .4 .4 rg (1136678417) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (.) Tj 0 0 0 rg (txt) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* 0 0 0 rg (predictionFile) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/H1/H1O1) Tj 0 0 0 rg  T* .4 .4 .4 rg (/) Tj .4 .4 .4 rg (1126073342) Tj .4 .4 .4 rg (-) Tj .4 .4 .4 rg (1137283217) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (/) Tj 0 0 0 rg (earthquakes) Tj .4 .4 .4 rg (.) Tj 0 0 0 rg (txt) Tj .729412 .129412 .129412 rg (") Tj 0 0 0 rg  T* 0 0 0 rg (outputDirectory) Tj .4 .4 .4 rg (=) Tj .729412 .129412 .129412 rg ("/home/eric.coughlin/gitrepo/Predictions/H1O1/") Tj T* ET
 Q
 Q
 Q
 Q
 Q
 q
-1 0 0 1 62.69291 87.22362 cm
+1 0 0 1 62.69291 653.8236 cm
 Q
 q
-1 0 0 1 62.69291 87.22362 cm
+1 0 0 1 62.69291 653.8236 cm
 Q
- 
-endstream
-endobj
-46 0 obj
-<< /Length 3105 >>
-stream
-1 0 0 1 0 0 cm  BT /F1 12 Tf 14.4 TL ET
 q
-1 0 0 1 62.69291 753.0236 cm
+1 0 0 1 62.69291 641.8236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2264,10 +2360,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 747.0236 cm
+1 0 0 1 62.69291 635.8236 cm
 Q
 q
-1 0 0 1 62.69291 735.0236 cm
+1 0 0 1 62.69291 623.8236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2288,10 +2384,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 729.0236 cm
+1 0 0 1 62.69291 617.8236 cm
 Q
 q
-1 0 0 1 62.69291 717.0236 cm
+1 0 0 1 62.69291 605.8236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2312,10 +2408,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 711.0236 cm
+1 0 0 1 62.69291 599.8236 cm
 Q
 q
-1 0 0 1 62.69291 699.0236 cm
+1 0 0 1 62.69291 587.8236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2336,10 +2432,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 699.0236 cm
+1 0 0 1 62.69291 587.8236 cm
 Q
 q
-1 0 0 1 62.69291 653.8236 cm
+1 0 0 1 62.69291 542.6236 cm
 q
 q
 1 0 0 1 0 0 cm
@@ -2373,13 +2469,13 @@ Q
 Q
 Q
 q
-1 0 0 1 62.69291 639.8236 cm
+1 0 0 1 62.69291 528.6236 cm
 Q
 q
-1 0 0 1 62.69291 639.8236 cm
+1 0 0 1 62.69291 528.6236 cm
 Q
 q
-1 0 0 1 62.69291 615.8236 cm
+1 0 0 1 62.69291 504.6236 cm
 0 0 0 rg
 BT /F1 10 Tf 12 TL ET
 q
@@ -2400,10 +2496,10 @@ q
 Q
 Q
 q
-1 0 0 1 62.69291 615.8236 cm
+1 0 0 1 62.69291 504.6236 cm
 Q
 q
-1 0 0 1 62.69291 597.8236 cm
+1 0 0 1 62.69291 486.6236 cm
 q
 0 0 0 rg
 BT 1 0 0 1 0 2 Tm /F1 10 Tf 12 TL (The output directory will be in /home/albert.einstein/gitrepo/Predictions/*) Tj T* ET
@@ -2481,24 +2577,24 @@ xref
 0000006454 00000 n
 0000006560 00000 n
 0000014610 00000 n
-0000023040 00000 n
-0000029219 00000 n
-0000035859 00000 n
-0000049339 00000 n
-0000058968 00000 n
-0000062130 00000 n
-0000062232 00000 n
-0000062269 00000 n
-0000062306 00000 n
-0000062343 00000 n
-0000062380 00000 n
-0000062417 00000 n
-0000062454 00000 n
+0000023992 00000 n
+0000030318 00000 n
+0000036743 00000 n
+0000048950 00000 n
+0000057092 00000 n
+0000063786 00000 n
+0000063888 00000 n
+0000063925 00000 n
+0000063962 00000 n
+0000063999 00000 n
+0000064036 00000 n
+0000064073 00000 n
+0000064110 00000 n
 trailer
 << /ID 
  % ReportLab generated PDF document -- digest (http://www.reportlab.com)
- [(\022\272\217\227V|9\222\223\322\017j\(\210\207\353) (\022\272\217\227V|9\222\223\322\017j\(\210\207\353)]
+ [(\312=\032\333\003\217R,\037\225\251\321\316\325\371\370) (\312=\032\333\003\217R,\037\225\251\321\316\325\371\370)]
  /Info 26 0 R /Root 25 0 R /Size 55 >>
 startxref
-62491
+64147
 %%EOF
