@@ -148,7 +148,9 @@ to make note of the folders and files. For this example, the user will want to t
 
 .. code:: bash
 
-   pip install --user gwpy
+   pip install --user --pre gwpy
+   python /home/albert.einstein/gitrepo/seismon/setup.py install --user
+   pip install --user obspy
 
 Once gwpy is ready to go, then we can move onto the next step of generating the list of xml files needed to do the analysis.
 
@@ -208,6 +210,14 @@ The next step is to cd back to bin then.
 -e  this is the gps end time of the program, this also completes the range of time between start and end
 --minMagnitude  This defines the minimum magnitude of the earthquakes grabbed by seismon_traveltimes
 --doIRIS  This tells seismon_traveltimes to grab data from the Incorporated Research Institutions for Seismology(IRIS)'s seismic moniter database
+
+.. code:: bash 
+
+   Running Iris...
+   
+   [Earthquake information]
+
+This is generally what the output will look like. It could throw up an error about no data being found on the server, don't worry just adjust the range of your times to increase the chances of data being found.
 
 Screen is a program designed to use multiple windows within one terminal session. These screens will continue to operate even if you disconnect from the session. In order to get back to your regular session, just detach from the process by clicking ctrl + a and then d on your keyboard. If you want to reatach just use the following commands.
 
