@@ -2216,6 +2216,61 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     rfamp_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
         attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
 
+    if ifo == "LHO":
+        Rf0 = 94.94
+        Rfs = 1.35
+        Q0 = 2157.72
+        Qs = 474.07
+        cd = 407.19
+        ch = 786.67
+        rs = 1.58
+
+    elif ifo == "LLO":
+        Rf0 = 0.42
+        Rfs = 1.35
+        Q0 = 9631.79
+        Qs = 586.89
+        cd = 637.17
+        ch = 173.98
+        rs = 0.92
+
+    elif ifo == "Virgo":
+        Rf0 = 0.0022
+        Rfs = 0.47
+        Q0 = 434.56
+        Qs = 774.28
+        cd = 1228.69
+        ch = 1478.20
+        rs = 0.26
+
+    elif ifo == "GEO":
+        Rf0 = 74.93
+        Rfs = 0.29
+        Q0 = 45.20
+        Qs = 0.77
+        cd = 259.26
+        ch = 73.14
+        rs = 1.13
+
+    else:
+        Rf0 = 0.89256174
+        Rfs = 1.3588703
+        Q0 = 4169.7511
+        Qs = -0.017424297
+        cd = 254.13458
+        ch = 10.331297
+        rs = 1.0357451
+
+    Rf0 = 0.89256174
+    Rfs = 1.3588703
+    Q0 = 4169.7511
+    Qs = -0.017424297
+    cd = 254.13458
+    ch = 10.331297
+    rs = 1.0357451
+
+    Rfamp = ampRf(attributeDic["Magnitude"],distance/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
     traveltimes["Longitudes"] = ifolon
@@ -2227,7 +2282,8 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     traveltimes["Rtwotimes"] = [rtwotime_interp]
     traveltimes["RthreePointFivetimes"] = [rthreePointFivetime_interp]
     traveltimes["Rfivetimes"] = [rfivetime_interp]
-    traveltimes["Rfamp"] = [rfamp_interp]
+    #traveltimes["Rfamp"] = [rfamp_interp]
+    traveltimes["Rfamp"] = [Rfamp]
     traveltimes["Pamp"] = [attributeDic["traveltimes"]["Arbitrary"]["Pamp"][0]]
     traveltimes["Samp"] = [attributeDic["traveltimes"]["Arbitrary"]["Samp"][0]]
 

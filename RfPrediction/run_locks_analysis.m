@@ -29,6 +29,7 @@ eqs = eqs(indexes,:);
 peakamp = log10(abs(eqs(:,16)));
 peakacc = log10(abs(eqs(:,18)));
 peakdisp = log10(abs(eqs(:,20)));
+predamp = log10(abs(eqs(:,8)));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
@@ -64,6 +65,7 @@ eqs = eqs(indexes,:);
 peakamp = log10(abs(eqs(:,16)));
 peakacc = log10(abs(eqs(:,18)));
 peakdisp = log10(abs(eqs(:,20)));
+predamp = log10(abs(eqs(:,8)));
 latitudes = eqs(:,11); longitudes = eqs(:,12); 
 distances = eqs(:,13); magnitudes = eqs(:,2);
 
@@ -112,6 +114,7 @@ indexes = find(flags == 1 | flags == 2);
 peakampcut = peakamp(indexes);
 peakacccut = peakacc(indexes);
 peakdispcut = peakdisp(indexes);
+predampcut = predamp(indexes);
 flagscut = flags(indexes);
 flagscut(flagscut == 1) = 0;
 flagscut(flagscut == 2) = 1;

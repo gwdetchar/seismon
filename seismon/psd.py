@@ -656,7 +656,7 @@ def spectra(params, channel, segment):
                 vals = vals / np.max(vals)
                 vals = vals * peak_velocity
                 kwargs = {"linestyle":"--","color":"g"}
-                plot.add_line(x,vals,label="Envelope",**kwargs)
+                #plot.add_line(x,vals,label="Envelope",**kwargs)
 
             else:
                 kwargs = {"linestyle":"--","color":"r"}
@@ -755,6 +755,8 @@ def spectra(params, channel, segment):
             epsFile = os.path.join(plotDirectory,"timeseries.eps")
             plot.save(epsFile)
 
+            pdfFile = os.path.join(plotDirectory,"timeseries.pdf")
+            plot.save(pdfFile)
 
             pngFile = os.path.join(plotDirectory,"timeseries_30.png")
             plot.ylim = [-30,30]
