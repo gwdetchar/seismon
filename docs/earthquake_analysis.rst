@@ -281,7 +281,7 @@ The next step is to
 
 Inside you'll find this line
 
-.. code python
+.. code:: python
 
    paramsFile = "/home/eric.coughlin/gitrepo/seismon/input/seismon_params_H1O1.txt"
 
