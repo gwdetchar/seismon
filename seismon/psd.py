@@ -66,6 +66,9 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     earthquakesDirectory = params["dirPath"] + "/Text_Files/Earthquakes/" + channel.station_underscore + "/" + str(params["fftDuration"])
     seismon.utils.mkdir(earthquakesDirectory)
 
+    spectrogramDirectory = params["dirPath"] + "/Text_Files/Spectrogram/" + channel.station_underscore + "/" + str(params["fftDuration"])
+    seismon.utils.mkdir(spectrogramDirectory)
+
     freq = np.array(data["dataASD"].frequencies)
 
     psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
@@ -101,6 +104,23 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     f = open(displacementFile,"wb")    
     f.write("%.10f %e\n"%(ttdisp[np.argmin(data["dataLowpassDisp"].data)],np.min(data["dataLowpassDisp"].data)))
     f.write("%.10f %e\n"%(ttdisp[np.argmax(data["dataLowpassDisp"].data)],np.max(data["dataLowpassDisp"].data)))
+    f.close()
+
+    specgram = data["dataSpecgram"]
+    freq = np.array(specgram.frequencies)
+    times = np.array(specgram.times)
+
+    spectrogramFile = os.path.join(spectrogramDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+    f = open(spectrogramFile,"wb")
+    f.write("-1")
+    for jj in xrange(len(times)):
+        f.write(" %.10f "%times[jj])
+    f.write("\n")
+    for ii in xrange(len(freq)):
+        f.write("%.10f"%freq[ii])
+        for jj in xrange(len(times)):
+                f.write(" %e "%(specgram.data[jj,ii]))
+        f.write("\n")
     f.close()
 
     if params["doPowerLawFit"]:
@@ -526,6 +546,8 @@ def spectra(params, channel, segment):
     # calculate spectrogram
     specgram = dataFull.spectrogram(params["fftDuration"])
     specgram **= 1/2.
+    data["dataSpecgram"] = specgram
+
     #speclog = specgram.to_logf()
     #medratio = speclog.ratio('median')
     medratio = specgram.ratio('median')

@@ -147,7 +147,7 @@ def make_frames(params, segment):
         dx = 1.0/samplef
         out_dict = {'name'  : '%s:%s' %(params["ifo"],dataFull.name) ,
             'data'  : np.array(dataFull.data),
-            'start' : dataFull.epoch.vals,
+            'start' : dataFull.epoch.value,
             'dx'    : dx,
             'kind'  : 'ADC'}
 

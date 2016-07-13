@@ -7,8 +7,9 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from lxml import etree
 
-#import lal.gpstime
+import lal.gpstime
 import astropy.time
+from astropy import units
 
 import __future__
 
@@ -922,7 +923,9 @@ def retrieve_timeseries(params,channel,segment):
         data = np.array(st[0].data)
         data = data.astype(float)
 
-        dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=channel.samplef, name=channel.station)
+        sample_rate = float(channel.samplef)
+        #dataFull = gwpy.timeseries.TimeSeries(data, epoch=gpsStart, channel=channel.station, sample_rate=sample_rate, name=channel.station)
+        dataFull = gwpy.timeseries.TimeSeries(data, epoch=gpsStart, channel=channel.station, name=channel.station, sample_rate = sample_rate)
 
     elif params["ifo"] == "LUNAR":
         import obspy
@@ -1293,7 +1296,7 @@ def retrieve_timeseries(params,channel,segment):
 
         dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=gpsStart, channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
 
-        dataFull.resample(channel.samplef)
+        #dataFull.resample(channel.samplef)
 
     else:
 
