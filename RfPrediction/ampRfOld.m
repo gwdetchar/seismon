@@ -1,4 +1,4 @@
-function Rf = ampRfNew(M,r,h,Rf0,Rfs,cd,rs)
+function Rf = ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs)
 
 % function Rf = ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch)
 % M = magnitude
@@ -16,6 +16,7 @@ function Rf = ampRfNew(M,r,h,Rf0,Rfs,cd,rs)
 % exp(-2*pi*r.*fc./ch./Q), dissipation
 
 fc = 10.^(2.3-M/2);
+Q = Q0./fc.^Qs;
 Af = Rf0./fc.^Rfs;
 
 % Rf = Rf0.*(M./fc).*exp(-2*pi*h.*fc/c).*exp(-2*pi*r.*fc/c./Q)./r*1e-3;

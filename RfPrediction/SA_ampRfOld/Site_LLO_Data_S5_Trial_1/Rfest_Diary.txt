@@ -1,0 +1,1883 @@
+%%%======== Parallelized Cascaded  Simulated Annealing =========%%%
+%%%=============                                  ==============%%%
+%%%=============       10-Jul-2016 12:32:20        =============%%%
+%%%=============                                  ==============%%%
+Parallelization toggle :1
+Workers used in parfor :10
+Initial different input to different workers: 1
+Starting matlabpool using the 'local' profile ... connected to 10 workers.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of function evaluations exceeded: increase options.MaxFunEvals.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2415
+SA Residual for Worker 2 = 6.4794
+SA Residual for Worker 3 = 6.3335
+SA Residual for Worker 4 = 6.2997
+SA Residual for Worker 5 = 6.3287
+SA Residual for Worker 6 = 6.5811
+SA Residual for Worker 7 = 6.3591
+SA Residual for Worker 8 = 6.3206
+SA Residual for Worker 9 = 6.3005
+SA Residual for Worker 10 = 6.5918
+Initial Temperature = 10000000
+Reanneal Interval = 5
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2381
+SA Residual for Worker 2 = 6.2381
+SA Residual for Worker 3 = 6.2381
+SA Residual for Worker 4 = 6.2381
+SA Residual for Worker 5 = 6.2381
+SA Residual for Worker 6 = 6.2381
+SA Residual for Worker 7 = 6.2381
+SA Residual for Worker 8 = 6.2381
+SA Residual for Worker 9 = 6.2381
+SA Residual for Worker 10 = 6.2381
+Initial Temperature = 10000000
+Reanneal Interval = 10
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2368
+SA Residual for Worker 2 = 6.2368
+SA Residual for Worker 3 = 6.2368
+SA Residual for Worker 4 = 6.2368
+SA Residual for Worker 5 = 6.2368
+SA Residual for Worker 6 = 6.2368
+SA Residual for Worker 7 = 6.2368
+SA Residual for Worker 8 = 6.2368
+SA Residual for Worker 9 = 6.2368
+SA Residual for Worker 10 = 6.2368
+Initial Temperature = 10000000
+Reanneal Interval = 15
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2363
+SA Residual for Worker 2 = 6.2363
+SA Residual for Worker 3 = 6.2363
+SA Residual for Worker 4 = 6.2363
+SA Residual for Worker 5 = 6.2363
+SA Residual for Worker 6 = 6.2363
+SA Residual for Worker 7 = 6.2363
+SA Residual for Worker 8 = 6.2363
+SA Residual for Worker 9 = 6.2363
+SA Residual for Worker 10 = 6.2363
+Initial Temperature = 1000000
+Reanneal Interval = 5
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.236
+SA Residual for Worker 2 = 6.236
+SA Residual for Worker 3 = 6.236
+SA Residual for Worker 4 = 6.236
+SA Residual for Worker 5 = 6.236
+SA Residual for Worker 6 = 6.236
+SA Residual for Worker 7 = 6.236
+SA Residual for Worker 8 = 6.236
+SA Residual for Worker 9 = 6.236
+SA Residual for Worker 10 = 6.236
+Initial Temperature = 1000000
+Reanneal Interval = 10
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2358
+SA Residual for Worker 2 = 6.2358
+SA Residual for Worker 3 = 6.2358
+SA Residual for Worker 4 = 6.2358
+SA Residual for Worker 5 = 6.2358
+SA Residual for Worker 6 = 6.2358
+SA Residual for Worker 7 = 6.2358
+SA Residual for Worker 8 = 6.2358
+SA Residual for Worker 9 = 6.2358
+SA Residual for Worker 10 = 6.2358
+Initial Temperature = 1000000
+Reanneal Interval = 15
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2357
+SA Residual for Worker 2 = 6.2357
+SA Residual for Worker 3 = 6.2357
+SA Residual for Worker 4 = 6.2357
+SA Residual for Worker 5 = 6.2357
+SA Residual for Worker 6 = 6.2357
+SA Residual for Worker 7 = 6.2357
+SA Residual for Worker 8 = 6.2357
+SA Residual for Worker 9 = 6.2357
+SA Residual for Worker 10 = 6.2357
+Initial Temperature = 100000
+Reanneal Interval = 5
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 100000
+Reanneal Interval = 10
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 100000
+Reanneal Interval = 15
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 10000
+Reanneal Interval = 5
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 10000
+Reanneal Interval = 10
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 10000
+Reanneal Interval = 15
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 100
+Reanneal Interval = 5
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 100
+Reanneal Interval = 10
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 100
+Reanneal Interval = 15
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+Maximum number of iterations exceeded: increase options.MaxIter.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Maximum number of iterations exceeded: increase options.MaxIter.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 10
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 10
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 10
+Reanneal Interval = 15
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 1
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 1
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 1
+Reanneal Interval = 15
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.1
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.1
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.1
+Reanneal Interval = 15
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.01
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.01
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.01
+Reanneal Interval = 15
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.001
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.001
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.001
+Reanneal Interval = 15
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.0001
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.0001
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 0.0001
+Reanneal Interval = 15
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 1e-05
+Reanneal Interval = 5
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 1e-05
+Reanneal Interval = 10
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: mesh size less than options.TolMesh.
+Optimization terminated: change in best function value less than options.TolFun.
+PATTERNSEARCH: 
+Optimization terminated: mesh size less than options.TolMesh.
+SA Residual for Worker 1 = 6.2356
+SA Residual for Worker 2 = 6.2356
+SA Residual for Worker 3 = 6.2356
+SA Residual for Worker 4 = 6.2356
+SA Residual for Worker 5 = 6.2356
+SA Residual for Worker 6 = 6.2356
+SA Residual for Worker 7 = 6.2356
+SA Residual for Worker 8 = 6.2356
+SA Residual for Worker 9 = 6.2356
+SA Residual for Worker 10 = 6.2356
+Initial Temperature = 1e-05
+Reanneal Interval = 15
+time taken for PCSA  = 5.9015 Minutes
+SA Final Residual 10 = 6.2356
+92.0833% within factor 5
