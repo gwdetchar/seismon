@@ -1903,7 +1903,8 @@ def do_kdtree(combined_x_y_arrays,points):
     dist, indexes = mytree.query(points)
     return indexes
 
-def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
+def ampRf(M,r,h,Rf0,Rfs,cd,rs):
+    #def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
     # Rf amplitude estimate
     # M = magnitude
     # r = distance [km]
@@ -1921,10 +1922,11 @@ def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
     # exp(-2*pi*r.*fc./ch./Q), dissipation
 
     fc = 10**(2.3-M/2)
-    Q = Q0/(fc**Qs)
+    #Q = Q0/(fc**Qs)
     Af = Rf0/(fc**Rfs)
 
-    Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)*np.exp(-2*np.pi*r*(fc/ch)/Q)/(r**(rs))
+    #Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)*np.exp(-2*np.pi*r*(fc/ch)/Q)/(r**(rs))
+    Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)/(r**(rs))
 
     return Rf
 
@@ -2059,26 +2061,32 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         print "Enable ObsPy if updated earthquake estimates desired...\n"
         return attributeDic
 
-    Rf0 = 0.89256174
-    Rfs = 1.3588703
-    Q0 = 4169.7511
-    Qs = -0.017424297
-    cd = 254.13458
-    ch = 10.331297
-    rs = 1.0357451
+    #Rf0 = 0.89256174
+    #Rfs = 1.3588703
+    #Q0 = 4169.7511
+    #Qs = -0.017424297
+    #cd = 254.13458
+    #ch = 10.331297
+    #rs = 1.0357451
+
+    Rf0 = 76.44
+    Rfs = 1.37
+    cd = 440.68
+    rs = 1.57 
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
-        Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+        #Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+        Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
     else:
         distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
         degrees = (distances/6370000)*(180/np.pi)
-        Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
-    
+        #Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+        Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
     Pamp = 1e-6
     Samp = 1e-5
 
@@ -2217,59 +2225,76 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
 
     if ifo == "LHO":
-        Rf0 = 94.94
-        Rfs = 1.35
-        Q0 = 2157.72
-        Qs = 474.07
-        cd = 407.19
-        ch = 786.67
-        rs = 1.58
+        #Rf0 = 76.37
+        #Rfs = 1.37
+        #Q0 = 6654.76
+        #Qs = 988.14
+        #cd = 440.68
+        #ch = 668.99
+        #rs = 1.57
+
+        Rf0 = 76.44
+        Rfs = 1.37
+        cd = 440.68
+        rs = 1.57
 
     elif ifo == "LLO":
-        Rf0 = 0.42
-        Rfs = 1.35
-        Q0 = 9631.79
-        Qs = 586.89
-        cd = 637.17
-        ch = 173.98
-        rs = 0.92
+        #Rf0 = 0.43
+        #Rfs = 1.40
+        #Q0 = 1036.22
+        #Qs = 437.20
+        #cd = 739.18
+        #ch = 1998.38
+        #rs = 0.95
+
+        Rf0 = 0.43
+        Rfs = 1.40
+        cd = 739.18
+        rs = 0.95
 
     elif ifo == "Virgo":
-        Rf0 = 0.0022
-        Rfs = 0.47
-        Q0 = 434.56
-        Qs = 774.28
-        cd = 1228.69
-        ch = 1478.20
-        rs = 0.26
+        #Rf0 = 0.21
+        #Rfs = 1.88
+        #Q0 = 5317.98
+        #Qs = 717.92
+        #cd = 497.36
+        #ch = 1088.58
+        #rs = 0.86
+
+        Rf0 = 0.21
+        Rfs = 1.88
+        cd = 497.35
+        rs = 0.86
 
     elif ifo == "GEO":
-        Rf0 = 74.93
-        Rfs = 0.29
-        Q0 = 45.20
-        Qs = 0.77
-        cd = 259.26
-        ch = 73.14
+        #Rf0 = 2.19
+        #Rfs = 1.62
+        #Q0 = 9623.23
+        #Qs = -2.38
+        #cd = 349.06
+        #ch = 2000.00
+        #rs = 1.16
+
+        Rf0 = 4.45
+        Rfs = 1.14
+        cd = 351.85
         rs = 1.13
 
     else:
-        Rf0 = 0.89256174
-        Rfs = 1.3588703
-        Q0 = 4169.7511
-        Qs = -0.017424297
-        cd = 254.13458
-        ch = 10.331297
-        rs = 1.0357451
+        #Rf0 = 76.37
+        #Rfs = 1.37
+        #Q0 = 6654.76
+        #Qs = 988.14
+        #cd = 440.68
+        #ch = 668.99
+        #rs = 1.57
 
-    Rf0 = 0.89256174
-    Rfs = 1.3588703
-    Q0 = 4169.7511
-    Qs = -0.017424297
-    cd = 254.13458
-    ch = 10.331297
-    rs = 1.0357451
+        Rf0 = 76.44
+        Rfs = 1.37
+        cd = 440.68
+        rs = 1.57
 
-    Rfamp = ampRf(attributeDic["Magnitude"],distance/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+    Rfamp = ampRf(attributeDic["Magnitude"],distance/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
