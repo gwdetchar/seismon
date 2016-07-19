@@ -71,8 +71,11 @@ for direction in ['Z','X','Y']:
     #resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format('eq arrival time','pw arrival time','peak ground velocity','lockloss'))
     for column in ( line.strip().split() for line in datafileH1):
             eq_time = column[0] # This is the time that the earthquake was detected
+            eq_mag = column[1]
             pw_arrival_time = column[2] #this is the arrival time of the pwave
             sw_arrival_time = column[3]
+            eq_distance = column[12]
+            eq_depth = column[13]
             peak_acceleration = column[17]
             peak_displacement = column[19]
             rw_arrival_time = column[5] #this is the arrival time of rayleigh wave
@@ -87,13 +90,13 @@ for direction in ['Z','X','Y']:
             lockloss = ""
             if (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))): # The if statements are designed to check if the interferometer is in lock or not and if it is. Did it lose lock around the time of the earthquake? 
                 lockloss = "Y"
-                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,lockloss))
+                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss))
             elif (H1_lock_time <= float(pw_arrival_time) and H1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "N"
-                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,lockloss))
+                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss))
             elif (H1_lock_time > float(pw_arrival_time)):
                 lockloss = "Z"
-                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,lockloss)) # Writes formatted string to text file.
+                resultfileH1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss))
     datafileH1.close()
     resultfileH1.close()
     H1_channel_lockstatus_data.close()
@@ -102,6 +105,10 @@ for direction in ['Z','X','Y']:
     pw_arrival_list = []
     peak_acceleration_list = []
     peak_displacement_list = []
+    eq_mag_list = []
+    eq_distance_list = []
+    eq_depth_list = []
+    
     resultfileplotH1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_lockstatus_{0}{1}.txt'.format(rms_toggle, direction), 'r')
     for item in (line.strip().split() for line in resultfileplotH1):
         eq_time = item[0]
@@ -109,23 +116,29 @@ for direction in ['Z','X','Y']:
         peakgroundvelocity = item[2]
         peak_acceleration = item[3]
         peak_displacement = item[4]
-        lockloss = item[5]
+        eq_mag = item[5]
+        eq_distance = item[6]
+        eq_depth = item[7]
+        lockloss = item[8]
         H1_peak_ground_velocity_list.append(float(peakgroundvelocity))
         locklosslist.append(lockloss)
         eq_time_list.append(eq_time)
         pw_arrival_list.append(pw_arrival)
         peak_acceleration_list.append(peak_acceleration)
         peak_displacement_list.append(peak_displacement)
+        eq_mag_list.append(eq_mag)
+        eq_distance_list.append(eq_distance)
+        eq_depth_list.append(eq_depth)
     
     H1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_O1_binary_{0}{1}.txt'.format(direction, rms_toggle), 'w')
 
-    for eq_time, pw_arrival, peakgroundvelocity, peak_acceleration,peak_displacement, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, peak_acceleration_list,peak_displacement_list, locklosslist):
+    for eq_time, pw_arrival, peakgroundvelocity, peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, peak_acceleration_list,peak_displacement_list,eq_mag_list,eq_distance_list,eq_depth_list, locklosslist):
         if lockloss == "Y":
             lockloss_binary = '1'
-            H1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,lockloss_binary))
+            H1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss_binary))
         elif lockloss == "N":
             lockloss_binary = '0'
-            H1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,lockloss_binary))
+            H1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss_binary))
         else:
             pass
     H1_binary_file.close()
@@ -278,8 +291,11 @@ for direction in ['Z','X','Y']:
     #resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} \n'.format('eq arrival time','pw arrival time','peak ground velocity','lockloss'))
     for column in ( line.strip().split() for line in datafileL1):
             eq_time = column[0]
+            eq_mag = column[1]
             pw_arrival_time = column[2]
             sw_arrival_time = column[3]
+            eq_distance = column[12]
+            eq_depth = column[13]
             peak_acceleration = column[17]
             peak_displacement = column[19]
             rw_arrival_time = column[5]
@@ -293,13 +309,13 @@ for direction in ['Z','X','Y']:
             lockloss = ""
             if (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time <= float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "Y"
-                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity, peak_acceleration, peak_displacement, lockloss))
+                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss))
             elif (L1_lock_time <= float(pw_arrival_time) and L1_lockloss_time > float(float(pw_arrival_time) + float(options.time_after_p_wave))):
                 lockloss = "N"
-                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity, peak_acceleration, peak_displacement, lockloss))
+                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss))
             elif (L1_lock_time > float(pw_arrival_time)):
                 lockloss = "Z"
-                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity, peak_acceleration, peak_displacement, lockloss))
+                resultfileL1.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival_time,peak_ground_velocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss))
     datafileL1.close()
     resultfileL1.close()
     L1_channel_lockstatus_data.close()
@@ -308,6 +324,9 @@ for direction in ['Z','X','Y']:
     pw_arrival_list = []
     peak_acceleration_list =[]
     peak_displacement_list = []
+    eq_mag_list = []
+    eq_distance_list = []
+    eq_depth_list = []
     resultfileplotL1 = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_lockstatus_{0}{1}.txt'.format(rms_toggle, direction), 'r')
     for item in (line.strip().split() for line in resultfileplotL1):
         eq_time = item[0]
@@ -315,23 +334,28 @@ for direction in ['Z','X','Y']:
         peakgroundvelocity = item[2]
         peak_acceleration = item[3]
         peak_displacement = item[4]
-        lockloss = item[5]
+        eq_mag = item[5]
+        eq_distance = item[6]
+        eq_depth = item[7]
+        lockloss = item[8]
         H1_peak_ground_velocity_list.append(float(peakgroundvelocity))
         locklosslist.append(lockloss)
         eq_time_list.append(eq_time)
         pw_arrival_list.append(pw_arrival)
         peak_acceleration_list.append(peak_acceleration)
         peak_displacement_list.append(peak_displacement)
+        eq_mag_list.append(eq_mag)
+        eq_distance_list.append(eq_distance)
+        eq_depth_list.append(eq_depth)
 
     L1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_binary_{0}{1}.txt'.format(rms_toggle, direction), 'w')
-
-    for eq_time, pw_arrival, peakgroundvelocity, peak_acceleration,peak_displacement, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, peak_acceleration_list,peak_displacement_list, locklosslist):
+    for eq_time, pw_arrival, peakgroundvelocity, peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth, lockloss in zip(eq_time_list, pw_arrival_list, H1_peak_ground_velocity_list, peak_acceleration_list,peak_displacement_list,eq_mag_list,eq_distance_list,eq_depth_list, locklosslist):
         if lockloss == "Y":
             lockloss_binary = '1'
-            L1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,lockloss_binary))
+            L1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss_binary))
         elif lockloss == "N":
             lockloss_binary = '0'
-            L1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,lockloss_binary))
+            L1_binary_file.write('{0:^20} {1:^20} {2:^20} {3:^20} {4:^20} {5:^20} {6:^20} {7:^20} {8:^20} \n'.format(eq_time,pw_arrival,peakgroundvelocity,peak_acceleration,peak_displacement,eq_mag,eq_distance,eq_depth,lockloss_binary))
         else:
             pass
     L1_binary_file.close()
