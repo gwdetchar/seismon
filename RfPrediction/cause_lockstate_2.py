@@ -124,7 +124,7 @@ for direction in ['Z','X','Y']:
         eq_distance_list.append(eq_distance)
         eq_depth_list.append(eq_depth)
     
-    H1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_O1__binary_{1}{0}_4.txt'.format(direction, rms_toggle), 'w')
+    H1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LHO_O1_binary_{1}{0}_4.txt'.format(direction, rms_toggle), 'w')
 
     for eq_time, pw_arrival,peak_ground_velocity,eq_mag,eq_distance,eq_depth, lockloss in zip(eq_time_list, pw_arrival_list,H1_peak_ground_velocity_list,eq_mag_list,eq_distance_list,eq_depth_list, locklosslist):
         if lockloss == "Y":
@@ -334,7 +334,7 @@ for direction in ['Z','X','Y']:
         eq_distance_list.append(eq_distance)
         eq_depth_list.append(eq_depth)
 
-    L1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_predicted_binary_{0}{1}_4.txt'.format(rms_toggle, direction), 'w')
+    L1_binary_file = open('/home/eric.coughlin/gitrepo/seismon/RfPrediction/data/LLO_O1_binary_{0}{1}_4.txt'.format(rms_toggle, direction), 'w')
     for eq_time, pw_arrival,peak_ground_velocity,eq_mag,eq_distance,eq_depth, lockloss in zip(eq_time_list, pw_arrival_list,H1_peak_ground_velocity_list,eq_mag_list,eq_distance_list,eq_depth_list, locklosslist):
         if lockloss == "Y":
             lockloss_binary = '1'
