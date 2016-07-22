@@ -1,5 +1,5 @@
-function [thetas] = logistic_regression_dx(p_training_set,y_training_set,num_of_parameters, ... 
-    alpha_step_size,convergence_iterations)
+function [thetas, J] = logistic_regression_dx(p_training_set,y_training_set,num_of_parameters, ... 
+    alpha_step_size)
 
 %% Load Data
 load('test3.mat','dir','site','fs')
@@ -27,6 +27,8 @@ sort_di=sortrows(sort_di);
 %}
 
 %% Calibrate data
+% we calibrate the data to make the differences easier to manage for
+% computation time through the equation: (p_training_set - mean(p_training_set)) / standard deviation of p_training set. 
 for ind = 1:num_of_parameters
     calibrat_p_training_set(:,ind) = (p_training_set(:,ind) ...
         - mean(p_training_set(:,ind))) ./ ...
@@ -54,6 +56,7 @@ semilogx(sort_vel(:,1),sort_vel(:,2),'xr','LineWidth',5)
 %}
 
 %% Gradient descent
+% Gradient Descent is calculated through the equation 
 alpha=alpha_step_size/length(y);
 j = 1;
 j
@@ -85,7 +88,11 @@ hh=1./(1+exp(-z));
 for m = 1:num_of_parameters + 1
     temp(j,m)=thetas(m);
 end
-while abs(diff(temp(j,:)) - diff(temp(j-1,:))) > 1.0e-07
+check = [];
+for m = 1:num_of_parameters + 1
+    check = [check abs(temp(j,m) - temp(j-1,m)) > 1.0e-07];
+end
+while any(check(1:m)) == 1
     j = j + 1;
     j
     for i=1:num_of_parameters + 1
@@ -101,16 +108,21 @@ while abs(diff(temp(j,:)) - diff(temp(j-1,:))) > 1.0e-07
     for m = 1:num_of_parameters + 1
         temp(j,m)=thetas(m);
     end
+    check = [];
+    for m = 1:num_of_parameters + 1
+    check =[check abs(temp(j,m) - temp(j-1,m)) > 1.0e-07];
+    end
 end
 
 thetas=[temp(end,:)];
+J = [size(temp,1)];
 
 %% Convergence plot
 
 figure('visible','off')
-for indx2 = 1:size(temp,2)
-convergence_plot =  plot(temp(:,indx2));
-set(convergence_plot,{'DisplayName'},{['theta' num2str(indx2)]})
+for indx8 = 1:size(temp,2)
+convergence_plot =  plot(temp(:,indx8));
+set(convergence_plot,{'DisplayName'},{['theta' num2str(indx8)]})
 hold on
 end
 xlabel('j')
@@ -118,7 +130,7 @@ ylabel('temp')
 title([char(site) ' ' dir ' Convergence Plots'])
 legend('show')
 if ispc
-    saveas(gcf,[fs char(site) '\' char(site) '_mat_' dir '_convergence_plots.png'])
+    saveas(gcf,[fs char(site) '\' char(site) '_mat_' dir '_convergence_plots_' num2str(num_of_parameters) '.png'])
 else
     saveas(gcf,[fs char(site) '_mat_' dir '_convergence_plots.png'])
 end
