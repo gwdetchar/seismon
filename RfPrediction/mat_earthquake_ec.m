@@ -1,3 +1,6 @@
+set(0,'DefaultAxesFontSize',20)
+set(0,'DefaultTextFontSize',20)
+
 cla;
 alpha_step_size = 9;
 thetas_matrix = {};
@@ -119,6 +122,8 @@ for site = {'LHO'  'LLO'}
         end
         %% plotting FAP vs ESP curves 
         figure('visible','off')
+        set(gcf,'PaperSize',[10 6])
+        set(gcf,'PaperPosition',[0 0 10 6])
         x = .25;
         y = .75;
         plot(linspace(0,1),linspace(0,1),'--')
@@ -136,8 +141,8 @@ for site = {'LHO'  'LLO'}
         ylabel('ESP')
         legend('show','Location','southeast')
         if ispc
-            saveas(gcf,[fs char(site) '\' char(site) '_mat_' dir '_FAP_ESP.pdf'])
-            savefig(gcf,[fs char(site) '\figures\' char(site) '_mat_' dir '_FAP_ESP.fig'])
+            saveas(gcf,[fs char(site) '\' char(site) '_mat_' dir '_pv_FAP_ESP.pdf'])
+            savefig(gcf,[fs char(site) '\figures\' char(site) '_mat_' dir '_pv_FAP_ESP.fig'])
         else
             saveas(gcf,[fs char(site) '_mat_' dir '_FAP_ESP.pdf'])
         end
@@ -151,6 +156,8 @@ for site = {'LHO'  'LLO'}
         name2 = '';
         alpha_step_size = 9.5;
         fig = figure('visible','off');
+        set(fig,'PaperSize',[10 6])
+        set(fig,'PaperPosition',[0 0 10 6])
         plot(linspace(0,1),linspace(0,1),'--')
         hold on
         for indx2 = 1:length(vartest)
@@ -194,13 +201,15 @@ for site = {'LHO'  'LLO'}
         title([char(site) ' ' dir ' Efficiency Curves'])
         legend('show','Location','southeast')
         if ispc
-            saveas(gcf,[fs char(site) '\' char(site) '_mat_' dir '_efficiency_curves.pdf'])
+            saveas(gcf,[fs char(site) '\' char(site) '_mat_' dir '_pv_efficiency_curves.pdf'])
         else
             saveas(gcf,[fs char(site) '_mat_' dir '_efficiency_curves.pdf'])
         end
     end
     for ind = 1:length(vartest)
         figure('visible','off')
+        set(gcf,'PaperSize',[10 6])
+        set(gcf,'PaperPosition',[0 0 10 6])
         for dir = ['Z']
             curve2 = plot(s.(char(site)).(dir).(vartest{ind}).FAP, s.(char(site)).(dir).(vartest{ind}).ESP,'o');
             set(curve2,{'DisplayName'},{[dir ' ' vartest{ind}]})
