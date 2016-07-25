@@ -32,13 +32,13 @@ nlho_train = floor(nlho/2);
 nllo_train = floor(nllo/2);
 
 vars_usgs = [2 8 13 14];
-vars_all = [2 8 13 14 16];
-vars_usgs = vars_all;
+%vars_all = [2 8 13 14 16];
+%vars_usgs = vars_all;
 
 idx_lho = randperm(nlho);
 idx_train_lho = idx_lho(1:nlho_train);
 idx_test_lho = idx_lho(nlho_train+1:end);
-idx_test_lho = idx_lho(1:nlho_train);
+%idx_test_lho = idx_lho(1:nlho_train);
 thetas_lho = glmfit(eqs_lho(idx_train_lho,vars_usgs),[flags_lho(idx_train_lho) ones(size(idx_train_lho))'],'binomial','link','logit');
 
 idx_llo = randperm(nllo);
@@ -53,11 +53,12 @@ for ii = 1:length(idx_test_lho)
    z_lho = [z_lho thetas_lho(1)+sum(thetas_lho(2:end).*eqs_lho(idx_test_lho(ii),vars_usgs)')];
 end
 hh_lho=1./(1+exp(-z_lho));
-fap_lho = [];
+fap_lho = []; esp_lho = [];
 for ii = 1:length(pvals)
-   indexes = find(hh_lho<=pvals(ii));
-   fap_lho(ii) = sum(flags_lho(idx_test_lho(indexes)) == round(hh_lho(indexes))') ./ length(indexes);
-   fap_lho(ii) = sum(flags_lho(idx_test_lho(indexes))) ./ length(indexes);
+   indexes1 = intersect(find(hh_lho<=pvals(ii)),find(flags_lho(idx_test_lho) == 1));
+   indexes0 = intersect(find(hh_lho<=pvals(ii)),find(flags_lho(idx_test_lho) == 0));
+   fap_lho(ii) = length(indexes1) / length(find(flags_lho(idx_test_lho) == 1));
+   esp_lho(ii) = length(indexes0) / length(find(flags_lho(idx_test_lho) == 0));
 end
 
 z_llo = []; 
@@ -65,20 +66,22 @@ for ii = 1:length(idx_test_llo)
    z_llo = [z_llo thetas_llo(1)+sum(thetas_llo(2:end).*eqs_llo(idx_test_llo(ii),vars_usgs)')];
 end
 hh_llo=1./(1+exp(-z_llo));
-fap_llo = [];
+fap_llo = []; esp_llo = [];
 for ii = 1:length(pvals)
-   indexes = find(hh_llo<=pvals(ii));
-   fap_llo(ii) = sum(flags_llo(idx_test_llo(indexes)) == round(hh_llo(indexes))') ./ length(indexes);
-   fap_llo(ii) = sum(flags_llo(idx_test_llo(indexes))) ./ length(indexes);
+   indexes1 = intersect(find(hh_llo<=pvals(ii)),find(flags_llo(idx_test_llo) == 1));
+   indexes0 = intersect(find(hh_llo<=pvals(ii)),find(flags_llo(idx_test_llo) == 0));
+   fap_llo(ii) = length(indexes1) / length(find(flags_llo(idx_test_llo) == 1));
+   esp_llo(ii) = length(indexes0) / length(find(flags_llo(idx_test_llo) == 0));
 end
 
 figure;
 set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
-plot(pvals,fap_lho,'kx')
+plot(fap_lho,esp_lho,'kx')
 hold on
-plot(pvals,fap_llo,'go')
+plot(fap_llo,esp_llo,'go')
+plot(linspace(0,1),linspace(0,1),'k--');
 hold off
 grid
 %caxis([-6 -3])
