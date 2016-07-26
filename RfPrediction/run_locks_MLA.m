@@ -47,12 +47,17 @@ idx_test_llo = idx_llo(nllo_train+1:end);
 idx_test_llo = idx_llo(1:nllo_train);
 thetas_llo = glmfit(eqs_llo(idx_train_llo,vars_usgs),[flags_llo(idx_train_llo) ones(size(idx_train_llo))'],'binomial','link','logit');
 
-pvals = 0:0.01:1;
+%pvals = 0:0.01:1;
 z_lho = [];
 for ii = 1:length(idx_test_lho)
    z_lho = [z_lho thetas_lho(1)+sum(thetas_lho(2:end).*eqs_lho(idx_test_lho(ii),vars_usgs)')];
 end
 hh_lho=1./(1+exp(-z_lho));
+
+hh_lho_min = min(hh_lho);
+hh_lho_max = max(hh_lho);
+pvals = hh_lho_min:0.00005:hh_lho_max;
+
 fap_lho = []; esp_lho = [];
 for ii = 1:length(pvals)
    indexes1 = intersect(find(hh_lho<=pvals(ii)),find(flags_lho(idx_test_lho) == 1));
@@ -60,18 +65,41 @@ for ii = 1:length(pvals)
    fap_lho(ii) = length(indexes1) / length(find(flags_lho(idx_test_lho) == 1));
    esp_lho(ii) = length(indexes0) / length(find(flags_lho(idx_test_lho) == 0));
 end
+[fap_lho_unique,ia,ic] = unique(fap_lho);
+esp_lho_mean = []; esp_lho_min = []; esp_lho_max = [];
+for ii = 1:length(fap_lho_unique)
+   indexes = find(fap_lho_unique(ii) == fap_lho);
+   vals = esp_lho(indexes);
+   esp_lho_mean(ii) = mean(vals); 
+   esp_lho_min(ii) = min(vals);
+   esp_lho_max(ii) = max(vals);
+end
 
 z_llo = []; 
 for ii = 1:length(idx_test_llo)
    z_llo = [z_llo thetas_llo(1)+sum(thetas_llo(2:end).*eqs_llo(idx_test_llo(ii),vars_usgs)')];
 end
 hh_llo=1./(1+exp(-z_llo));
+
+hh_llo_min = min(hh_llo);
+hh_llo_max = max(hh_llo);
+pvals = hh_llo_min:0.0001:hh_llo_max;
+
 fap_llo = []; esp_llo = [];
 for ii = 1:length(pvals)
    indexes1 = intersect(find(hh_llo<=pvals(ii)),find(flags_llo(idx_test_llo) == 1));
    indexes0 = intersect(find(hh_llo<=pvals(ii)),find(flags_llo(idx_test_llo) == 0));
    fap_llo(ii) = length(indexes1) / length(find(flags_llo(idx_test_llo) == 1));
    esp_llo(ii) = length(indexes0) / length(find(flags_llo(idx_test_llo) == 0));
+end
+[fap_llo_unique,ia,ic] = unique(fap_llo);
+esp_llo_mean = []; esp_llo_min = []; esp_llo_max = [];
+for ii = 1:length(fap_llo_unique)
+   indexes = find(fap_llo_unique(ii) == fap_llo);
+   vals = esp_llo(indexes);
+   esp_llo_mean(ii) = mean(vals); 
+   esp_llo_min(ii) = min(vals);
+   esp_llo_max(ii) = max(vals);
 end
 
 figure;
@@ -90,7 +118,8 @@ ylabel('ESP');
 leg1 = legend({'LHO','LLO'},'Location','SouthEast');
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
-saveas(gcf,['./plots/lockloss_fap.pdf'])
+saveas(gcf,['./plots/lockloss_fap_usgs.pdf'])
 close;
 
+save('./data/lockloss_fap_usgs.mat');
 
