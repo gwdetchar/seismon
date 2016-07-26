@@ -47,9 +47,9 @@ leg1 = legend({'LHO','LLO'},'Location','SouthEast');
 saveas(gcf,['./plots/lockloss_fap_errorbars.pdf'])
 close;
 
-fprintf('LHO (USGS only) & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_usgs.thetas_lho(1),data_usgs.thetas_lho(2),data_usgs.thetas_lho(3),data_usgs.thetas_lho(4),data_usgs.thetas_lho(5));
-fprintf('LHO & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_all.thetas_lho(1),data_all.thetas_lho(2),data_all.thetas_lho(3),data_all.thetas_lho(4),data_all.thetas_lho(5));
-fprintf('LLO (USGS only) & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_usgs.thetas_llo(1),data_usgs.thetas_llo(2),data_usgs.thetas_llo(3),data_usgs.thetas_llo(4),data_usgs.thetas_llo(5));
-fprintf('LLO & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_all.thetas_llo(1),data_all.thetas_llo(2),data_all.thetas_llo(3),data_all.thetas_llo(4),data_all.thetas_llo(5));
+fprintf('LHO (USGS only) & %.1f & %.1e & %.1e & %.1e & %.1e \\\\ \\hline \n',data_usgs.thetas_lho(1),data_usgs.thetas_lho(2),data_usgs.thetas_lho(3),data_usgs.thetas_lho(4),data_usgs.thetas_lho(5));
+fprintf('LHO & %.1f & %.1e & %.1e & %.1e & %.1e \\\\ \\hline \n',data_all.thetas_lho(1),data_all.thetas_lho(2),data_all.thetas_lho(3),data_all.thetas_lho(4),data_all.thetas_lho(5));
+fprintf('LLO (USGS only) & %.1f & %.1e & %.1e & %.1e & %.1e \\\\ \\hline \n',data_usgs.thetas_llo(1),data_usgs.thetas_llo(2),data_usgs.thetas_llo(3),data_usgs.thetas_llo(4),data_usgs.thetas_llo(5));
+fprintf('LLO & %.1f & %.1e & %.1e & %.1e & %.1e \\\\ \\hline \n',data_all.thetas_llo(1),data_all.thetas_llo(2),data_all.thetas_llo(3),data_all.thetas_llo(4),data_all.thetas_llo(5));
 
 
