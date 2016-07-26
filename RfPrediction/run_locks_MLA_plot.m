@@ -30,15 +30,15 @@ figure;
 set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
-errorbar(data_usgs.fap_lho_unique,data_usgs.esp_lho_mean,data_usgs.esp_lho_mean-data_usgs.esp_lho_min,data_usgs.esp_lho_max-data_usgs.esp_lho_mean,'k--')
+errorbar(data_usgs.fap_lho_unique,data_usgs.esp_lho_mean,data_usgs.esp_lho_mean-data_usgs.esp_lho_min,data_usgs.esp_lho_max-data_usgs.esp_lho_mean,'k-')
 hold on
-errorbar(data_usgs.fap_llo_unique,data_usgs.esp_llo_mean,data_usgs.esp_llo_mean-data_usgs.esp_llo_min,data_usgs.esp_llo_max-data_usgs.esp_llo_mean,'g--')
-errorbar(data_all.fap_lho_unique,data_all.esp_lho_mean,data_all.esp_lho_mean-data_all.esp_lho_min,data_all.esp_lho_max-data_all.esp_lho_mean,'k-')
-errorbar(data_all.fap_llo_unique,data_all.esp_llo_mean,data_all.esp_llo_mean-data_all.esp_llo_min,data_all.esp_llo_max-data_all.esp_llo_mean,'g-')
+errorbar(data_usgs.fap_llo_unique,data_usgs.esp_llo_mean,data_usgs.esp_llo_mean-data_usgs.esp_llo_min,data_usgs.esp_llo_max-data_usgs.esp_llo_mean,'g-.')
+%errorbar(data_all.fap_lho_unique,data_all.esp_lho_mean,data_all.esp_lho_mean-data_all.esp_lho_min,data_all.esp_lho_max-data_all.esp_lho_mean,'k-')
+%errorbar(data_all.fap_llo_unique,data_all.esp_llo_mean,data_all.esp_llo_mean-data_all.esp_llo_min,data_all.esp_llo_max-data_all.esp_llo_mean,'g-')
 plot(linspace(0,1),linspace(0,1),'k--');
 hold off
 grid
-xlim([0 1])
+xlim([-.05 1])
 xlabel('False Alarm Probability')
 ylabel('Efficiency Standard Probability');
 leg1 = legend({'LHO','LLO'},'Location','SouthEast');
@@ -46,3 +46,10 @@ leg1 = legend({'LHO','LLO'},'Location','SouthEast');
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_fap_errorbars.pdf'])
 close;
+
+fprintf('LHO (USGS only) & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_usgs.thetas_lho(1),data_usgs.thetas_lho(2),data_usgs.thetas_lho(3),data_usgs.thetas_lho(4),data_usgs.thetas_lho(5));
+fprintf('LHO & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_all.thetas_lho(1),data_all.thetas_lho(2),data_all.thetas_lho(3),data_all.thetas_lho(4),data_all.thetas_lho(5));
+fprintf('LLO (USGS only) & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_usgs.thetas_llo(1),data_usgs.thetas_llo(2),data_usgs.thetas_llo(3),data_usgs.thetas_llo(4),data_usgs.thetas_llo(5));
+fprintf('LLO & %.1f & %.1e & %.1e & %.1e & %.1f\n',data_all.thetas_llo(1),data_all.thetas_llo(2),data_all.thetas_llo(3),data_all.thetas_llo(4),data_all.thetas_llo(5));
+
+
