@@ -31,8 +31,10 @@ fprintf('LHO: %d, LLO: %d\n',length(indexes_lho),length(indexes_llo));
 nlho_train = floor(nlho/2);
 nllo_train = floor(nllo/2);
 
-vars_usgs = [2 8 13 14];
-vars_all = [2 8 13 14 16];
+% M r h Rf_pred
+vars_usgs = [2 13 14 8];
+% M r h Rf_pred Rf
+vars_all = [2 13 14 16];
 vars_usgs = vars_all;
 
 idx_lho = randperm(nlho);

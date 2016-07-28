@@ -31,7 +31,18 @@ fprintf('LHO: %d, LLO: %d\n',length(indexes_lho),length(indexes_llo));
 nlho_train = floor(nlho/2);
 nllo_train = floor(nllo/2);
 
-vars_usgs = [2 8 13 14];
+% M r h Rf_pred
+vars_usgs = [2 13 14 8];
+% M r h Rf_pred Rf
+vars_all = [2 13 14 16];
+%vars_usgs = vars_all;
+
+for ii = 1:length(vars_usgs)
+    ind = vars_usgs(ii);
+    %eqs_lho(:,ind) = (eqs_lho(:,ind) - mean(eqs_lho(:,ind))) ./ (std(eqs_lho(:,ind)));
+    %eqs_llo(:,ind) = (eqs_llo(:,ind) - mean(eqs_llo(:,ind))) ./ (std(eqs_llo(:,ind)));
+end
+
 %vars_all = [2 8 13 14 16];
 %vars_usgs = vars_all;
 
