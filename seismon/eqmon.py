@@ -2057,6 +2057,7 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     try:
         from obspy.taup.taup import getTravelTimes
         from obspy.core.util.geodetics import gps2DistAzimuth
+        from obspy.taup import TauPyModel
     except:
         print "Enable ObsPy if updated earthquake estimates desired...\n"
         return attributeDic
@@ -2104,6 +2105,8 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     # Rmag = T * 10^(Ms - 3.3 - 1.66*log_10(dist))
     T = 20
 
+    model = TauPyModel(model="iasp91")
+
     for distance, degree in zip(distances, degrees):
 
         lon, lat, baz = shoot(attributeDic["Longitude"], attributeDic["Latitude"], fwd, distance/1000)
@@ -2115,28 +2118,28 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         else:
             depth = 2.0
 
-        tt = getTravelTimes(delta=degree, depth=depth)
+        #tt = getTravelTimes(delta=degree, depth=depth)
+
+        arrivals = model.get_travel_times(source_depth_in_km=depth,
+                                  distance_in_degree=degree)
+
         #tt.append({'phase_name': 'R', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
-        tt.append({'phase_name': 'Rtwo', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/2000, 'd2T/dD2': 0, 'dT/dh': 0})
-        tt.append({'phase_name': 'RthreePointFive', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
-        tt.append({'phase_name': 'Rfive', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/5000, 'd2T/dD2': 0, 'dT/dh': 0})
+        #tt.append({'phase_name': 'Rtwo', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/2000, 'd2T/dD2': 0, 'dT/dh': 0})
+        #tt.append({'phase_name': 'RthreePointFive', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
+        #tt.append({'phase_name': 'Rfive', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/5000, 'd2T/dD2': 0, 'dT/dh': 0})
 
         Ptime = -1
         Stime = -1
         Rtime = -1
-        for phase in tt:
-            if Ptime == -1 and phase["phase_name"][0] == "P":
-                Ptime = attributeDic["GPS"]+phase["time"]
-            if Stime == -1 and phase["phase_name"][0] == "S":
-                Stime = attributeDic["GPS"]+phase["time"]
-            #if Rtime == -1 and phase["phase_name"][0] == "R":
-            #    Rtime = attributeDic["GPS"]+phase["time"]
-            if phase["phase_name"] == "Rtwo":
-                Rtwotime = attributeDic["GPS"]+phase["time"]
-            if phase["phase_name"] == "RthreePointFive":
-                RthreePointFivetime = attributeDic["GPS"]+phase["time"]
-            if phase["phase_name"] == "Rfive":
-                Rfivetime = attributeDic["GPS"]+phase["time"]
+        for phase in arrivals:
+            if Ptime == -1 and phase.name.lower()[0] == "p":
+                Ptime = attributeDic["GPS"]+phase.time
+            if Stime == -1 and phase.name.lower()[0] == "s":
+                Stime = attributeDic["GPS"]+phase.time
+        Rtwotime = attributeDic["GPS"]+distance/2000.0
+        RthreePointFivetime = attributeDic["GPS"]+distance/3500.0
+        Rfivetime = attributeDic["GPS"]+distance/5000.0
+
         Ptimes.append(Ptime)
         Stimes.append(Stime)
         #Rtimes.append(Rtime)
