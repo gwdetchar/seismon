@@ -67,6 +67,7 @@ def parse_commandline():
     parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1000000000,type=int)
     parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1200000000,type=int)
     parser.add_option("-m", "--minMagnitude", help="Minimum earthquake magnitude.", default=5.0,type=float)
+    parser.add_option("-n", "--numEvents", help="Number of fake events.", default=5,type=int)
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
 
@@ -147,15 +148,14 @@ def write_info(file,attributeDic):
         if not key == "traveltimes":
             element = etree.SubElement(root,key)
             element.text = str(value)
-    element = etree.SubElement(root,'traveltimes')
-    for key, value in attributeDic["traveltimes"].items():
-        subelement = etree.SubElement(element,key)
-        for category in value:
-            print category, value[category]
-            if category in ["Latitudes","Longitudes","arrivalMin","arrivalMax"]:
-                continue
-            subsubelement = etree.SubElement(subelement,category)
-            subsubelement.text = write_array(value[category])
+    #element = etree.SubElement(root,'traveltimes')
+    #for key, value in attributeDic["traveltimes"].items():
+    #    subelement = etree.SubElement(element,key)
+    #    for category in value:
+    #        if category in ["Latitudes","Longitudes"]:
+    #            continue
+    #        subsubelement = etree.SubElement(subelement,category)
+    #        subsubelement.text = write_array(value[category])
 
     
     tree = etree.tostring(root, pretty_print=True)
@@ -288,54 +288,23 @@ def download_publiceventfiles(params):
     else:
         print 'Copying failed'
 
-def save_fake_event(params,timeFolder,eventName):
-
-    attributeDic = []
-    eqmonfile = os.path.join(timeFolder,"eqmon.xml")
-    quakemlfile = os.path.join(timeFolder,"quakeml.xml")
-
-    #if os.path.isfile(os.path.join(timeFolder,"eqxml.txt")):
-    #    return
-
-    f = open(os.path.join(timeFolder,"eqxml.txt"),"w")
-    f.write("Done")
-    f.close()
-
-    attributeDic = eqmon.read_eqmon([],eqmonfile)
-
-    if attributeDic == []:
-        return
-
-    if (not "GPS" in attributeDic) or (not "Magnitude" in attributeDic):
-        return
-
-    if params["doMultipleEvents"]:
-        file = os.path.join(params["eventfilesLocation"],"fake/%s-%.0f-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["SentGPS"]))
-    else:
-        file = os.path.join(params["eventfilesLocation"],"fake/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
-
-    if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
-        write_info(file,attributeDic)
-
-        print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
-
 def save_private_event(params,timeFolder,eventName):
 
     attributeDic = []
-    eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
-    quakemlfile = os.path.join(timeFolder,"quakeml.xml")
+    eqmonfile = os.path.join(timeFolder,"eqmon.xml")
+    eqmonfile = os.path.join(timeFolder,"eqmon.xml")
 
-    if os.path.isfile(os.path.join(timeFolder,"eqxml.txt")):
+    if os.path.isfile(os.path.join(timeFolder,"eqmon.txt")):
         return
 
-    f = open(os.path.join(timeFolder,"eqxml.txt"),"w")
+    f = open(os.path.join(timeFolder,"eqmon.txt"),"w")
     f.write("Done")
     f.close()
 
-    if os.path.isfile(eqxmlfile):
-        attributeDic = eqmon.read_eqxml(eqxmlfile,eventName)
-    elif os.path.isfile(quakemlfile):
-        attributeDic = eqmon.read_quakeml(quakemlfile,eventName)
+    if os.path.isfile(eqmonfile):
+        attributeDic = eqmon.read_eqmon(eqmonfile,eventName)
+    elif os.path.isfile(eqmonfile):
+        attributeDic = eqmon.read_eqmon(eqmonfile,eventName)
 
     if attributeDic == []:
         return
@@ -532,31 +501,25 @@ def fake_events(params):
         seismon params structure
     """
 
+    numEvents = 1
+
     numEventsAdded = 0
-    folders = glob.glob(os.path.join(params["eventfilesLocation"],"fakepdl/*"))
-    #folders = []
-    for numFolder in xrange(len(folders)):
+    for i in xrange(numEvents):    
 
-        folder = folders[numFolder]
-
-        folderSplit = folder.split("/")
-        eventName = folderSplit[len(folderSplit) - 1]
-
-        dataFolder = os.path.join(params["eventfilesLocation"],"fakepdl",eventName,eventName[0:2])
-        timeFolders = glob.glob(os.path.join(dataFolder,"*"))
-        timeFolders = sorted(timeFolders)
-
-        if timeFolders == []:
+        attributeDic = eqmon.fakeeventread()
+        if not "GPS" in attributeDic:
+            continue
+        if os.path.isfile(os.path.join(params["eventfilesLocation"],"fakepdl/%s/%s/%.0f/eqmon.xml"%(attributeDic["eventName"],attributeDic["eventName"][0:2],attributeDic["GPS"]))):
             continue
 
-        if params["doMultipleEvents"]:
-            if len(timeFolders) == 1:
-                continue
+        file = os.path.join(params["eventfilesLocation"],"fakepdl/%s/%s/%.0f/eqmon.xml"%(attributeDic["eventName"],attributeDic["eventName"][0:2],attributeDic["GPS"]))
+        if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+            utils.mkdir(os.path.join(params["eventfilesLocation"],"fakepdl/%s/%s/%.0f/"%(attributeDic["eventName"],attributeDic["eventName"][0:2],attributeDic["GPS"])))
+            write_info(file,attributeDic)
 
-        for timeFolder in timeFolders:
-                save_fake_event(params,timeFolder,eventName)
-                numEventsAdded = numEventsAdded + 1
-        
+            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            numEventsAdded = numEventsAdded + 1
+
     return numEventsAdded
 
 
@@ -571,24 +534,9 @@ def run_traveltimes():
     # Parse command line
     params = params_struct(opts)
 
-    if params["doPublic"]:
-        print "Running public events..."
-        numEventsAddedPrivate = public_events(params)
-    if params["doPrivate"]:
-        print "Running private events..."
-        numEventsAddedPublic = private_events(params)
-    if params["doDatabase"]:
-        print "Running database events..."
-        numEventsAddedDatabase = database_events(params)
-    if params["doIRIS"]:
-        print "Running IRIS events..."
-        numEventsIRIS = iris_events(params)
     if params["doFake"]:
         print "Running Fake events..."
         numEventsFake = fake_events(params)
-    if params["doCopy"]:
-        print "Copying events..."
-        rsync_files(params)
 
 # =============================================================================
 #

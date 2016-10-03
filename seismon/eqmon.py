@@ -1555,6 +1555,8 @@ def read_eqmon(params,file):
     magThreshold = 0
     if not "Magnitude" in attributeDic or attributeDic["Magnitude"] < magThreshold:
         return attributeDic
+    if not "traveltimes" in attributeDic:
+        attributeDic = calculate_traveltimes(attributeDic)
 
     attributeDic["doPlots"] = 0
     for ifoName, traveltimes in attributeDic["traveltimes"].items():
@@ -1779,7 +1781,7 @@ def fakeeventread():
     attributeDic['SentUTC'] = time.time()
     attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
 
-    attributeDic = calculate_traveltimes(attributeDic)
+    #attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
     dt = datetime.fromtimestamp(time.mktime(tm))
 
