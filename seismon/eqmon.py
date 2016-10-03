@@ -2123,7 +2123,7 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         #tt = getTravelTimes(delta=degree, depth=depth)
 
         arrivals = model.get_travel_times(source_depth_in_km=depth,
-                                  distance_in_degree=degree)
+                                  distance_in_degree=degree,phase_list=('P','S'))
 
         #tt.append({'phase_name': 'R', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
         #tt.append({'phase_name': 'Rtwo', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/2000, 'd2T/dD2': 0, 'dT/dh': 0})
