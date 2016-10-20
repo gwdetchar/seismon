@@ -4,11 +4,14 @@ set(0,'DefaultTextFontSize',20);
 
 site = 'LHO';
 lho = load(['./plots/lockloss_' site '.mat']);
-%eqs_lho = load(sprintf('data/%s_analysis_locks.txt',site));
+eqs_lho_orig = load(sprintf('data/%s_analysis_locks.txt',site));
 eqs_lho = load(sprintf('WithPublishTime/%s_analysis_locks_with_pub_time.txt',site));
+eqs_lho(:,1:22) = eqs_lho_orig(:,1:22);
 site = 'LLO';
 llo = load(['./plots/lockloss_' site '.mat']);
+eqs_llo_orig = load(sprintf('data/%s_analysis_locks.txt',site));
 eqs_llo = load(sprintf('WithPublishTime/%s_analysis_locks_with_pub_time.txt',site));
+eqs_llo(:,1:22) = eqs_llo_orig(:,1:22);
 
 figure;
 set(gcf, 'PaperSize',[8 6])
@@ -110,6 +113,7 @@ set(gcf, 'PaperSize',[8 6])
 set(gcf, 'PaperPosition', [0 0 8 6])
 clf
 plot(bins/60,N_lho,'k')
+
 %hold on
 %plot(bins,N_llo,'g')
 %hold off
@@ -180,6 +184,7 @@ lho_o1 = lho_o1.SA_Rfest_LHO_S5_S6_to_O1Z;
 filename = 'SA_ampRf/SiteUsed_LLO_DataUsed_S5S6_SitePred_LLO_DataPred_O1_Z_Trial_1/SA_Rfest_LLO_S5_S6_to_O1Z.mat';
 llo_o1 = load(filename);
 llo_o1 = llo_o1.SA_Rfest_LLO_S5_S6_to_O1Z;
+lho_o1 = llo_o1;
 
 M = eqs_lho_mag_pde; h = eqs_lho_depth_pde; 
 r = greatCircleDistance(deg2rad(46.6475), deg2rad(-119.5986), deg2rad(eqs_lho_lat_pde),deg2rad(eqs_lho_lon_pde));
@@ -187,10 +192,30 @@ Rf0 = lho_o1.Rf0_out; Rfs = lho_o1.Rfs_out;
 cd = lho_o1.cd_out; rs = lho_o1.rs_out;
 lho_Rf_pde = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
+indexes = find(M > 5.5 & M < 7.0);
+
 M = eqs_lho_mag_initial; h = eqs_lho_depth_initial;
 r = greatCircleDistance(deg2rad(46.6475), deg2rad(-119.5986), deg2rad(eqs_lho_lat_initial),deg2rad(eqs_lho_lon_initial));
 lho_Rf_initial = ampRf(M,r,h,Rf0,Rfs,cd,rs);
+
+%indexes = find(M > 5.5);
+%indexes = find(M > 5.5 & M < 7.0);
+
+lho_Rf = eqs_lho(indexes,20);
+lho_Rf_pde = lho_Rf_pde(indexes);
+lho_Rf_initial = lho_Rf_initial(indexes);
+
 diff_lho = max([(lho_Rf_pde./lho_Rf_initial)'; (lho_Rf_initial./lho_Rf_pde)']);
+diff_lho_pde = max([(lho_Rf_pde./lho_Rf)'; (lho_Rf./lho_Rf_pde)']);
+diff_lho_initial = max([(lho_Rf_initial./lho_Rf)'; (lho_Rf./lho_Rf_initial)']);
+
+[junk,index] = max(diff_lho_pde);
+M(index)
+r(index)
+h(index)
+lho_Rf(index)
+lho_Rf_pde(index)
+diff_lho_pde(index)
 
 M = eqs_llo_mag_pde; h = eqs_llo_depth_pde;
 r = greatCircleDistance(deg2rad(30.4986), deg2rad(-90.7483), deg2rad(eqs_llo_lat_pde),deg2rad(eqs_llo_lon_pde));
@@ -198,16 +223,42 @@ Rf0 = llo_o1.Rf0_out; Rfs = llo_o1.Rfs_out;
 cd = llo_o1.cd_out; rs = llo_o1.rs_out;
 llo_Rf_pde = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
+indexes = find(M > 5.5 & M < 7.0);
+
 M = eqs_llo_mag_initial; h = eqs_llo_depth_initial;
 r = greatCircleDistance(deg2rad(30.4986), deg2rad(-90.7483), deg2rad(eqs_llo_lat_initial),deg2rad(eqs_llo_lon_initial));
 llo_Rf_initial = ampRf(M,r,h,Rf0,Rfs,cd,rs);
-diff_llo = max([(llo_Rf_pde./llo_Rf_initial)'; (llo_Rf_initial./llo_Rf_pde)']);
 
-bins = 0.90:0.01:5;
+%indexes = find(M > 5.5);
+%indexes = find(M > 5.5 & M < 7.0);
+
+llo_Rf = eqs_llo(indexes,20);
+llo_Rf_pde = llo_Rf_pde(indexes);
+llo_Rf_initial = llo_Rf_initial(indexes);
+
+diff_llo = max([(llo_Rf_pde./llo_Rf_initial)'; (llo_Rf_initial./llo_Rf_pde)']);
+diff_llo_pde = max([(llo_Rf_pde./llo_Rf)'; (llo_Rf./llo_Rf_pde)']);
+diff_llo_initial = max([(llo_Rf_initial./llo_Rf)'; (llo_Rf./llo_Rf_initial)']);
+
+bins = 0.90:0.01:10;
 N_lho = histcounts(diff_lho,bins)/length(diff_lho);
 N_llo = histcounts(diff_llo,bins)/length(diff_llo);
-bins = (bins(1:end-1) + bins(2:end))/2;
 N_lho = cumsum(N_lho); N_llo = cumsum(N_llo);
+
+N_lho_pde = histcounts(diff_lho_pde,bins)/length(diff_lho_pde);
+N_llo_pde = histcounts(diff_llo_pde,bins)/length(diff_llo_pde);
+N_lho_pde = cumsum(N_lho_pde); N_llo_pde = cumsum(N_llo_pde);
+
+N_lho_initial = histcounts(diff_lho_initial,bins)/length(diff_lho_initial);
+N_llo_initial = histcounts(diff_llo_initial,bins)/length(diff_llo_initial);
+N_lho_initial = cumsum(N_lho_initial); N_llo_initial = cumsum(N_llo_initial);
+
+bins = (bins(1:end-1) + bins(2:end))/2;
+[junk,index]=min(abs(bins-5));
+fprintf('LHO Initial: %.5f\n',N_lho_initial(index));
+fprintf('LHO Final: %.5f\n',N_lho_pde(index));
+fprintf('LLO Initial: %.5f\n',N_llo_initial(index));
+fprintf('LLO Final: %.5f\n',N_llo_pde(index));
 
 figure;
 set(gcf, 'PaperSize',[8 6])
@@ -227,6 +278,28 @@ xlim([1 5]);
 %cb = colorbar;
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/initial_vs_final.pdf'])
+close;
+
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+plot(bins,N_lho_pde,'k')
+hold on
+plot(bins,N_llo_pde,'g')
+plot(bins,N_lho_initial,'k--')
+plot(bins,N_llo_initial,'g--')
+hold off
+grid
+%caxis([-6 -3])
+%xlim([min(10.^lho.peakampcut) 1e-4])
+xlabel('max(Rf / <Rf>, <Rf> / Rf)')
+ylabel('Cumulative Density Function');
+leg1 = legend({'LHO','LLO'},'Location','SouthEast');
+xlim([1 10]);
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/initial_final_vs_real.pdf'])
 close;
 
 bins = 0:0.1:15;
