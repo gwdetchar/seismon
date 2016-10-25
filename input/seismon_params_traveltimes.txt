@@ -1,4 +1,6 @@
-dataLocation /home/mcoughlin/Seismon/ProductClient/data/receiver_storage/origin
-publicdataLocation /home/mcoughlin/Seismon/publicdata
-databasedataLocation /home/mcoughlin/Seismon/databasedata
-eventfilesLocation /home/eric.coughlin/eventfiles
+dataLocation XXX_PRODUCTCLIENT/data/listener_storage/origin
+internalDataLocation XXX_PRODUCTCLIENT/data/listener_storage/internal-origin
+publicdataLocation XXX_SEISMON/publicdata
+databasedataLocation XXX_SEISMON/databasedata
+eventfilesLocation XXX_SEISMON/eventfiles
+
