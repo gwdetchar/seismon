@@ -7,13 +7,20 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from lxml import etree
 
-import lal.gpstime
+try:
+    import lal.gpstime
+except:
+    print "No lal installed..."
 import astropy.time
 from astropy import units
 
 import __future__
 
-import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+try:
+    import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+except:
+    print "Glue import fails... no datafind possible."
+
 import seismon.NLNM, seismon.html
 import seismon.eqmon
 
@@ -705,7 +712,9 @@ def readParamsFromFile(file):
             for line in f:
                 line_without_return = line.split("\n")
                 line_split = line_without_return[0].split(" ")
-                params[line_split[0]] = line_split[1]
+                line_split = filter(None, line_split)
+                if line_split:
+                    params[line_split[0]] = line_split[1]
     return params
 
 def setPath(params,segment):

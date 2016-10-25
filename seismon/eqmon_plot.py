@@ -12,7 +12,10 @@ This program checks for earthquakes.
 import os, time, glob, matplotlib, math
 import numpy as np
 import scipy.optimize
-from mpl_toolkits.basemap import Basemap
+try:
+    from mpl_toolkits.basemap import Basemap
+except:
+    print "Basemap import failed ..."
 matplotlib.use("AGG")
 matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt

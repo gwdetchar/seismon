@@ -8,7 +8,12 @@ from matplotlib import cm
 import numpy as np
 from datetime import datetime
 from operator import itemgetter
-import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+
+try:
+    import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+except:
+    print "Glue import fails... no datafind possible."
+
 from lxml import etree
 import scipy.spatial
 import smtplib, email.mime.text
@@ -23,7 +28,10 @@ import gwpy.time, gwpy.timeseries
 import gwpy.spectrum, gwpy.spectrogram
 import gwpy.plotter
 
-from pylal import Fr
+try:
+    from pylal import Fr
+except:
+    print "No pylal installed..."
 
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
@@ -2122,9 +2130,9 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
 
         #tt = getTravelTimes(delta=degree, depth=depth)
 
-        arrivals = model.get_travel_times(source_depth_in_km=depth,
-                                  distance_in_degree=degree,phase_list=('P','S'))
-
+        #arrivals = model.get_travel_times(source_depth_in_km=depth,
+        #                          distance_in_degree=degree,phase_list=('P','S'))
+        arrivals = model.get_travel_times(source_depth_in_km=depth,distance_in_degree=degree)
         #tt.append({'phase_name': 'R', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
         #tt.append({'phase_name': 'Rtwo', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/2000, 'd2T/dD2': 0, 'dT/dh': 0})
         #tt.append({'phase_name': 'RthreePointFive', 'dT/dD': 0, 'take-off angle': 0, 'time': distance/3500, 'd2T/dD2': 0, 'dT/dh': 0})
