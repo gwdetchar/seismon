@@ -1,9 +1,43 @@
 
-import os, sys
+import os, sys, glob, optparse, shutil, warnings
 import urllib
 import zipfile
 
-outputDir = "/Users/mcoughlin/Code/LIGO/seismon/install_script/install"
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 0.1
+__date__    = "10/25/2016"
+
+def parse_commandline():
+    """@Parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-o", "--outputDir", help="Seismon installation directory.",
+                      default ="/Users/mcoughlin/Code/LIGO/seismon/install_script/install")
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running pylal_seismon_run..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS *****************    ***"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+    return opts
+
+warnings.filterwarnings("ignore")
+# Parse command line
+opts = parse_commandline()
+
+outputDir = opts.outputDir
 if not os.path.isdir(outputDir):
     os.mkdir(outputDir)
 
