@@ -1,5 +1,5 @@
-dataLocation XXX_PRODUCTCLIENT/data/listener_storage/origin
-internalDataLocation XXX_PRODUCTCLIENT/data/listener_storage/internal-origin
+dataLocation XXX_PRODUCTCLIENT/data/receiver_storage/origin
+internalDataLocation XXX_PRODUCTCLIENT/data/receiver_storage/internal-origin
 publicdataLocation XXX_SEISMON/publicdata
 databasedataLocation XXX_SEISMON/databasedata
 eventfilesLocation XXX_SEISMON/eventfiles
