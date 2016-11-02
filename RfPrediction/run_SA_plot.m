@@ -16,6 +16,14 @@ virgo = load(filename);
 filename = 'SA_ampRf/Site_GEO_Data_HF_Trial_1/Optim.mat';
 geo = load(filename);
 
+filename = 'data/TABLE.mat';
+sites = load(filename);
+lho = sites.TABLE(3,:);
+llo = sites.TABLE(8,:);
+geo = sites.TABLE(1,:);
+virgo = sites.TABLE(end,:);
+
+fprintf('Detector & $a$ & $b$ & $c$ & $d$ \\\\ \\hline\n');
 fprintf('%s & %.2f & %.2f & %.2f & %.2f \\\\ \\hline\n',upper('lho'),lho.Rf0,lho.Rfs,lho.cd,lho.rs);
 fprintf('%s & %.2f & %.2f & %.2f & %.2f \\\\ \\hline\n',upper('llo'),llo.Rf0,llo.Rfs,llo.cd,llo.rs);
 fprintf('%s & %.2f & %.2f & %.2f & %.2f \\\\ \\hline\n',upper('virgo'),virgo.Rf0,virgo.Rfs,virgo.cd,virgo.rs);
