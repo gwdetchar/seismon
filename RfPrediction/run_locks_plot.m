@@ -184,21 +184,65 @@ lho_o1 = lho_o1.SA_Rfest_LHO_S5_S6_to_O1Z;
 filename = 'SA_ampRf/SiteUsed_LLO_DataUsed_S5S6_SitePred_LLO_DataPred_O1_Z_Trial_1/SA_Rfest_LLO_S5_S6_to_O1Z.mat';
 llo_o1 = load(filename);
 llo_o1 = llo_o1.SA_Rfest_LLO_S5_S6_to_O1Z;
-lho_o1 = llo_o1;
+%lho_o1 = llo_o1;
+
+filename = 'data/TABLE.mat';
+sites = load(filename);
+lho_o1 = sites.TABLE(1,:);
+llo_o1 = sites.TABLE(6,:);
+%geo_o1 = sites.TABLE(1,:);
+%virgo_o1 = sites.TABLE(end,:);
+
+%keyboard
 
 M = eqs_lho_mag_pde; h = eqs_lho_depth_pde; 
 r = greatCircleDistance(deg2rad(46.6475), deg2rad(-119.5986), deg2rad(eqs_lho_lat_pde),deg2rad(eqs_lho_lon_pde));
-Rf0 = lho_o1.Rf0_out; Rfs = lho_o1.Rfs_out;
-cd = lho_o1.cd_out; rs = lho_o1.rs_out;
+%Rf0 = lho_o1.Rf0_out; Rfs = lho_o1.Rfs_out;
+%cd = lho_o1.cd_out; rs = lho_o1.rs_out;
+Rf0 = lho_o1.Rf0; Rfs = lho_o1.Rfs;
+cd = lho_o1.cd; rs = lho_o1.rs;
+
+Rf0
+Rfs
+cd
+rs
+
+%Rf0 = 1.263;
+%Rfs = 0.821;
+%cd  = 2610.348;
+%rs = 0.996;
+
+%Rf0 = 1.1345;
+%Rfs = 1.1544;
+%cd = -4754.6;
+%rs = 1.0432;
+
+%Rf0 = 0.37436;
+%Rfs = 1.1617;
+%cd = -4935.7;
+%rs = 0.86596;
+
+%Rf0 = 22.679;
+%Rfs = 1.7628;
+%cd = 507.89;
+%rs = 1.4866;
+
+%Rf0 = 0.3693;
+%Rfs = 1.5193;
+%cd = 1247.3;
+%rs = 0.93732;
+
 lho_Rf_pde = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
-indexes = find(M > 5.5 & M < 7.0);
+%indexes = find(M > 5.5 & M < 8.0);
+%indexes = find(M > 5.5);
+indexes = find(M > 5.5);
 
 M = eqs_lho_mag_initial; h = eqs_lho_depth_initial;
 r = greatCircleDistance(deg2rad(46.6475), deg2rad(-119.5986), deg2rad(eqs_lho_lat_initial),deg2rad(eqs_lho_lon_initial));
 lho_Rf_initial = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
-%indexes = find(M > 5.5);
+indexes = find(M > 5.5);
 %indexes = find(M > 5.5 & M < 7.0);
 
 lho_Rf = eqs_lho(indexes,20);
@@ -210,26 +254,35 @@ diff_lho_pde = max([(lho_Rf_pde./lho_Rf)'; (lho_Rf./lho_Rf_pde)']);
 diff_lho_initial = max([(lho_Rf_initial./lho_Rf)'; (lho_Rf./lho_Rf_initial)']);
 
 [junk,index] = max(diff_lho_pde);
-M(index)
-r(index)
-h(index)
-lho_Rf(index)
-lho_Rf_pde(index)
-diff_lho_pde(index)
-
 M = eqs_llo_mag_pde; h = eqs_llo_depth_pde;
 r = greatCircleDistance(deg2rad(30.4986), deg2rad(-90.7483), deg2rad(eqs_llo_lat_pde),deg2rad(eqs_llo_lon_pde));
-Rf0 = llo_o1.Rf0_out; Rfs = llo_o1.Rfs_out;
-cd = llo_o1.cd_out; rs = llo_o1.rs_out;
+%Rf0 = llo_o1.Rf0_out; Rfs = llo_o1.Rfs_out;
+%cd = llo_o1.cd_out; rs = llo_o1.rs_out;
+Rf0 = llo_o1.Rf0; Rfs = llo_o1.Rfs;
+cd = llo_o1.cd; rs = llo_o1.rs;
+
+%Rf0 = 0.37436;
+%Rfs = 1.1617;
+%cd = -4935.7;
+%rs = 0.86596;
+
+%Rf0 = 0.3693;
+%Rfs = 1.5193;
+%cd = 1247.3;
+%rs = 0.93732;
+
+
+
 llo_Rf_pde = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
-indexes = find(M > 5.5 & M < 7.0);
+%indexes = find(M > 5.0 & M < 9.0);
+indexes = find(M > 5.5);
 
 M = eqs_llo_mag_initial; h = eqs_llo_depth_initial;
 r = greatCircleDistance(deg2rad(30.4986), deg2rad(-90.7483), deg2rad(eqs_llo_lat_initial),deg2rad(eqs_llo_lon_initial));
 llo_Rf_initial = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
-%indexes = find(M > 5.5);
+indexes = find(M > 5.5);
 %indexes = find(M > 5.5 & M < 7.0);
 
 llo_Rf = eqs_llo(indexes,20);
@@ -302,6 +355,51 @@ xlim([1 10]);
 saveas(gcf,['./plots/initial_final_vs_real.pdf'])
 close;
 
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+semilogy(llo_Rf,'kx')
+hold on
+semilogy(llo_Rf_pde,'k*')
+semilogy(llo_Rf_initial,'ko')
+semilogy(lho_Rf,'bx')
+semilogy(lho_Rf_pde,'b*')
+semilogy(lho_Rf_initial,'bo')
+hold off
+grid
+%caxis([-6 -3])
+%xlim([min(10.^lho.peakampcut) 1e-4])
+%xlabel('max(Rf / <Rf>, <Rf> / Rf)')
+%ylabel('Cumulative Density Function');
+leg1 = legend({'LHO','LLO'},'Location','SouthEast');
+%xlim([1 5]);
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/initial_vs_final_vs_real.pdf'])
+close;
+
+figure;
+set(gcf, 'PaperSize',[8 6])
+set(gcf, 'PaperPosition', [0 0 8 6])
+clf
+plot(eqs_llo_mag_initial,eqs_llo_mag_pde,'kx')
+hold on
+plot([4 9],[4 9],'k--');
+hold off
+grid
+%caxis([-6 -3])
+%xlim([min(10.^lho.peakampcut) 1e-4])
+xlabel('Initial Magnitude')
+ylabel('Final Magnitude');
+%leg1 = legend({'LHO','LLO'},'Location','SouthEast');
+xlim([4 9]);
+ylim([4 9]);
+%cb = colorbar;
+%set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
+saveas(gcf,['./plots/initial_vs_final_mag.pdf'])
+close;
+
 bins = 0:0.1:15;
 N_lho = histcounts(eqs_lho_est_timediff,bins)/length(eqs_lho_est_timediff);
 N_llo = histcounts(eqs_llo_est_timediff,bins)/length(eqs_llo_est_timediff);
@@ -326,4 +424,5 @@ ylabel('Cumulative Density Function');
 %set(get(cb,'ylabel'),'String','Peak ground motion, log10 [m/s]')
 saveas(gcf,['./plots/lockloss_est_timediff.pdf'])
 close;
+
 
