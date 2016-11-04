@@ -18,8 +18,8 @@ geo = load(filename);
 
 filename = 'data/TABLE.mat';
 sites = load(filename);
-lho = sites.TABLE(3,:);
-llo = sites.TABLE(8,:);
+lho = sites.TABLE(2,:);
+llo = sites.TABLE(7,:);
 geo = sites.TABLE(1,:);
 virgo = sites.TABLE(end,:);
 
@@ -44,6 +44,8 @@ llo_o1 = llo_o1.SA_Rfest_LLO_S5_S6_to_O1Z;
 M = lho_o1.magnitudes; r = lho_o1.r; h = lho_o1.depths;
 Rf0 = lho_o1.Rf0_out; Rfs = lho_o1.Rfs_out;
 cd = lho_o1.cd_out; rs = lho_o1.rs_out;
+Rf0 = lho.Rf0; Rfs = lho.Rfs;
+cd = lho.cd; rs = lho.rs;
 peakamp = lho_o1.peakamp;
 lho_Rf = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 diff_lho = max([(lho_Rf./peakamp)'; (peakamp./lho_Rf)']);
@@ -51,6 +53,8 @@ diff_lho = max([(lho_Rf./peakamp)'; (peakamp./lho_Rf)']);
 M = llo_o1.magnitudes; r = llo_o1.r; h = llo_o1.depths;
 Rf0 = llo_o1.Rf0_out; Rfs = llo_o1.Rfs_out;
 cd = llo_o1.cd_out; rs = llo_o1.rs_out;
+Rf0 = llo.Rf0; Rfs = llo.Rfs;
+cd = llo.cd; rs = llo.rs;
 peakamp = llo_o1.peakamp;
 llo_Rf = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 diff_llo = max([(llo_Rf./peakamp)'; (peakamp./llo_Rf)']);
@@ -83,10 +87,14 @@ ms = linspace(4,8,11); dists = logspace(2,5,11);
 h = 10.0;
 Rf0 = lho_o1.Rf0_out; Rfs = lho_o1.Rfs_out;
 cd = lho_o1.cd_out; rs = lho_o1.rs_out;
+Rf0 = lho.Rf0; Rfs = lho.Rfs;
+cd = lho.cd; rs = lho.rs;
 lho_Rf = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
 Rf0 = llo_o1.Rf0_out; Rfs = llo_o1.Rfs_out;
 cd = llo_o1.cd_out; rs = llo_o1.rs_out;
+Rf0 = llo.Rf0; Rfs = llo.Rfs;
+cd = llo.cd; rs = llo.rs;
 llo_Rf = ampRf(M,r,h,Rf0,Rfs,cd,rs);
 
 % Frequency-time plot
