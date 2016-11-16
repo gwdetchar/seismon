@@ -4,7 +4,7 @@ import numpy as np
 
 import seismon.utils
 
-import gwpy.time, gwpy.timeseries, gwpy.spectrum, gwpy.plotter
+import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
 import gwpy.segments
 
 import obspy.core, obspy.signal.array_analysis

@@ -9,7 +9,7 @@ import seismon.NLNM, seismon.html
 import seismon.eqmon, seismon.utils
 
 import gwpy.time, gwpy.timeseries
-import gwpy.spectrum, gwpy.spectrogram
+import gwpy.frequencyseries, gwpy.spectrogram
 import gwpy.plotter
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
@@ -99,7 +99,7 @@ def coherence(params, channel1, channel2, segment):
         indexes = np.where((freqFFT1 >= params["fmin"]) & (freqFFT1 <= params["fmax"]))[0]
         freqFFT1 = freqFFT1[indexes]
         dataFFT1 = dataFFT1[indexes]
-        dataFFT1 = gwpy.spectrum.Spectrum(dataFFT1, f0=np.min(freqFFT1), df=(freqFFT1[1]-freqFFT1[0]))
+        dataFFT1 = gwpy.frequencyseries.Spectrum(dataFFT1, f0=np.min(freqFFT1), df=(freqFFT1[1]-freqFFT1[0]))
 
         tt2 = np.array(dataFull2.times)
         indexes = np.intersect1d(np.where(tt2 >= gpss[i])[0],np.where(tt2 <= gpss[i+1])[0])
@@ -113,7 +113,7 @@ def coherence(params, channel1, channel2, segment):
         indexes = np.where((freqFFT2 >= params["fmin"]) & (freqFFT2 <= params["fmax"]))[0]
         freqFFT2 = freqFFT2[indexes]
         dataFFT2 = dataFFT2[indexes]
-        dataFFT2 = gwpy.spectrum.Spectrum(dataFFT2, f0=np.min(freqFFT2), df=(freqFFT2[2]-freqFFT2[0]))
+        dataFFT2 = gwpy.frequencyseries.Spectrum(dataFFT2, f0=np.min(freqFFT2), df=(freqFFT2[2]-freqFFT2[0]))
 
         fft1.append(dataFFT1)
         fft2.append(dataFFT2)
@@ -209,7 +209,7 @@ def coherence_summary(params, channel1, segment):
         if not os.path.isfile(file):
             continue
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file)
+        spectra_out = gwpy.frequencyseries.Spectrum.read(file)
         spectra_out.unit = 'counts/Hz^(1/2)'
 
         if np.sum(spectra_out.data) == 0.0:

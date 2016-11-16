@@ -8,7 +8,7 @@ import seismon.NLNM, seismon.html
 import seismon.eqmon, seismon.utils
 
 import gwpy.time, gwpy.timeseries
-import gwpy.spectrum, gwpy.spectrogram
+import gwpy.frequencyseries, gwpy.spectrogram
 import gwpy.plotter
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
@@ -335,7 +335,7 @@ def analysis(params, channel):
 
         tts.append(tt)
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file)
+        spectra_out = gwpy.frequencyseries.Spectrum.read(file)
         spectra_out.unit = 'counts/Hz^(1/2)'
         spectra.append(spectra_out)
 
@@ -359,7 +359,7 @@ def analysis(params, channel):
     # Define bins for the spectral variation histogram
     kwargs = {'log':True,'nbins':500,'norm':True}
     #kwargs = {'log':True,'nbins':500}
-    specvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(specgram,**kwargs) 
+    specvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(specgram,**kwargs) 
     bins = specvar.bins[:-1]
     specvar = specvar * 100
 
@@ -576,7 +576,7 @@ def channel_summary(params, segment):
         if not os.path.isfile(file):
             continue
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file)
+        spectra_out = gwpy.frequencyseries.Spectrum.read(file)
         spectra_out.unit = 'counts/Hz^(1/2)'
 
         if np.sum(spectra_out.data) == 0.0:
