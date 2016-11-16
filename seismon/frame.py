@@ -11,11 +11,14 @@ from matplotlib import pyplot as plt
 from matplotlib import cm
 
 import seismon.utils
-import pylal.Fr
+try:
+    import pylal.Fr
+except:
+    print "No pylal installed..."
 
 import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 
-import gwpy.time, gwpy.timeseries, gwpy.spectrum, gwpy.plotter
+import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
 import gwpy.segments
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"

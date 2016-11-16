@@ -7,7 +7,7 @@ from subprocess import Popen, PIPE, STDOUT
 import seismon.utils
 
 import gwpy.time, gwpy.timeseries
-import gwpy.spectrum, gwpy.spectrogram
+import gwpy.frequencyseries, gwpy.spectrogram
 import gwpy.plotter, gwpy.table
 
 from gwpy.table.lsctables import SnglBurstTable

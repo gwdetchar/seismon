@@ -24,7 +24,7 @@ except:
 import seismon.NLNM, seismon.html
 import seismon.eqmon
 
-import gwpy.time, gwpy.timeseries, gwpy.spectrum, gwpy.plotter
+import gwpy.time, gwpy.timeseries, gwpy.plotter
 import gwpy.segments
 from gwpy.timeseries import StateVector
 

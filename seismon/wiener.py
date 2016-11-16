@@ -7,7 +7,7 @@ import scipy.linalg
 import seismon.utils
 
 import gwpy.time, gwpy.timeseries
-import gwpy.spectrum, gwpy.spectrogram
+import gwpy.frequencyseries, gwpy.spectrogram
 import gwpy.plotter
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
@@ -155,15 +155,15 @@ def wiener(params, target_channel, segment):
 
         dataOriginalASD = np.array(dataOriginalASD.data)
         dataOriginalASD = dataOriginalASD[indexes]
-        dataOriginalASD = gwpy.spectrum.Spectrum(dataOriginalASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataOriginalASD = gwpy.frequencyseries.Spectrum(dataOriginalASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
         dataResidualASD = np.array(dataResidualASD.data)
         dataResidualASD = dataResidualASD[indexes]
-        dataResidualASD = gwpy.spectrum.Spectrum(dataResidualASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataResidualASD = gwpy.frequencyseries.Spectrum(dataResidualASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
         dataFFASD = np.array(dataFFASD.data)
         dataFFASD = dataFFASD[indexes]
-        dataFFASD = gwpy.spectrum.Spectrum(dataFFASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataFFASD = gwpy.frequencyseries.Spectrum(dataFFASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
         originalASD.append(dataOriginalASD)
         residualASD.append(dataResidualASD)
@@ -178,15 +178,15 @@ def wiener(params, target_channel, segment):
     freq = np.array(originalSpecgram.frequencies)
 
     kwargs = {'log':True,'nbins':500,'norm':True}
-    originalSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(originalSpecgram,**kwargs)
+    originalSpecvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(originalSpecgram,**kwargs)
     bins = originalSpecvar.bins[:-1]
     originalSpecvar = originalSpecvar * 100
     original_spectral_variation_50per = originalSpecvar.percentile(50)
-    residualSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(residualSpecgram,**kwargs)
+    residualSpecvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(residualSpecgram,**kwargs)
     bins = residualSpecvar.bins[:-1]
     residualSpecvar = residualSpecvar * 100
     residual_spectral_variation_50per = residualSpecvar.percentile(50)
-    FFSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(FFSpecgram,**kwargs)
+    FFSpecvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(FFSpecgram,**kwargs)
     bins = FFSpecvar.bins[:-1]
     FFSpecvar = FFSpecvar * 100
     FF_spectral_variation_50per = FFSpecvar.percentile(50)
@@ -453,15 +453,15 @@ def wiener_hilbert(params, segment):
 
         dataOriginalASD = np.array(dataOriginalASD.data)
         dataOriginalASD = dataOriginalASD[indexes]
-        dataOriginalASD = gwpy.spectrum.Spectrum(dataOriginalASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataOriginalASD = gwpy.frequencyseries.Spectrum(dataOriginalASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
         dataResidualASD = np.array(dataResidualASD.data)
         dataResidualASD = dataResidualASD[indexes]
-        dataResidualASD = gwpy.spectrum.Spectrum(dataResidualASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataResidualASD = gwpy.frequencyseries.Spectrum(dataResidualASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
         dataFFASD = np.array(dataFFASD.data)
         dataFFASD = dataFFASD[indexes]
-        dataFFASD = gwpy.spectrum.Spectrum(dataFFASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataFFASD = gwpy.frequencyseries.Spectrum(dataFFASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
         originalASD.append(dataOriginalASD)
         residualASD.append(dataResidualASD)
@@ -476,15 +476,15 @@ def wiener_hilbert(params, segment):
     freq = np.array(originalSpecgram.frequencies)
 
     kwargs = {'log':True,'nbins':500,'norm':True}
-    originalSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(originalSpecgram,**kwargs)
+    originalSpecvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(originalSpecgram,**kwargs)
     bins = originalSpecvar.bins[:-1]
     originalSpecvar = originalSpecvar * 100
     original_spectral_variation_50per = originalSpecvar.percentile(50)
-    residualSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(residualSpecgram,**kwargs)
+    residualSpecvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(residualSpecgram,**kwargs)
     bins = residualSpecvar.bins[:-1]
     residualSpecvar = residualSpecvar * 100
     residual_spectral_variation_50per = residualSpecvar.percentile(50)
-    FFSpecvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(FFSpecgram,**kwargs)
+    FFSpecvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(FFSpecgram,**kwargs)
     bins = FFSpecvar.bins[:-1]
     FFSpecvar = FFSpecvar * 100
     FF_spectral_variation_50per = FFSpecvar.percentile(50)
@@ -648,7 +648,7 @@ def wiener_summary(params, target_channel, segment):
         if not os.path.isfile(file):
             continue
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file)
+        spectra_out = gwpy.frequencyseries.Spectrum.read(file)
         spectra_out.unit = 'counts/Hz^(1/2)'
 
         if np.sum(spectra_out.data) == 0.0:

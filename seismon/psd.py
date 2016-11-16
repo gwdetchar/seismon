@@ -10,7 +10,7 @@ import seismon.eqmon, seismon.utils
 from matplotlib import cm
 
 import gwpy.time, gwpy.timeseries
-import gwpy.spectrum, gwpy.spectrogram
+import gwpy.frequencyseries, gwpy.spectrogram
 import gwpy.plotter
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
@@ -337,7 +337,7 @@ def calculate_spectra(params,channel,dataFull):
     dataASD = np.array(dataASD.data)
     freq = freq[indexes]
     dataASD = dataASD[indexes]
-    dataASD = gwpy.spectrum.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+    dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
     nfft = len(dataFull.data)
     dataFFT = dataFull.fft(nfft=nfft)
@@ -346,7 +346,7 @@ def calculate_spectra(params,channel,dataFull):
     dataFFTreal = np.interp(freq,freqFFT,dataFFT.real)
     dataFFTimag = np.interp(freq,freqFFT,dataFFT.imag)
     dataFFT = dataFFTreal + 1j*dataFFTimag
-    dataFFT = gwpy.spectrum.Spectrum(dataFFT, f0=np.min(freqFFT), df=(freqFFT[1]-freqFFT[0]))
+    dataFFT = gwpy.frequencyseries.Spectrum(dataFFT, f0=np.min(freqFFT), df=(freqFFT[1]-freqFFT[0]))
 
     # manually set units (units in CIS aren't correct)
     #dataASD.unit = 'counts/Hz^(1/2)'
@@ -1092,7 +1092,7 @@ def analysis(params, channel):
 
         tts.append(tt)
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file,format='dat')
+        spectra_out = gwpy.frequencyseries.Spectrum.read(file,format='dat')
         spectra_out.unit = 'counts/Hz^(1/2)'
         spectra.append(spectra_out)
 
@@ -1116,7 +1116,7 @@ def analysis(params, channel):
     # Define bins for the spectral variation histogram
     kwargs = {'log':True,'nbins':500,'norm':True}
     #kwargs = {'log':True,'nbins':500}
-    specvar = gwpy.spectrum.hist.SpectralVariance.from_spectrogram(specgram,**kwargs) 
+    specvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(specgram,**kwargs) 
     bins = specvar.bins[:-1]
     specvar = specvar * 100
 
@@ -1337,7 +1337,7 @@ def channel_summary(params, segment):
         if not os.path.isfile(file):
             continue
 
-        spectra_out = gwpy.spectrum.Spectrum.read(file,format='dat')
+        spectra_out = gwpy.frequencyseries.Spectrum.read(file,format='dat')
         spectra_out.unit = 'counts/Hz^(1/2)'
 
         if np.sum(spectra_out.data) == 0.0:

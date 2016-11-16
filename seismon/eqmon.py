@@ -24,8 +24,7 @@ import astropy.time
 import seismon.utils, seismon.eqmon_plot
 import seismon.pybrain
 
-import gwpy.time, gwpy.timeseries
-import gwpy.spectrum, gwpy.spectrogram
+import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
 import gwpy.plotter
 
 try:
