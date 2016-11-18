@@ -49,7 +49,7 @@ seismon = "https://github.com/ligovirgo/seismon"
 seismon_output = "%s/seismon"%outputDir
 
 if not os.path.isfile(productclient_zip):
-    urllib.urlretrieve(productclient, filename=productclient_output)
+    urllib.urlretrieve(productclient, filename=productclient_zip)
 
 zip_ref = zipfile.ZipFile(productclient_zip, 'r')
 zip_ref.extractall(outputDir)
