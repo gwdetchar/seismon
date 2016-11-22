@@ -253,7 +253,8 @@ def run_earthquakes_info(params,segment):
     attributeDics = retrieve_earthquakes(params,gpsStart,gpsEnd)
     attributeDics = sorted(attributeDics, key=itemgetter("Magnitude"), reverse=True)
 
-    ifos = ["H1","L1","G1","V1","MIT"]
+    #ifos = ["H1","L1","G1","V1","MIT"]
+    ifos = params["ifos"].split(",")
     amp = 0
 
     if params["doEPICs"]:

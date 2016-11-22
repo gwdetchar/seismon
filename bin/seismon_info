@@ -56,6 +56,7 @@ def parse_commandline():
 
     parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1126709046,type=int)
     parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1126787937,type=int)
+    parser.add_option("-i", "--ifos", help="Ifos.", default="H1,L1,G1,V1,MIT")
 
     parser.add_option("--eventfilesType", help="Event files type.", default="private")
     parser.add_option("--doPlots",  action="store_true", default=False)
@@ -97,6 +98,7 @@ def params_struct(opts):
     params = seismon.utils.readParamsFromFile(opts.paramsFile)
     params["gpsStart"] = opts.gpsStart
     params["gpsEnd"] = opts.gpsEnd
+    params["ifos"] = opts.ifos
 
     params["eventfilesType"] = opts.eventfilesType
 
