@@ -3,4 +3,3 @@ internalDataLocation XXX_PRODUCTCLIENT/data/receiver_storage/internal-origin
 publicdataLocation XXX_SEISMON/publicdata
 databasedataLocation XXX_SEISMON/databasedata
 eventfilesLocation XXX_SEISMON/eventfiles
-

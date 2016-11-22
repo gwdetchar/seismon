@@ -1855,7 +1855,8 @@ def calculate_traveltimes(attributeDic):
     if not "Latitude" in attributeDic and not "Longitude" in attributeDic:
         return attributeDic
 
-    attributeDic = ifotraveltimes(attributeDic, "Arbitrary", 0.0, 0.0)
+    attributeDic = ifotraveltimes_lookup(attributeDic, "Arbitrary", 0.0, 0.0)
+    #attributeDic = ifotraveltimes(attributeDic, "Arbitrary", 0.0, 0.0)
     #attributeDic = ifotraveltimes(attributeDic, "LHO", 46.6475, -119.5986)
     #attributeDic = ifotraveltimes(attributeDic, "LLO", 30.4986, -90.7483)
     #attributeDic = ifotraveltimes(attributeDic, "GEO", 52.246944, 9.808333)
@@ -1955,29 +1956,104 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     try:
         from obspy.taup.taup import getTravelTimes
         from obspy.core.util.geodetics import gps2DistAzimuth
+        from obspy.taup import TauPyModel
     except:
         print "Enable ObsPy if updated earthquake estimates desired...\n"
         return attributeDic
 
-    distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
-    distances = np.linspace(0,distance,1000)
-    degrees = (distances/6370000)*(180/np.pi)
+    seismonpath = os.path.dirname(seismon.__file__)
+    scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
 
-    #predictionFile = '/home/mcoughlin/Seismon/H1/H1ER4-1057881616-1061856016/earthquakes/predictions/H1_HPI-BS_STSINF_A_Z_IN1_DQ.txt'
-    predictionFile = '/home/mcoughlin/Seismon/H1/H1S5-815097613-875145614/earthquakes/predictions/H0_PEM-LVEA_SEISZ.txt'
-    predictions = np.loadtxt(predictionFile)
+    #Rf0 = 0.89256174
+    #Rfs = 1.3588703
+    #Q0 = 4169.7511
+    #Qs = -0.017424297
+    #cd = 254.13458
+    #ch = 10.331297
+    #rs = 1.0357451
 
-    combined_x_y_arrays = np.dstack([predictions[:,3],predictions[:,4]])[0]
-    points_list = np.dstack([attributeDic["Latitude"], attributeDic["Longitude"]])
+    Rf0 = 76.44
+    Rfs = 1.37
+    cd = 440.68
+    rs = 1.57
 
-    index = do_kdtree(combined_x_y_arrays,points_list)[0]
+    if ifo == "Arbitrary":
+        degrees = np.linspace(1,180,180)
+        distances = degrees*(np.pi/180)*6370000
+        fwd = 0
+        back = 0
+        #Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+        Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+    else:
+        distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
+        distances = np.linspace(0,distance,100)
+        degrees = (distances/6370000)*(180/np.pi)
+        #Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
+        Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+    Pamp = 1e-6
+    Samp = 1e-5
 
-    distanceNearest,fwdNearest,backNearest = gps2DistAzimuth(predictions[index,3],predictions[index,4],ifolat,ifolon)
+    lats = []
+    lons = []
+    Ptimes = []
+    Stimes = []
+    Rtwotimes = []
+    RthreePointFivetimes = []
+    Rfivetimes = []
+    Rfamps = []
 
-    time = attributeDic["GPS"]
-    time = time + predictions[index,9] * (distance/distanceNearest)
+    if attributeDic["Depth"] >= 2.0:
+        depth = attributeDic["Depth"]
+    else:
+        depth = 2.0
 
-    attributeDic["traveltimes"][ifo]["Rlookuptime"] = time
+    pfile = os.path.join(scriptpath,'p.dat')
+    sfile = os.path.join(scriptpath,'s.dat')
+    parrivals = np.loadtxt(pfile)
+    sarrivals = np.loadtxt(sfile)
+    depths = np.linspace(1,100,100)
+    index = np.argmin(np.abs(depths-depth))
+    parrivals = parrivals[:,index]
+    sarrivals = sarrivals[:,index]
+
+    for distance, degree, parrival, sarrival in zip(distances, degrees,parrivals,sarrivals):
+
+        lon, lat, baz = shoot(attributeDic["Longitude"], attributeDic["Latitude"], fwd, distance/1000)
+        lats.append(lat)
+        lons.append(lon)
+
+        Ptime = attributeDic["GPS"]+parrival
+        Stime = attributeDic["GPS"]+sarrival
+        Rtwotime = attributeDic["GPS"]+distance/2000.0
+        RthreePointFivetime = attributeDic["GPS"]+distance/3500.0
+        Rfivetime = attributeDic["GPS"]+distance/5000.0
+
+        Ptimes.append(Ptime)
+        Stimes.append(Stime)
+        Rtwotimes.append(Rtwotime)
+        RthreePointFivetimes.append(RthreePointFivetime)
+        Rfivetimes.append(Rfivetime)
+
+    traveltimes = {}
+    traveltimes["Latitudes"] = lats
+    traveltimes["Longitudes"] = lons
+    traveltimes["Distances"] = distances
+    traveltimes["Degrees"] = degrees
+    traveltimes["Ptimes"] = Ptimes
+    traveltimes["Stimes"] = Stimes
+    #traveltimes["Rtimes"] = Rtimes
+    traveltimes["Rtwotimes"] = Rtwotimes
+    traveltimes["RthreePointFivetimes"] = RthreePointFivetimes
+    traveltimes["Rfivetimes"] = Rfivetimes
+
+    if ifo == "Arbitrary":
+        traveltimes["Rfamp"] = Rfamp
+    else:
+        traveltimes["Rfamp"] = [Rfamp]
+    traveltimes["Pamp"] = [Pamp]
+    traveltimes["Samp"] = [Samp]
+
+    attributeDic["traveltimes"][ifo] = traveltimes
 
     return attributeDic
 

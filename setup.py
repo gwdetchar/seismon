@@ -51,7 +51,7 @@ RELEASE = vcinfo.version != vcinfo.id and 'dev' not in VERSION
 packagenames = find_packages(exclude=['utils'])
 
 # find all scripts
-scripts = glob.glob('bin/*')
+scripts = glob.glob('bin/*') + glob.glob('input/*')
 
 setup(name=PACKAGENAME,
       version=VERSION,
