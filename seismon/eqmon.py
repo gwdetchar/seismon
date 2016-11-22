@@ -24,8 +24,11 @@ import astropy.time
 import seismon.utils, seismon.eqmon_plot
 import seismon.pybrain
 
-import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
-import gwpy.plotter
+try:
+    import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
+    import gwpy.plotter
+except:
+    print "gwpy import fails... no plotting possible."
 
 try:
     from pylal import Fr

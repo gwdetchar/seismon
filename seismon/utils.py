@@ -24,9 +24,12 @@ except:
 import seismon.NLNM, seismon.html
 import seismon.eqmon
 
-import gwpy.time, gwpy.timeseries, gwpy.plotter
-import gwpy.segments
-from gwpy.timeseries import StateVector
+try:
+    import gwpy.time, gwpy.timeseries, gwpy.plotter
+    import gwpy.segments
+    from gwpy.timeseries import StateVector
+except:
+    print "gwpy import fails... no plotting possible."
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
