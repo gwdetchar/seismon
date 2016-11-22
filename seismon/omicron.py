@@ -6,11 +6,14 @@ from subprocess import Popen, PIPE, STDOUT
 
 import seismon.utils
 
-import gwpy.time, gwpy.timeseries
-import gwpy.frequencyseries, gwpy.spectrogram
-import gwpy.plotter, gwpy.table
+try:
+    import gwpy.time, gwpy.timeseries
+    import gwpy.frequencyseries, gwpy.spectrogram
+    import gwpy.plotter, gwpy.table
+    from gwpy.table.lsctables import SnglBurstTable
+except:
+    print "gwpy import fails... no plotting possible."
 
-from gwpy.table.lsctables import SnglBurstTable
 
 #import laldetchar.triggers
 

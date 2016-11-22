@@ -8,9 +8,12 @@ import scipy.io
 import seismon.NLNM, seismon.html
 import seismon.eqmon, seismon.utils
 
-import gwpy.time, gwpy.timeseries
-import gwpy.frequencyseries, gwpy.spectrogram
-import gwpy.plotter
+try:
+    import gwpy.time, gwpy.timeseries
+    import gwpy.frequencyseries, gwpy.spectrogram
+    import gwpy.plotter
+except:
+    print "gwpy import fails... no plotting possible."
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"

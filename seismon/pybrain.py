@@ -5,7 +5,10 @@ import numpy as np
 
 import seismon.utils, seismon.eqmon_plot
 
-import gwpy.plotter
+try:
+    import gwpy.plotter
+except:
+    print "gwpy import fails... no plotting possible."
 
 def earthquakes_training(params,attributeDics,data):
     """@run mla training

@@ -23,9 +23,12 @@ from matplotlib import cm
 
 import seismon.eqmon
 
-import gwpy.time, gwpy.timeseries
-import gwpy.frequencyseries, gwpy.spectrogram
-import gwpy.plotter
+try:
+    import gwpy.time, gwpy.timeseries
+    import gwpy.frequencyseries, gwpy.spectrogram
+    import gwpy.plotter
+except:
+    print "gwpy import fails... no plotting possible."
 
 # =============================================================================
 #

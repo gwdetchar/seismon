@@ -4,8 +4,11 @@ import numpy as np
 
 import seismon.utils
 
-import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
-import gwpy.segments
+try:
+    import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
+    import gwpy.segments
+except:
+    print "gwpy import fails... no plotting possible."
 
 import obspy.core, obspy.signal.array_analysis
 import matplotlib.pyplot as plt

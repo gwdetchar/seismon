@@ -18,8 +18,11 @@ except:
 
 import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 
-import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
-import gwpy.segments
+try:
+    import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
+    import gwpy.segments
+except:
+    print "gwpy import fails... no plotting possible."
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
