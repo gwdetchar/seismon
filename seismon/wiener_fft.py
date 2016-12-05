@@ -280,8 +280,8 @@ def miso_firwiener_fft(N,X,y):
             P[j,i] = csd12
   
     for i in xrange(len(freqs)):
-        Rinv = scipy.linalg.inv(R[:,:,i])
-        c = P[:,i]
+        Rinv = scipy.linalg.inv(R[1:,1:,i])
+        c = P[1:,i]
 
         W[:,i] = Rinv.dot(c)
  
