@@ -1,0 +1,74 @@
+
+import os, sys
+
+# 1165097029.44 6.5 5.2812 96.1076
+startGPS = 1165097900
+endGPS = 1165099700
+
+# 1165095758.36 5.9 11.0693 -60.9048
+startGPS = 1165096300
+endGPS = 1165097200
+
+# 1164667243.23 6.3 -15.3207 -70.8229
+startGPS = 1164667900
+endGPS = 1164669000
+
+# 1136777150.64 6.7 41.9723 142.781
+startGPS = 1136777700 
+endGPS = 1136778700
+
+# 1133509823.6 7.2 38.2 72.8
+startGPS = 1133510600
+endGPS = 1133515100
+
+# 1164792232.0 6.0 52.2 174.2
+startGPS = 1164792600
+endGPS = 1164794600
+
+# 1165097029.4 6.5 5.3 96.1
+#startGPS = 1165097900
+#endGPS = 1165103700
+
+# 1164935601.8 6.3 -7.3 123.4
+#startGPS = 1164936400
+#endGPS = 1164942000
+
+# http://earthquake.usgs.gov/earthquakes/eventpage/us10007e55#executive
+# 1164935601.85 6.3 -7.3236 123.4039
+# LHO 1164936476 1164936514 1164941924 1164939215 1164938131 8.85252e-07 12645165
+# LLO 1164936596 1164936633 1164943420 1164940069 1164938729 2.31259e-06 15636275
+ifo = "H1"
+startGPS = 1164936400
+endGPS = 1164938200
+os.system("python filterstudy.py -i %s -s %d -e %d"%(ifo,startGPS,endGPS))
+ifo = "L1"
+startGPS = 1164936500
+endGPS = 1164938800
+os.system("python filterstudy.py -i %s -s %d -e %d"%(ifo,startGPS,endGPS))
+
+# http://earthquake.usgs.gov/earthquakes/eventpage/us10007ggp#executive
+# 1165095758.36 5.9 11.0693 -60.9048
+# LHO 1165096366 1165096381 1165099133 1165097687 1165097108 3.05155e-06 6748639
+# LLO 1165096157 1165096172 1165097637 1165096832 1165096510 7.75074e-06 3757848
+ifo = "H1"
+startGPS = 1165096300
+endGPS = 1165097200
+os.system("python filterstudy.py -i %s -s %d -e %d"%(ifo,startGPS,endGPS))
+ifo = "L1"
+startGPS = 1165096100
+endGPS = 1165096600
+os.system("python filterstudy.py -i %s -s %d -e %d"%(ifo,startGPS,endGPS))
+
+# 1164705118.82 4.9 -9.6095 117.4358
+# LHO 1164706020 1164706052 1164711754 1164708911 1164707773 8.82514e-08 13270925
+# LLO 1164706141 1164706172 1164713267 1164709775 1164708378 2.07672e-07 16295405
+ifo = "H1"
+startGPS = 1164706000
+endGPS = 1164707800
+os.system("python filterstudy.py -i %s -s %d -e %d"%(ifo,startGPS,endGPS))
+ifo = "L1"
+startGPS = 1164706100
+endGPS = 1164708400
+os.system("python filterstudy.py -i %s -s %d -e %d"%(ifo,startGPS,endGPS))
+
+
