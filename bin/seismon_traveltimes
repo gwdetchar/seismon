@@ -151,7 +151,6 @@ def write_info(file,attributeDic):
     for key, value in attributeDic["traveltimes"].items():
         subelement = etree.SubElement(element,key)
         for category in value:
-            print category, value[category]
             if category in ["Latitudes","Longitudes","arrivalMin","arrivalMax"]:
                 continue
             subsubelement = etree.SubElement(subelement,category)
@@ -260,7 +259,6 @@ def rsync_files(params):
     i = child.expect("id_rsa':",timeout=20)
     child.sendline(password)
     data = child.read()
-    print data
     child.close()
 
 def download_publiceventfiles(params):
