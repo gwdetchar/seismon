@@ -351,8 +351,8 @@ def run_earthquakes_info(params,segment):
         if not os.path.isdir(params["currentpath"]):
             sys_command = "mkdir %s"%(params["currentpath"])
             os.system(sys_command)
-        sys_command = "find %s -mtime +1 -exec rm -r {} \;"%params["currentpath"]
-        os.system(sys_command)
+        #sys_command = "find %s -mtime +1 -exec rm -r {} \;"%params["currentpath"]
+        #os.system(sys_command)
         sys_command = "cp -r %s/* %s"%(params["path"],params["currentpath"])
         os.system(sys_command)
 
