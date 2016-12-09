@@ -2317,74 +2317,34 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
 
     if ifo == "LHO":
-        #Rf0 = 76.37
-        #Rfs = 1.37
-        #Q0 = 6654.76
-        #Qs = 988.14
-        #cd = 440.68
-        #ch = 668.99
-        #rs = 1.57
-
-        Rf0 = 76.44
-        Rfs = 1.37
-        cd = 440.68
-        rs = 1.57
+        Rf0 = 0.16
+        Rfs = 1.31
+        cd = 4672.83
+        rs = 0.83
 
     elif ifo == "LLO":
-        #Rf0 = 0.43
-        #Rfs = 1.40
-        #Q0 = 1036.22
-        #Qs = 437.20
-        #cd = 739.18
-        #ch = 1998.38
-        #rs = 0.95
-
-        Rf0 = 0.43
-        Rfs = 1.40
-        cd = 739.18
-        rs = 0.95
+        Rf0 = 0.16
+        Rfs = 1.31
+        cd = 4672.83
+        rs = 0.81
 
     elif ifo == "Virgo":
-        #Rf0 = 0.21
-        #Rfs = 1.88
-        #Q0 = 5317.98
-        #Qs = 717.92
-        #cd = 497.36
-        #ch = 1088.58
-        #rs = 0.86
-
-        Rf0 = 0.21
-        Rfs = 1.88
-        cd = 497.35
-        rs = 0.86
+        Rf0 = 1.60
+        Rfs = 0.89
+        cd = 4992.70
+        rs = 0.83
 
     elif ifo == "GEO":
-        #Rf0 = 2.19
-        #Rfs = 1.62
-        #Q0 = 9623.23
-        #Qs = -2.38
-        #cd = 349.06
-        #ch = 2000.00
-        #rs = 1.16
-
-        Rf0 = 4.45
-        Rfs = 1.14
-        cd = 351.85
-        rs = 1.13
+        Rf0 = 8.65
+        Rfs = 1.92
+        cd = 324.52
+        rs = 1.40
 
     else:
-        #Rf0 = 76.37
-        #Rfs = 1.37
-        #Q0 = 6654.76
-        #Qs = 988.14
-        #cd = 440.68
-        #ch = 668.99
-        #rs = 1.57
-
-        Rf0 = 76.44
-        Rfs = 1.37
-        cd = 440.68
-        rs = 1.57
+        Rf0 = 0.16
+        Rfs = 1.31
+        cd = 4672.83
+        rs = 0.83
 
     Rfamp = ampRf(attributeDic["Magnitude"],distance/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
 
