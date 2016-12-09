@@ -108,6 +108,8 @@ dataFull_off, fs = get_data(ifo,gpsStart_off,gpsEnd_off)
 
 cutoff_low = 0.01
 cutoff_high = 0.5
+cutoff_low = 0.0
+cutoff_high = 8.0
 dataLowpass = filter_data(dataFull,cutoff_low,cutoff_high)
 dataLowpass_off = filter_data(dataFull_off,cutoff_low,cutoff_high)
 
@@ -157,6 +159,33 @@ kwargs = {"linestyle":"-","color":"k"}
 plot.add_timeseries(dataLowpass,**kwargs)
 plot.ylabel = r"Velocity [$\mu$m/s]"
 pdfFile = os.path.join(plotDirectory,"timeseries_raw.pdf")
+plot.save(pdfFile)
+plot.close()
+
+xmin, xmax = 0.01,8.0
+ymin, ymax = 10**-3, 10**2
+
+asdLowpass = dataLowpass.asd(128, 64)
+asd = data.asd(128, 64)
+asdLowpass_off = dataLowpass_off.asd(128, 64)
+asd_off = data_off.asd(128, 64)
+
+plot = gwpy.plotter.FrequencySeriesPlot(figsize=[14,8])
+kwargs = {"linestyle":"-","color":"k"}
+plot.add_spectrum(asdLowpass,label="on source",**kwargs)
+kwargs = {"linestyle":"-.","color":"r"}
+plot.add_spectrum(asdLowpass_off,label="off source",**kwargs)
+kwargs = {"linestyle":":","color":"b"}
+plot.add_spectrum(asd,label="on source filtered",**kwargs)
+kwargs = {"linestyle":"--","color":"g"}
+plot.add_spectrum(asd_off,label="off source filtered",**kwargs)
+plot.xlabel = "Frequency [Hz]"
+plot.ylabel = r"Velocity [$\mu$m/s / \rtHz]"
+plot.xlim = [xmin, xmax]
+plot.ylim = [ymin, ymax]
+plot.axes[0].set_xscale("log")
+plot.axes[0].set_yscale("log")
+pdfFile = os.path.join(plotDirectory,"psd.pdf")
 plot.save(pdfFile)
 plot.close()
 
