@@ -153,11 +153,16 @@ def predict_events():
 
     events = np.loadtxt(outputFile)
     events = events[events[:,7].argsort()]
+    ind = np.arange(len(events[:,7]))
 
     plt.figure()
     plt.semilogy(events[:,15],'kx',label='Measured')
-    plt.semilogy(events[:,7],'c*',label='Predicted')
-    plt.legend(loc=2,numpoints=1)
+    #plt.semilogy(events[:,7],'c*',label='Predicted')
+    yerr = np.zeros((2,len(events)))
+    yerr[0,:] = events[:,7]*4.0/5.0
+    yerr[1,:] = events[:,7]*4.0
+    plt.errorbar(ind,events[:,7],yerr=yerr,label='Predicted')
+    plt.legend(loc='best',numpoints=1)
     plt.xlabel("Event number")
     plt.ylabel("Ground Velocity [m/s]")
     plt.xlim([-0.5,len(events[:,0])+0.5])
