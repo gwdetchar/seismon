@@ -264,7 +264,7 @@ def calculate_spectra(params,channel,dataFull):
         cutoff_low = 0.3
     else:
         cutoff_high = 0.5 # 10 MHz
-        cutoff_low = 0.3
+        cutoff_low = 0.1
         cutoff_band = 0.01
     n = 3
     worN = 16384
@@ -296,8 +296,8 @@ def calculate_spectra(params,channel,dataFull):
     #dataLowpass = dataFull.lowpass(1.0)
     dataLowpass = scipy.signal.lfilter(B_low, A_low, dataFull,
                                         axis=0).view(dataFull.__class__)
-    dataLowpass = scipy.signal.lfilter(B_band, A_band, dataLowpass,
-                                        axis=0).view(dataLowpass.__class__)
+    #dataLowpass = scipy.signal.lfilter(B_band, A_band, dataLowpass,
+    #                                    axis=0).view(dataLowpass.__class__)
     dataLowpass.data[np.isnan(dataLowpass.data)] = 0.0
     dataLowpass.data[:2*channel.samplef] = dataLowpass.data[2*channel.samplef]
     dataLowpass.data[-2*channel.samplef:] = dataLowpass.data[-2*channel.samplef]
@@ -525,10 +525,10 @@ def spectra(params, channel, segment):
 
     dataFull = dataFull / channel.calibration
     indexes = np.where(np.isnan(dataFull.data))[0]
-    meanSamples = np.mean(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
+    meanSamples = np.median(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
     for index in indexes:
         dataFull[index] = meanSamples
-    dataFull -= np.mean(dataFull.data)
+    dataFull -= np.median(dataFull.data)
 
     if np.mean(dataFull.data) == 0.0:
         print "data only zeroes... continuing\n"
