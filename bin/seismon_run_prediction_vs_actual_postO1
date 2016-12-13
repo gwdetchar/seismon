@@ -17,6 +17,8 @@ lockFile="/home/mcoughlin/seismon/segments/H1-LOCK.txt"
 
 os.system("python seismon_prediction_vs_actual -i %s -p %s -o %s -a %s -l %s"%(inputFileDirectory,predictionFile,outputDirectory,accelerationFileDirectory,lockFile))
 
+print stop
+
 inputFileDirectory="/home/mcoughlin/Seismon/Text_Files/Timeseries/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
 accelerationFileDirectory="/home/mcoughlin/Seismon/Text_Files/Acceleration/H1_ISI-GND_STS_HAM2_Z_DQ/64/"
 predictionFile="/home/mcoughlin/Seismon/H1/H1postO1/1137283217-1164646717/earthquakes/earthquakes.txt"

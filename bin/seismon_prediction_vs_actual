@@ -328,6 +328,7 @@ def predict_events():
     for ii,event in enumerate(events):
         fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],locklosstimes[ii],flags[ii]))
     fid.close()
+    events = np.loadtxt(outputFile)
 
     ind = np.arange(len(events[:,7]))
     vmin = 5.0
@@ -403,6 +404,31 @@ def predict_events():
     plotName = os.path.join(params["outputDirectory"],'mag_distance.pdf')
     plt.savefig(plotName)
     plt.close()
+
+    plt.figure()
+    ax = plt.gca()
+    indexes = np.where(events[:,21] == 0)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,15],s=20,c='b')
+    indexes = np.where(events[:,21] == 1)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,15],s=20,c='g')
+    indexes = np.where(events[:,21] == 2)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,15],s=20,c='r')
+    ax.set_xscale('log')
+    ax.set_yscale('log')
+    plt.xlim([1e5,1e8])
+    plt.ylim([1e-6,1e-3])
+    plt.xlabel("Distance [m]")
+    plt.ylabel("Peak ground motion [m/s]")
+    plt.grid()
+    plt.show()
+    plotName = os.path.join(params["outputDirectory"],'lockloss_vel_distance.png')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'lockloss_vel_distance.eps')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'lockloss_vel_distance.pdf')
+    plt.savefig(plotName)
+    plt.close()
+
 
 # =============================================================================
 #
