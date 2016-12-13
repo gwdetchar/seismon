@@ -58,19 +58,8 @@ def parse_commandline():
     """
     parser = optparse.OptionParser(usage=__doc__,version=__version__)
 
-    parser.add_option("-i", "--inputFileDirectory", help="Seismon files.",
-                      default ="/home/mcoughlin/Seismon/Text_Files/Timeseries/H0_PEM-LVEA_SEISZ/64/")
-
-    parser.add_option("-a", "--accelerationFileDirectory", help="Seismon acceleration files.",
-                      default ="/home/mcoughlin/Seismon/Text_Files/Acceleration/H0_PEM-LVEA_SEISZ/64/")
-    parser.add_option("-d", "--displacementFileDirectory", help="Seismon displacement files.")
-    parser.add_option("-p", "--predictionFile", help="Seismon prediction file.",
-                      default ="/home/mcoughlin/Seismon/H1/H1S6/931035615-971654415/earthquakes/earthquakes.txt")
-    parser.add_option("-l", "--lockFile", help="Lock segment file.",
-                      default ="/home/mcoughlin/seismon/RfPrediction/data/segs_Locked_H_1126569617_1136649617.txt")
-
-    parser.add_option("-o", "--outputDirectory", help="output file.",
-                      default ="/home/mcoughlin/Seismon/Predictions/H1S6/")
+    parser.add_option("-i", "--inputFiles", help="Seismon files.")
+    parser.add_option("-o", "--outputDirectory", help="output file.")
 
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
@@ -99,14 +88,7 @@ def params_struct(opts):
     """
 
     params = {}
-    params["inputFileDirectory"] = opts.inputFileDirectory
-    params["accelerationFileDirectory"] = opts.accelerationFileDirectory
-    if not opts.displacementFileDirectory == None:
-        params["displacementFileDirectory"] = opts.displacementFileDirectory
-    else:
-        params["displacementFileDirectory"] = params["accelerationFileDirectory"].replace("Acceleration","Displacement")
-    params["predictionFile"] = opts.predictionFile
-    params["lockFile"] = opts.lockFile
+    params["inputFiles"] = opts.inputFiles
     params["outputDirectory"] = opts.outputDirectory
 
     return params
@@ -203,106 +185,14 @@ def predict_events():
         utils.mkdir(params["outputDirectory"])
     outputFile = os.path.join(params["outputDirectory"],"earthquakes.txt")
 
+    inputFiles = params["inputFiles"].split(",")
     fid = open(outputFile,'w')
-    events = np.loadtxt(params["predictionFile"])
-    for event in events:
-        gpsMin = event[8]
-        gpsMax = event[9]
-   
-        filename = os.path.join(params["inputFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
-        if not os.path.isfile(filename):
-            continue
-        data_out_vel = np.loadtxt(filename)
-
-        filename = os.path.join(params["accelerationFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
-        if not os.path.isfile(filename):
-            data_out_acc = -1*np.ones(data_out_vel.shape)
-        else:
-            data_out_acc = np.loadtxt(filename)
-
-        filename = os.path.join(params["displacementFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
-        if not os.path.isfile(filename):
-            data_out_disp = -1*np.ones(data_out_vel.shape)
-        else:
-            data_out_disp = np.loadtxt(filename)
-
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1],data_out_disp[1,0],data_out_disp[1,1]))
-
-        print gpsMin, gpsMax
-
+    for inputFile in inputFiles:
+        events = np.loadtxt(inputFile)
+        for ii,event in enumerate(events):
+            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21]))
     fid.close()
-
     events = np.loadtxt(outputFile)
-    idx = np.where(events[:,15] >= 1e-6)[0]
-    events = events[idx,:]
-    events = events[events[:,7].argsort()[::-1]]
-
-    indexes = []
-    for ii, event in enumerate(events):
-
-        eqStart = event[2] 
-        eqEnd = event[6]
-        eqPeakAmp = event[-1]
-
-        over = 0
-        for jj, index in enumerate(indexes):
-            event2 = events[index,:]
-            eqStart2 = event2[2] 
-            eqEnd2 = event2[6]
-
-            range1 = np.arange(np.floor(eqStart),np.ceil(eqEnd))
-            range2 = np.arange(np.floor(eqStart2),np.ceil(eqEnd2))
-
-            if np.sum(np.intersect1d(range1,range2)) > 0:
-                over = 1
-
-        if over == 0:
-            indexes.append(ii) 
-
-    events = events[indexes,:]
-    events = events[events[:,7].argsort()]
-
-    total_locks = 0
-    total_time = 0
-    flags = []
-    locklosstimes = []
-
-    segments = np.loadtxt(params["lockFile"])
-    for ii, event in enumerate(events):
-
-        eqStart = event[2]
-        eqEnd = event[6]
-        eqPeakAmp = event[-1]
-
-        indexes = []
-        for jj, segment in enumerate(segments):
-            segStart = segment[0]
-            segEnd = segment[1]
-
-            range1 = np.arange(np.floor(eqStart),np.ceil(eqEnd))
-            range2 = np.arange(np.floor(segStart),np.ceil(segEnd))
-
-            if np.sum(np.intersect1d(range1,range2)) > 0:
-                indexes.append(jj)
-
-        locklosstime = -1
-        if len(indexes) == 0:
-            flag = 0
-        else:
-            segs = segments[indexes,:]
-            checkloss = np.where(segs[:,1] <= eqEnd)[0]
-            if len(checkloss) == 0:
-                flag = 1
-            else:
-                flag = 2
-                locklosstime = segs[checkloss[0],1]
-
-        if flag == 2:
-            total_time = total_time + segments[indexes[checkloss[0]]+1,1] - segments[indexes[checkloss[0]],1]
-            total_locks = total_locks + 1
-        
-        locklosstimes.append(locklosstime)
-        flags.append(flag)
 
     global M, r, h, amp
     M = events[:,1]
@@ -326,7 +216,7 @@ def predict_events():
 
     fid = open(outputFile,'w')
     for ii,event in enumerate(events):
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],locklosstimes[ii],flags[ii]))
+        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21]))
     fid.close()
     events = np.loadtxt(outputFile)
 
