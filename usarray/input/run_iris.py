@@ -21,7 +21,7 @@ endtime_max=obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
 
 locations = ["","00"] 
 
-f = open("channels2.txt","w+")
+f = open("channels.txt","w+")
 
 for line in lines:
     lineSplit = line.split("\t")
@@ -54,7 +54,11 @@ for line in lines:
             response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level="resp")
             channel_response = response.get_response(channel.replace(":",".").replace("--",""),starttime)
             calibration = channel_response.instrument_sensitivity.value
-   
+  
+            channel_response_string = str(channel_response)
+            ind = channel_response_string.lower().find("m/s")
+            if ind < 0: continue
+ 
             response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level='channel')
 
             latitude = float(response[0].stations[0].channels[0].latitude)
@@ -64,6 +68,7 @@ for line in lines:
             f.write("%s:%s:%s:%s %.0f %.0f %.5f %.5f %s %s\n"%(channelSplit[0],channelSplit[1],channelSplit[2],channelSplit[3],samplef,calibration,latitude,longitude,starttime,endtime))
         except:
             continue
+        #print stop
 
 f.close()
 
