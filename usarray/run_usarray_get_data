@@ -1,0 +1,36 @@
+
+import os, sys
+import numpy as np
+import astropy.time
+
+channellist = "input/channels.txt"
+lines = [line.rstrip('\n') for line in open(channellist)]
+
+for line in lines:
+    lineSplit = line.split(" ")
+    lineSplit = filter(None, lineSplit)
+
+    channel = lineSplit[0]
+    samplef = float(lineSplit[1])
+    calibration = float(lineSplit[2])
+    latitude = float(lineSplit[3])
+    longitude = float(lineSplit[4])
+    starttime = lineSplit[5]
+    endtime = lineSplit[6]
+
+    print channel, samplef, latitude, longitude, starttime, endtime
+
+    starttime = astropy.time.Time(starttime, format='isot', scale='utc')
+    endtime = astropy.time.Time(endtime, format='isot', scale='utc')
+
+    gpss = np.arange(starttime.gps, endtime.gps, 3600*3)
+    for ii in xrange(len(gpss)-1):
+        gpsStart = gpss[ii]
+        gpsEnd = gpss[ii+1]
+
+        psdfile = "/home/mcoughlin/Seismon/USArray/Text_Files/PSD/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
+        if os.path.isfile(psdfile): continue
+        
+        system_command = "python usarray_get_data -c %s -s %d -e %d --doDownload"%(channel,gpsStart,gpsEnd)
+        os.system(system_command)
+ 
