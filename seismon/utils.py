@@ -686,9 +686,9 @@ def channel_struct(params,channelList):
 
                    response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime,endtime=endtime,level='channel')
 
-                   latitude = response[0].stations[0].channels[0].latitude
-                   longitude = response[0].stations[0].channels[0].longitude
-                   samplef = response[0].stations[0].channels[0].sample_rate
+                   latitude = float(response[0].stations[0].channels[0].latitude)
+                   longitude = float(response[0].stations[0].channels[0].longitude)
+                   samplef = float(response[0].stations[0].channels[0].sample_rate)
 
                except:
                    print "No response data available... continuing"
