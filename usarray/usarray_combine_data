@@ -1,0 +1,297 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013 Michael Coughlin
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+"""Earthquake xml file generator.
+
+This script generates earthquake xml files using notices from the
+internet and USGS PDL client.
+
+Comments should be e-mailed to michael.coughlin@ligo.org.
+
+"""
+
+import os, sys, glob, optparse, warnings, time, json
+
+if not os.getenv("DISPLAY", None):
+    import matplotlib
+    matplotlib.use("agg", warn=False)
+
+from datetime import datetime
+import numpy as np
+import subprocess
+from subprocess import Popen
+from lxml import etree
+
+import obspy.fdsn, obspy.core
+
+#import lal.gpstime
+import astropy.time
+from astropy import units
+
+import seismon.NLNM, seismon.utils
+
+import gwpy.time, gwpy.timeseries, gwpy.plotter
+import gwpy.frequencyseries
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-o", "--outputDir", help="output directory.",
+                      default ="/home/mcoughlin/Seismon/USArray/")
+    parser.add_option("-c", "--channel", help="channel name.",
+                      default ="US:TZTN:00:BHZ")
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1104105616,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1104192016,type=int)
+    parser.add_option("-f", "--fftDuration", help="FFT duration.", default=128,type=int)
+    parser.add_option("--fmin", help="fmin.", default=0.01,type=float)
+    parser.add_option("--fmax", help="fmax.", default=10.0,type=float)
+    parser.add_option("--df", help="df.", default=0.01,type=int)
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    parser.add_option("--doCombine",  action="store_true", default=False)
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@create params structure
+
+    @param opts
+        command line options
+    """
+
+    params = {}
+    params["outputDir"] = opts.outputDir
+    params["channel"] = opts.channel
+    params["gpsStart"] = opts.gpsStart
+    params["gpsEnd"] = opts.gpsEnd
+    params["fftDuration"] = opts.fftDuration
+    params["fmin"] = opts.fmin
+    params["fmax"] = opts.fmax
+    params["df"] = opts.df
+
+    params["doCombine"] = opts.doCombine
+
+    return params
+
+def combine_data(params):
+
+    channelSplit = params["channel"].split(":")
+    gpsStart, gpsEnd = params["gpsStart"], params["gpsEnd"]
+
+    timeseriesDirectory = os.path.join(params["outputDir"],"Text_Files","Timeseries",params["channel"].replace(":","_"))
+    files = glob.glob(os.path.join(timeseriesDirectory,"*.txt"))
+    files = sorted(files)
+
+    tt = []
+    data = []
+    for file in files:
+        fileSplit = file.split("/")[-1].replace(".txt","").split("-")
+        filestart = float(fileSplit[0])
+        fileend = float(fileSplit[1])
+
+        if filestart > gpsEnd: continue
+        if fileend < gpsStart: continue
+
+        data_out = np.loadtxt(file)
+        tt.append(filestart)
+        data.append(data_out[1,1])
+
+    tt = np.array(tt)
+    data = np.array(data)
+ 
+    sample_rate = 1/(tt[1]-tt[0])
+    
+    dataFull = gwpy.timeseries.TimeSeries(data, epoch=tt[0], channel=channelSplit[0], name=channelSplit[1], sample_rate = sample_rate, unit = units.m/units.s)
+
+    psdDirectory = os.path.join(params["outputDir"],"Text_Files","PSD",params["channel"].replace(":","_"))
+    seismon.utils.mkdir(psdDirectory)
+
+    files = glob.glob(os.path.join(psdDirectory,"*.txt"))
+    files = sorted(files)
+
+    tt = []
+    spectra = []
+    for file in files:
+        fileSplit = file.split("/")[-1].replace(".txt","").split("-")
+        filestart = float(fileSplit[0])
+        fileend = float(fileSplit[1])
+
+        if filestart > gpsEnd: continue
+        if fileend < gpsStart: continue
+
+        data_out = np.loadtxt(file)
+        dataASD = data_out[:,1]
+        freq = data_out[:,0]
+
+        dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataASD.override_unit('m/s/Hz^(1/2)')
+
+        idx = np.where(~np.isfinite(dataASD))[0]
+        dataASD[idx] = 0.0
+
+        tt.append(filestart)
+        spectra.append(dataASD)
+
+    tt = np.array(tt)
+
+    dt = tt[1] - tt[0]
+    epoch = gwpy.time.Time(tt[0], format='gps')
+    specgram = gwpy.spectrogram.Spectrogram.from_spectra(*spectra, dt=dt,epoch=epoch)
+
+    freq = np.array(specgram.frequencies)
+
+    # Define bins for the spectral variation histogram
+    kwargs = {'log':True,'nbins':500,'norm':True,'low':1e-10,'high':1e-4}
+    #kwargs = {'log':True,'nbins':500}
+    specvar = gwpy.frequencyseries.hist.SpectralVariance.from_spectrogram(specgram,**kwargs)
+    bins = specvar.bins[:-1]
+    specvar = specvar * 100
+
+    # Calculate percentiles
+    spectral_variation_1per = specvar.percentile(1)
+    spectral_variation_10per = specvar.percentile(10)
+    spectral_variation_50per = specvar.percentile(50)
+    spectral_variation_90per = specvar.percentile(90)
+    spectral_variation_99per = specvar.percentile(99)
+
+    psdDirectory = os.path.join(params["outputDir"],"Text_Files","PSDCombine",params["channel"].replace(":","_"))
+    seismon.utils.mkdir(psdDirectory)
+
+    f = open(os.path.join(psdDirectory,"spectra.txt"),"w")
+    for i in xrange(len(freq)):
+        f.write("%e %e %e %e %e %e\n"%(freq[i],spectral_variation_1per[i].value,\
+            spectral_variation_10per[i].value,spectral_variation_50per[i].value,\
+            spectral_variation_90per[i].value,spectral_variation_99per[i].value))
+    f.close()
+
+    fl, low, fh, high = seismon.NLNM.NLNM(2)
+
+    plotDirectory = os.path.join(params["outputDir"],"Alltime",params["channel"].replace(":","_"))
+    seismon.utils.mkdir(plotDirectory)
+
+    pngFile = os.path.join(plotDirectory,"psd.png")
+
+    #plot = spectraNow.plot()
+    plot = gwpy.plotter.Plot(figsize=[14,8])
+    kwargs = {"linestyle":"-","color":"k"}
+    plot.add_line(freq, spectral_variation_10per, **kwargs)
+    plot.add_line(freq, spectral_variation_50per, **kwargs)
+    plot.add_line(freq, spectral_variation_90per, **kwargs)
+    kwargs = {"linestyle":"-.","color":"k"}
+    plot.add_line(fl, low, **kwargs)
+    plot.add_line(fh, high, **kwargs)
+    plot.xlim = [params["fmin"],params["fmax"]]
+    plot.ylim = [np.min(bins), np.max(bins)]
+    plot.xlabel = "Frequency [Hz]"
+    plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+    plot.axes[0].set_xscale("log")
+    plot.axes[0].set_yscale("log")
+    plot.save(pngFile,dpi=200)
+    plot.close()
+
+    pngFile = os.path.join(plotDirectory,"specvar.png")
+    kwargs = {"linestyle":"-","color":"w"}
+    #plot = specvar.plot(**kwargs)
+    #plot = gwpy.plotter.Plot(figsize=[14,8])
+    #plot = spectraNow.plot(**kwargs)
+    plot = specvar.plot(norm='log', vmin=0.5, vmax=100)
+    kwargs = {"linestyle":"-","color":"k"}
+    plot.add_line(freq, spectral_variation_10per, **kwargs)
+    plot.add_line(freq, spectral_variation_50per, **kwargs)
+    plot.add_line(freq, spectral_variation_90per, **kwargs)
+    kwargs = {}
+    plot.axes[0].set_xscale("log")
+    plot.axes[0].set_yscale("log")
+    kwargs = {"linestyle":"-.","color":"k"}
+    plot.add_line(fl, low, **kwargs)
+    plot.add_line(fh, high, **kwargs)
+    plot.xlim = [params["fmin"],params["fmax"]]
+    plot.ylim = [np.min(bins), np.max(bins)]
+    plot.xlabel = "Frequency [Hz]"
+    plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+
+    plot.save(pngFile,dpi=200)
+    plot.close()
+
+    pngFile = os.path.join(plotDirectory,"tf.png")
+    #specgramLog = specgram.to_logf(fmin=np.min(freq),fmax=np.max(freq))
+    #plot = specgramLog.plot()
+    plot = specgram.plot()
+    plot.ylim = [params["fmin"],params["fmax"]]
+    #plot.ylabel = "Frequency [Hz]"
+    colorbar_label = "Amplitude Spectrum [(m/s)/rtHz]"
+    kwargs = {}
+    #plot.axes[0].set_xscale("log")
+    plot.axes[0].set_yscale("log")
+    plot.add_colorbar(location='right', log=True, label=colorbar_label, clim=None, visible=True, **kwargs)
+    plot.save(pngFile,dpi=200)
+    plot.close()
+
+def run_combine():
+    """@run traveltime calculator
+    """
+
+    warnings.filterwarnings("ignore")
+
+    # Parse command line
+    opts = parse_commandline()
+    # Parse command line
+    params = params_struct(opts)
+
+    if params["doCombine"]:
+        print "Combine data..."
+        combine_data(params)
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+if __name__=="__main__":
+
+    run_combine()
+

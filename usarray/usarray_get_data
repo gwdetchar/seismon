@@ -253,7 +253,7 @@ def download_data(params):
   
     channel = params["channel"]
     calibration, latitude, longitude, samplef = get_response(client,channel,starttime, endtime) 
-    print starttime, endtime, calibration, latitude, longitude, samplef
+    print channel, starttime, endtime, calibration, latitude, longitude, samplef
     data = get_timeseries(client, channel, starttime, endtime, samplef, calibration)
     asd = get_asd(params,data)
     #plot_data(params,data,asd)
