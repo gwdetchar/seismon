@@ -16,12 +16,12 @@ lines = [line.strip() for line in open(file)]
 
 #aval = client.availability(network=network, station=station, location=location, channel=channel, starttime=obspy.UTCDateTime(2012, 1, 1, 0, 0, 0, 0), endtime=obspy.UTCDateTime(2013, 1, 1, 0, 0, 0, 0))
 
-starttime=obspy.UTCDateTime(2012, 1, 1, 0, 0, 0, 0)
-endtime=obspy.UTCDateTime(2013, 1, 1, 0, 0, 0, 0)
+starttime_min=obspy.UTCDateTime(2006, 1, 1, 0, 0, 0, 0)
+endtime_max=obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
 
 locations = ["","00"] 
 
-f = open("channels.txt","w+")
+f = open("channels2.txt","w+")
 
 for line in lines:
     lineSplit = line.split("\t")
@@ -36,6 +36,14 @@ for line in lines:
 
     starttime=obspy.UTCDateTime(starttime)
     endtime=obspy.UTCDateTime(endtime)
+
+    if starttime < starttime_min:
+        starttime = obspy.UTCDateTime(2006, 1, 1, 0, 0, 0, 0)
+    if endtime > endtime_max:
+        endtime = obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
+
+    if starttime > endtime:
+        continue
 
     for location in locations:
         channel = "%s:%s:%s:BHZ"%(network,station,location)
