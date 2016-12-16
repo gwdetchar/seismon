@@ -274,13 +274,14 @@ def run_earthquakes_info(params,segment):
             epics_dicts[ifoShort]["amp"] = 0
             epics_dicts[ifoShort]["mult"] = 0
 
+    params["path_temp"] = "%s_temp"%params["path"]
     for attributeDic in attributeDics:
         if attributeDic["eventID"] == "None":
             eventID = "%.0f"%attributeDic['GPS']
             eventName = ''.join(["iris",str(eventID)])
             attributeDic["eventID"] = eventName
 
-        earthquakesDirectory = os.path.join(params["path"],"earthquakes")
+        earthquakesDirectory = os.path.join(params["path_temp"],"earthquakes")
         earthquakesDirectory = os.path.join(earthquakesDirectory,str(attributeDic["eventID"]))
 
         earthquakesFile = os.path.join(earthquakesDirectory,"earthquakes.txt")
@@ -302,9 +303,9 @@ def run_earthquakes_info(params,segment):
             arrival_floor = np.floor(arrival / 100.0) * 100.0
             departure_ceil = np.ceil(departure / 100.0) * 100.0
 
-            f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort))
+            f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],ifoShort))
 
-            print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),ifoShort)
+            print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],ifoShort)
 
             if params["doEPICs"]:
                 #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
@@ -347,7 +348,14 @@ def run_earthquakes_info(params,segment):
         f.close()
         write_info(earthquakesXMLFile,[attributeDic])
     
-    if os.path.isdir(params["path"]):
+    if os.path.isdir(params["path_temp"]):
+
+        sys_command = "cp -r %s/* %s"%(params["path_temp"],params["path"])
+        os.system(sys_command)
+
+        sys_command = "rm -rf %s"%(params["path_temp"])
+        os.system(sys_command)
+
         if not os.path.isdir(params["currentpath"]):
             sys_command = "mkdir %s"%(params["currentpath"])
             os.system(sys_command)
