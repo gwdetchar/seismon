@@ -1,5 +1,6 @@
 
-import obspy.iris, obspy
+import obspy
+import obspy.iris
 #client = obspy.iris.Client()
 client = obspy.fdsn.client.Client("IRIS")
 

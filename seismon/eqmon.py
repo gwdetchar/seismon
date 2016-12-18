@@ -1909,6 +1909,12 @@ def eqmon_loc(attributeDic,ifo):
         attributeDic = ifotraveltimes_loc(attributeDic, "LSST", -30.2446, -70.7494)
     elif ifo == "MIT":
         attributeDic = ifotraveltimes_loc(attributeDic, "MIT", 42.3598, -71.0921)
+    else:
+        ifoSplit = ifo.split(",")
+        site = ifoSplit[0]
+        latitude = float(ifoSplit[1])
+        longitude = float(ifoSplit[2])
+        attributeDic = ifotraveltimes_loc(attributeDic, site, latitude, longitude)
 
     return attributeDic
 

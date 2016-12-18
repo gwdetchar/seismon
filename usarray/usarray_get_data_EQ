@@ -1,0 +1,286 @@
+#!/usr/bin/python
+
+# Copyright (C) 2013 Michael Coughlin
+#
+# This program is free software; you can redistribute it and/or modify it
+# under the terms of the GNU General Public License as published by the
+# Free Software Foundation; either version 3 of the License, or (at your
+# option) any later version.
+#
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General
+# Public License for more details.
+#
+# You should have received a copy of the GNU General Public License along
+# with this program; if not, write to the Free Software Foundation, Inc.,
+# 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+"""Earthquake xml file generator.
+
+This script generates earthquake xml files using notices from the
+internet and USGS PDL client.
+
+Comments should be e-mailed to michael.coughlin@ligo.org.
+
+"""
+
+import os, sys, glob, optparse, warnings, time, json
+
+if not os.getenv("DISPLAY", None):
+    import matplotlib
+    matplotlib.use("agg", warn=False)
+
+from datetime import datetime
+import numpy as np
+import subprocess
+from subprocess import Popen
+from lxml import etree
+
+import obspy.fdsn, obspy.core
+
+#import lal.gpstime
+import astropy.time
+from astropy import units
+
+import seismon.NLNM, seismon.utils
+
+import gwpy.time, gwpy.timeseries, gwpy.plotter
+import gwpy.frequencyseries
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-o", "--outputDir", help="output directory.",
+                      default ="/home/mcoughlin/Seismon/USArray/")
+    parser.add_option("-c", "--channel", help="channel name.",
+                      default ="US:TZTN:00:BHZ")
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1104105616,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1104192016,type=int)
+    parser.add_option("-f", "--fftDuration", help="FFT duration.", default=128,type=int)
+    parser.add_option("--fmin", help="fmin.", default=0.01,type=float)
+    parser.add_option("--fmax", help="fmax.", default=10.0,type=float)
+    parser.add_option("--df", help="df.", default=0.01,type=int)
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    parser.add_option("--doDownload",  action="store_true", default=False)
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def params_struct(opts):
+    """@create params structure
+
+    @param opts
+        command line options
+    """
+
+    params = {}
+    params["outputDir"] = opts.outputDir
+    params["channel"] = opts.channel
+    params["gpsStart"] = opts.gpsStart
+    params["gpsEnd"] = opts.gpsEnd
+    params["fftDuration"] = opts.fftDuration
+    params["fmin"] = opts.fmin
+    params["fmax"] = opts.fmax
+    params["df"] = opts.df
+
+    params["doDownload"] = opts.doDownload
+
+    return params
+
+def get_response(client,channel,starttime, endtime):
+
+    starttime_utc = obspy.core.UTCDateTime(starttime.utc.iso)
+    endtime_utc = obspy.core.UTCDateTime(endtime.utc.iso)
+
+    channelSplit = channel.split(":")
+    response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime_utc,endtime=endtime_utc,level="resp")
+
+    channel_response = response.get_response(channel.replace(":",".").replace("--",""),starttime_utc)
+    calibration = channel_response.instrument_sensitivity.value
+
+    response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime_utc,endtime=endtime_utc,level='channel')
+
+    latitude = float(response[0].stations[0].channels[0].latitude)
+    longitude = float(response[0].stations[0].channels[0].longitude)
+    samplef = float(response[0].stations[0].channels[0].sample_rate)
+
+    return calibration, latitude, longitude, samplef
+
+def get_timeseries(client, channel, starttime, endtime, sample_rate, calibration):
+
+    gpsStart = starttime.gps
+    gpsEnd = endtime.gps
+
+    starttime_utc = obspy.core.UTCDateTime(starttime.utc.iso)
+    endtime_utc = obspy.core.UTCDateTime(endtime.utc.iso)
+
+    channelSplit = channel.split(":")
+
+    st = client.get_waveforms(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime_utc,endtime_utc)
+    data = np.array(st[0].data)
+    data = data.astype(float)
+    data = data / calibration
+    data = data - np.median(data)
+
+    #sample_rate = sample_rate * units.Hz
+
+    dataFull = gwpy.timeseries.TimeSeries(data, epoch=gpsStart, channel=channelSplit[0], name=channelSplit[1], sample_rate = sample_rate, unit = units.m/units.s)
+
+    return dataFull
+
+def get_asd(params,dataFull):
+
+    # calculate spectrum
+    NFFT = params["fftDuration"]
+    #window = None
+    #dataASD = dataFull.asd()
+    dataASD = dataFull.asd(fftlength=NFFT,overlap=None,method='welch')
+    freq = np.array(dataASD.frequencies)
+    dataASD = np.array(dataASD.data)
+
+    #indexes = np.where((freq >= params["fmin"]) & (freq <= params["fmax"]))[0]
+    #freq = freq[indexes]
+    #dataASD = dataASD[indexes]
+   
+    freq2 = np.arange(params["fmin"],params["fmax"],params["df"])
+    dataASD2 = 10.0**np.interp(np.log10(freq2),np.log10(freq),np.log10(dataASD))
+ 
+    freq = freq2.copy()
+    dataASD = dataASD2.copy()
+
+    dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+    dataASD.override_unit('m/s/Hz^(1/2)')
+
+    return dataASD
+
+def plot_data(params,data,asd):
+
+    fl, low, fh, high = seismon.NLNM.NLNM(2)
+
+    plotDirectory = os.path.join(params["outputDir"],params["channel"].replace(":","_"))
+    seismon.utils.mkdir(plotDirectory)
+
+    pngFile = os.path.join(plotDirectory,"psd.png")
+    label = params["channel"].replace(":","\_")
+
+    plot = gwpy.plotter.Plot(figsize=[14,8])
+    plot.add_spectrum(asd,label=label)
+    kwargs = {"linestyle":"-.","color":"k"}
+    plot.add_line(fl, low, label="HNM/LNM", **kwargs)
+    plot.add_line(fh, high, **kwargs)
+    plot.xlim = [params["fmin"],params["fmax"]]
+    plot.ylim = [10**-10, 10**-4]
+    #plot.ylim = [10**-8, 10**-2]
+    plot.xlabel = "Frequency [Hz]"
+
+    plot.ylabel = "Amplitude Spectrum [(m/s)/rtHz]"
+    plot.axes[0].set_xscale("log")
+    plot.axes[0].set_yscale("log")
+    plot.add_legend(loc=1,prop={'size':10})
+    plot.save(pngFile,dpi=200)
+    plot.close()
+
+def save_data(params,data,asd):
+
+    gpsStart, gpsEnd = params["gpsStart"], params["gpsEnd"]
+
+    psdDirectory = os.path.join(params["outputDir"],"Text_Files_EQ","PSD",params["channel"].replace(":","_"))
+    seismon.utils.mkdir(psdDirectory)
+
+    freq = np.array(asd.frequencies)
+    psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+    f = open(psdFile,"wb")
+    for i in xrange(len(freq)):
+        f.write("%e %e\n"%(freq[i],asd[i].value))
+    f.close()
+
+    timeseriesDirectory = os.path.join(params["outputDir"],"Text_Files_EQ","Timeseries",params["channel"].replace(":","_"))
+    seismon.utils.mkdir(timeseriesDirectory)
+
+    tt = np.array(data.times)
+    timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+    f = open(timeseriesFile,"wb")
+    f.write("%.10f %e\n"%(tt[np.argmin(data.data)],np.min(data.data)))
+    f.write("%.10f %e\n"%(tt[np.argmax(data.data)],np.max(data.data)))
+    f.close()
+
+def download_data(params):
+    """@download events from usgs website
+
+    @param params
+        seismon params structure
+    """
+
+    #starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
+    #endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
+    #starttime = obspy.core.UTCDateTime(starttime)
+    #endtime = obspy.core.UTCDateTime(endtime)
+
+    starttime = astropy.time.Time(params["gpsStart"], format='gps')
+    endtime = astropy.time.Time(params["gpsEnd"], format='gps')
+
+    client = obspy.fdsn.client.Client("IRIS")
+    #client = obspy.fdsn.client.Client("http://earthquake.usgs.gov")
+  
+    channel = params["channel"]
+    calibration, latitude, longitude, samplef = get_response(client,channel,starttime, endtime) 
+    print channel, starttime, endtime, calibration, latitude, longitude, samplef
+    data = get_timeseries(client, channel, starttime, endtime, samplef, calibration)
+    asd = get_asd(params,data)
+    #plot_data(params,data,asd)
+    save_data(params,data,asd)
+    
+def run_download():
+    """@run traveltime calculator
+    """
+
+    warnings.filterwarnings("ignore")
+
+    # Parse command line
+    opts = parse_commandline()
+    # Parse command line
+    params = params_struct(opts)
+
+    if params["doDownload"]:
+        print "Downloading data..."
+        download_data(params)
+
+# =============================================================================
+#
+#                                    MAIN
+#
+# =============================================================================
+
+if __name__=="__main__":
+
+    run_download()
+
