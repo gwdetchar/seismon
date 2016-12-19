@@ -141,9 +141,9 @@ def run_earthquakes(params,segment):
 
             if traveltimes["Rfamp"][0] >= threshold:
 
-                f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"]))
+                f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
 
-                print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"])
+                print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0])
 
                 g.write("%.1f %.1f %.5e\n"%(arrival,departure-arrival,traveltimes["Rfamp"][0]))
                 h.write("%.0f %.0f\n"%(arrival_floor,departure_ceil))
@@ -303,9 +303,9 @@ def run_earthquakes_info(params,segment):
             arrival_floor = np.floor(arrival / 100.0) * 100.0
             departure_ceil = np.ceil(departure / 100.0) * 100.0
 
-            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],ifoShort))
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort))
 
-            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],ifoShort)
+            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort)
 
             if params["doEPICs"]:
                 #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
@@ -2256,6 +2256,7 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     traveltimes["Longitudes"] = lons
     traveltimes["Distances"] = distances
     traveltimes["Degrees"] = degrees
+    traveltimes["Azimuth"] = [fwd]
     traveltimes["Ptimes"] = Ptimes
     traveltimes["Stimes"] = Stimes
     #traveltimes["Rtimes"] = Rtimes
@@ -2367,6 +2368,7 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     traveltimes["Longitudes"] = ifolon
     traveltimes["Distances"] = [distance]
     traveltimes["Degrees"] = [degree]
+    traveltimes["Azimuth"] = [fwd]
     traveltimes["Ptimes"] = [ptime_interp]
     traveltimes["Stimes"] = [stime_interp]
     #traveltimes["Rtimes"] = Rtimes
