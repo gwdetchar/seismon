@@ -13,7 +13,7 @@ def parse_commandline():
     parser = optparse.OptionParser(usage=__doc__,version=__version__)
 
     parser.add_option("-o", "--outputDir", help="Seismon installation directory.",
-                      default ="/Users/mcoughlin/Code/LIGO/seismon/install_script/install")
+                      default ="/home/michael.coughlin/seismon_install")
 
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
@@ -33,13 +33,28 @@ def parse_commandline():
         print >> sys.stderr, ""
     return opts
 
+def mkdir(path):
+    """@create path (if it does not already exist).
+
+    @param path
+        directory path to create
+    """
+
+    pathSplit = path.split("/")
+    pathAppend = "/"
+    for piece in pathSplit:
+        if piece == "":
+            continue
+        pathAppend = os.path.join(pathAppend,piece)
+        if not os.path.isdir(pathAppend):
+            os.mkdir(pathAppend)
+
 warnings.filterwarnings("ignore")
 # Parse command line
 opts = parse_commandline()
 
 outputDir = opts.outputDir
-if not os.path.isdir(outputDir):
-    os.mkdir(outputDir)
+mkdir(outputDir)
 
 productclient = "http://ehppdl1.cr.usgs.gov/ProductClient.zip"
 productclient_zip = "%s/ProductClient.zip"%outputDir
@@ -47,6 +62,8 @@ productclient_output = "%s/ProductClient"%outputDir
 
 seismon = "https://github.com/ligovirgo/seismon"
 seismon_output = "%s/seismon"%outputDir
+
+eventfiles_output = "%s/eventfiles"%outputDir
 
 if not os.path.isfile(productclient_zip):
     urllib.urlretrieve(productclient, filename=productclient_zip)
@@ -73,3 +90,28 @@ text_file.close()
 initfile = "%s/init.sh"%productclient_output
 os.system("chmod +rwx %s"%initfile)
 
+mkdir(eventfiles_output)
+
+traveltimesexample = "%s/input/seismon_params_traveltimes.txt"%seismon_output
+traveltimesini = "%s/seismon_params_traveltimes.txt"%eventfiles_output
+
+file = open(traveltimesexample)
+contents = file.read()
+replaced_contents = contents.replace('XXX_PRODUCTCLIENT', productclient_output).replace('XXX_SEISMON',eventfiles_output)
+
+text_file = open(traveltimesini, "w")
+text_file.write(replaced_contents)
+text_file.close()
+
+lines = [line.rstrip('\n') for line in open(traveltimesini)]
+for line in lines:
+    lineSplit = line.split(" ")
+    varname = lineSplit[0]
+    varpath = lineSplit[1]
+    mkdir(varpath)
+
+    if varname == "eventfilesLocation":
+        eventfilesTypes = ["public","private","iris"]
+        for eventfilesType in eventfilesTypes:
+            eventfilepath = "%s/%s"%(varpath,eventfilesType)
+            mkdir(eventfilepath)
