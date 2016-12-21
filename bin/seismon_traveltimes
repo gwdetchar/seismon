@@ -571,10 +571,10 @@ def run_traveltimes():
 
     if params["doPublic"]:
         print "Running public events..."
-        numEventsAddedPrivate = public_events(params)
+        numEventsAddedPublic = public_events(params)
     if params["doPrivate"]:
         print "Running private events..."
-        numEventsAddedPublic = private_events(params)
+        numEventsAddedPrivate = private_events(params)
     if params["doDatabase"]:
         print "Running database events..."
         numEventsAddedDatabase = database_events(params)
