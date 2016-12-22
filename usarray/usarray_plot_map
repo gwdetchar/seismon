@@ -27,9 +27,12 @@ Comments should be e-mailed to michael.coughlin@ligo.org.
 
 import os, sys, glob, optparse, warnings, time, json
 
-if not os.getenv("DISPLAY", None):
-    import matplotlib
-    matplotlib.use("agg", warn=False)
+import matplotlib
+from mpl_toolkits.basemap import Basemap
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
 
 from datetime import datetime
 import numpy as np
@@ -65,8 +68,6 @@ def parse_commandline():
 
     parser.add_option("-o", "--outputDir", help="output directory.",
                       default ="/home/mcoughlin/Seismon/USArray/")
-    parser.add_option("-c", "--channel", help="channel name.",
-                      default ="US:TZTN:00:BHZ")
     parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1104105616,type=int)
     parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1104192016,type=int)
     parser.add_option("-f", "--fftDuration", help="FFT duration.", default=128,type=int)
@@ -104,7 +105,6 @@ def params_struct(opts):
 
     params = {}
     params["outputDir"] = opts.outputDir
-    params["channel"] = opts.channel
     params["gpsStart"] = opts.gpsStart
     params["gpsEnd"] = opts.gpsEnd
     params["fftDuration"] = opts.fftDuration
@@ -118,56 +118,36 @@ def params_struct(opts):
 
 def combine_data(params):
 
-    channelSplit = params["channel"].split(":")
-    gpsStart, gpsEnd = params["gpsStart"], params["gpsEnd"]
+    channellist = "input/channels.txt"
+    lines = [line.rstrip('\n') for line in open(channellist)]
 
-    timeseriesDirectory = os.path.join(params["outputDir"],"Text_Files","Timeseries",params["channel"].replace(":","_"))
-    files = glob.glob(os.path.join(timeseriesDirectory,"*.txt"))
-    files = sorted(files)
-
-    if len(files) == 0:
-        print "No files... returning."
-        return 
-
-    tt = []
-    data = []
-    for file in files:
-        fileSplit = file.split("/")[-1].replace(".txt","").split("-")
-        filestart = float(fileSplit[0])
-        fileend = float(fileSplit[1])
-
-        if filestart > gpsEnd: continue
-        if fileend < gpsStart: continue
-
-        data_out = np.loadtxt(file)
-        tt.append(filestart)
-        data.append(data_out[1,1])
-
-    tt = np.array(tt)
-    data = np.array(data)
- 
-    sample_rate = 1/(tt[1]-tt[0])
-    
-    dataFull = gwpy.timeseries.TimeSeries(data, epoch=tt[0], channel=channelSplit[0], name=channelSplit[1], sample_rate = sample_rate, unit = units.m/units.s)
-
-    psdDirectory = os.path.join(params["outputDir"],"Text_Files","PSD",params["channel"].replace(":","_"))
-    seismon.utils.mkdir(psdDirectory)
-
-    files = glob.glob(os.path.join(psdDirectory,"*.txt"))
-    files = sorted(files)
-
+    ii = 0
     tt = []
     spectra = []
-    for file in files:
-        fileSplit = file.split("/")[-1].replace(".txt","").split("-")
-        filestart = float(fileSplit[0])
-        fileend = float(fileSplit[1])
+    data = {}
+    for line in lines:
+        lineSplit = line.split(" ")
+        lineSplit = filter(None, lineSplit)
 
-        if filestart > gpsEnd: continue
-        if fileend < gpsStart: continue
+        channel = lineSplit[0]
+        samplef = float(lineSplit[1])
+        calibration = float(lineSplit[2])
+        latitude = float(lineSplit[3])
+        longitude = float(lineSplit[4])
+        starttime = lineSplit[5]
+        endtime = lineSplit[6]
 
-        data_out = np.loadtxt(file)
-        dataASD = data_out[:,1]
+        starttime = astropy.time.Time(starttime, format='isot', scale='utc')
+        endtime = astropy.time.Time(endtime, format='isot', scale='utc')
+
+        gpsStart = starttime.gps
+        gpsEnd = endtime.gps
+
+        psdfile = os.path.join(params["outputDir"],"Text_Files","PSDCombine",channel.replace(":","_"),"spectra.txt")
+        if not os.path.isfile(psdfile): continue
+
+        data_out = np.loadtxt(psdfile)
+        dataASD = data_out[:,3]
         freq = data_out[:,0]
 
         dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
@@ -176,10 +156,15 @@ def combine_data(params):
         idx = np.where(~np.isfinite(dataASD))[0]
         dataASD[idx] = 0.0
 
-        tt.append(filestart)
+        tt.append(ii)
         spectra.append(dataASD)
+        data[channel] = {}
+        data[channel]["freq"] = freq
+        data[channel]["dataASD"] = dataASD
+        data[channel]["latitude"] = latitude
+        data[channel]["longitude"] = longitude
 
-    tt = np.array(tt)
+        ii = ii + 1
 
     dt = tt[1] - tt[0]
     epoch = gwpy.time.Time(tt[0], format='gps')
@@ -201,7 +186,7 @@ def combine_data(params):
     spectral_variation_90per = specvar.percentile(90)
     spectral_variation_99per = specvar.percentile(99)
 
-    psdDirectory = os.path.join(params["outputDir"],"Text_Files","PSDCombine",params["channel"].replace(":","_"))
+    psdDirectory = os.path.join(params["outputDir"],"Text_Files","PSDCombineAll")
     seismon.utils.mkdir(psdDirectory)
 
     f = open(os.path.join(psdDirectory,"spectra.txt"),"w")
@@ -213,7 +198,7 @@ def combine_data(params):
 
     fl, low, fh, high = seismon.NLNM.NLNM(2)
 
-    plotDirectory = os.path.join(params["outputDir"],"Alltime",params["channel"].replace(":","_"))
+    plotDirectory = os.path.join(params["outputDir"],"AlltimeAll")
     seismon.utils.mkdir(plotDirectory)
 
     pngFile = os.path.join(plotDirectory,"psd.png")
@@ -274,6 +259,72 @@ def combine_data(params):
     plot.save(pngFile,dpi=200)
     plot.close()
 
+    
+    plotDirectory = os.path.join(params["outputDir"],"AlltimeAll","maps")
+    seismon.utils.mkdir(plotDirectory)
+
+    for ii, ff in enumerate(freq):
+        pngFile = os.path.join(plotDirectory,"maps_%.2f.png"%ff)
+
+        plt.figure(figsize=(12,6))
+        m =\
+Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+
+        # draw coastlines, meridians and parallels.
+        m.drawcoastlines(linewidth=1.25)
+        m.fillcontinents(color='0.8')
+        m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+        m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+        plt.title('f = %2.2f'%ff)
+
+        for channel in data.iterkeys():
+            latitude = data[channel]["latitude"]
+            longitude = np.mod(data[channel]["longitude"],360.0)
+
+            #latitude = 42.3601
+            #longitude = np.mod(-71.0589,360.0)
+
+            print channel, latitude, longitude
+
+            x, y = m(longitude,latitude)
+            cs = m.scatter(x,y,s=20,c=np.log10(data[channel]["dataASD"][ii].value),zorder=10,vmin=-10,vmax=-6)
+            #plt.text(x,y,channel,fontsize=9,
+            #        ha='center',va='top',color='r',
+            #        bbox = dict(boxstyle="square",ec='None',fc=(1,1,1,0.5)))   
+        cbar = m.colorbar(cs,location='right',pad="5%")
+        cbar.set_label('log10(Amplitude Spectrum) [m/s/rtHz]')
+
+        plt.show()
+        plt.savefig(pngFile)
+        plt.close()  
+
+def movie_data(params):
+
+    outpath = os.path.join(params["outputDir"],"AlltimeAll")
+    plotdir = os.path.join(outpath,"maps")
+    moviedir = os.path.join(outpath,"movie")
+    if not os.path.isdir(moviedir):
+        os.mkdir(moviedir)
+
+    files = sorted(glob.glob(os.path.join(plotdir,'*.png')))
+    n=1
+    for file in files:
+        n = n + 1
+        filename = os.path.join(moviedir,"maps-%04d.png"%n)
+        cp_command = "cp %s %s"%(file,filename)
+        os.system(cp_command)
+
+    moviefiles = os.path.join(moviedir,"maps-%04d.png")
+    filename = os.path.join(moviedir,"maps.mpg")
+    ffmpeg_command = 'ffmpeg -an -y -r 20 -i %s -b:v %s %s'%(moviefiles,'5000k',filename)
+    os.system(ffmpeg_command)
+    filename = os.path.join(moviedir,"maps.gif")
+    ffmpeg_command = 'ffmpeg -an -y -r 20 -i %s -b:v %s %s'%(moviefiles,'5000k',filename)
+    os.system(ffmpeg_command)
+    rm_command = "rm %s/*.png"%(moviedir)
+    os.system(rm_command)
+
+
 def run_combine():
     """@run traveltime calculator
     """
@@ -288,6 +339,7 @@ def run_combine():
     if params["doCombine"]:
         print "Combine data..."
         combine_data(params)
+        movie_data(params)
 
 # =============================================================================
 #

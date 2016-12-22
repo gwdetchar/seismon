@@ -18,7 +18,7 @@ for line in lines:
     starttime = lineSplit[5]
     endtime = lineSplit[6]
 
-    print channel, samplef, latitude, longitude, starttime, endtime
+    #print channel, samplef, latitude, longitude, starttime, endtime
 
     starttime = astropy.time.Time(starttime, format='isot', scale='utc')
     endtime = astropy.time.Time(endtime, format='isot', scale='utc')
@@ -28,11 +28,11 @@ for line in lines:
 
     eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQ/%s.txt"%(channel.replace(":","_"))
     if not os.path.isfile(eqfile): continue
+    events = [line.rstrip('\n') for line in open(eqfile)]
+    if len(events) == 0: continue
 
     eqcombinefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombine/%s.txt"%(channel.replace(":","_"))
     f = open(eqcombinefile,'w')
-
-    events = [line.rstrip('\n') for line in open(eqfile)]
     for event in events:
         event = event.split(" ")
         gpsStart = float(event[9])
@@ -44,5 +44,7 @@ for line in lines:
         f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),event[15],data_out[1,0],data_out[1,1]))
     f.close()
 
-    print stop
- 
+    events = [line.rstrip('\n') for line in open(eqcombinefile)]
+    if len(events) == 0:
+        os.system("rm %s"%eqcombinefile)
+

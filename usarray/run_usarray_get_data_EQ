@@ -45,6 +45,9 @@ for line in lines:
         continue
 
     eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQ/%s.txt"%(channel.replace(":","_"))
+
+    if os.path.isfile(eqfile): continue
+
     f = open(eqfile,'w')
 
     for event in events.events:
