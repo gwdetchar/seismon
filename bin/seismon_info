@@ -134,6 +134,7 @@ if params["doEarthquakes"]:
 
 if params["doPurge"]:
     params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/"
-    sys_command = "find %s/* -type d -mtime +1 -exec rm -rf {} \;"%params["path"]
+    #sys_command = "find %s/* -type d -mtime +1 -exec rm -rf {} \;"%params["path"]
+    sys_command = "find %s/* -type d -mmin +60 -exec rm -rf {} \;"%params["path"]
     os.system(sys_command)
 
