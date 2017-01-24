@@ -61,6 +61,7 @@ def parse_commandline():
     parser.add_option("--eventfilesType", help="Event files type.", default="private")
     parser.add_option("--doPlots",  action="store_true", default=False)
     parser.add_option("--doEarthquakes",  action="store_true", default=False)
+    parser.add_option("--doPurge",  action="store_true", default=False)
     parser.add_option("--doTimeseries",  action="store_true", default=False)
     parser.add_option("--doEPICs",  action="store_true", default=False)
     parser.add_option("--epicsChannelList", help="Seismon params file.",
@@ -104,6 +105,7 @@ def params_struct(opts):
 
     params["doPlots"] = opts.doPlots
     params["doEarthquakes"] = opts.doEarthquakes
+    params["doPurge"] = opts.doPurge
     params["doTimeseries"] = opts.doTimeseries
     params["doEPICs"] = opts.doEPICs
     params["epicsChannelList"] = opts.epicsChannelList
@@ -130,6 +132,9 @@ if params["doEarthquakes"]:
     print params["path"]
     segmentlist = seismon.eqmon.run_earthquakes_info(params,[params["gpsStart"],params["gpsEnd"]])
 
-
-
+if params["doPurge"]:
+    params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/"
+    #sys_command = "find %s/* -type d -mtime +1 -exec rm -rf {} \;"%params["path"]
+    sys_command = "find %s/* -type d -mmin +60 -exec rm -rf {} \;"%params["path"]
+    os.system(sys_command)
 
