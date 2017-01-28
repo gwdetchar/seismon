@@ -246,14 +246,14 @@ def predict_events():
     for ii, event in enumerate(events):
 
         eqStart = event[2] 
-        eqEnd = event[6]
+        eqEnd = event[4]
         eqPeakAmp = event[-1]
 
         over = 0
         for jj, index in enumerate(indexes):
             event2 = events[index,:]
             eqStart2 = event2[2] 
-            eqEnd2 = event2[6]
+            eqEnd2 = event2[4]
 
             range1 = np.arange(np.floor(eqStart),np.ceil(eqEnd))
             range2 = np.arange(np.floor(eqStart2),np.ceil(eqEnd2))
@@ -276,8 +276,10 @@ def predict_events():
     for ii, event in enumerate(events):
 
         eqStart = event[2]
-        eqEnd = event[6]
+        eqEnd = event[4]
         eqPeakAmp = event[-1]
+
+        #if not eqStart == 1131726420.1: continue
 
         indexes = []
         for jj, segment in enumerate(segments):
@@ -352,8 +354,6 @@ def predict_events():
     print "Lockloss: %.3f"%(lockloss/toteqs)
     print "No lockloss: %.3f"%(nolockloss/toteqs)
     print "Not locked: %.3f"%(nolock/toteqs)
-
-    print stop
 
     index = ['Row'+str(i) for i in range(1, len(events)+1)]
     columns = ["GPS","MAGNITUDE","P_GPS","S_GPS","R_2_GPS","R_3p5_GPS","R_5_GPS","RFAMP_VEL_PRED","LOW_GPS","HIGH_GPS","LATITUDE","LONGITUDE","DISTANCE","DEPTH","AZIMUTH","RFAMP_VEL_GPS_MEAS","RFAMP_VEL_MEAS","RFAMP_ACC_GPS_MEAS","RFAMP_ACC_MEAS","RFAMP_DISP_GPS_MEAS","RFAMP_DISP_MEAS","LOCKLOSS_GPS","LOCKLOSS_FLAG"]
