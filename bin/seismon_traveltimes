@@ -77,6 +77,7 @@ def parse_commandline():
     parser.add_option("--doFake",  action="store_true", default=False)
     parser.add_option("--doMultipleEvents",  action="store_true", default=False)
     parser.add_option("--doCopy",  action="store_true", default=False)
+    parser.add_option("--doPurge",  action="store_true", default=False)
 
     opts, args = parser.parse_args()
 
@@ -114,6 +115,7 @@ def params_struct(opts):
     params["doFake"] = opts.doFake
     params["doMultipleEvents"] = opts.doMultipleEvents
     params["doCopy"] = opts.doCopy
+    params["doPurge"] = opts.doPurge
 
     params["paramsFile"] = opts.paramsFile
     params["paramsFileCopy"] = opts.paramsFileCopy
@@ -360,6 +362,12 @@ def private_events(params):
     """
 
     numEventsAdded = 0
+
+    if params["doPurge"]:
+        sys_command = "find %s/* -type d -mtime +7 -exec rm -rf {} \;"%params["dataLocation"]
+        os.system(sys_command)
+        sys_command = "find %s/* -type d -mtime +7 -exec rm -rf {} \;"%params["internalDataLocation"]
+        os.system(sys_command)
 
     folders = glob.glob(os.path.join(params["dataLocation"],"*"))
     #folders = []
