@@ -313,7 +313,7 @@ def run_earthquakes_info(params,segment):
                 locationstr = "%.6f, %.6f"%(attributeDic["Latitude"],attributeDic["Longitude"])
                 location = geolocator.reverse(locationstr)
                 locationstr = location.address.encode('utf-8')
-                locationstr = locationstr.replace(" ","")
+                locationstr = locationstr.replace("_","")
             except:
                 locationstr = "Unknown"
 
