@@ -311,9 +311,9 @@ def run_earthquakes_info(params,segment):
             try:
                 geolocator = Nominatim()
                 locationstr = "%.6f, %.6f"%(attributeDic["Latitude"],attributeDic["Longitude"])
-                location = geolocator.reverse(locationstr)
+                location = geolocator.reverse(locationstr, language='en')
                 locationstr = location.address.encode('utf-8')
-                locationstr = locationstr.replace(" ","_")
+                locationstr = locationstr.replace(", ",",").replace(" ","_")
             except:
                 locationstr = "Unknown"
 
