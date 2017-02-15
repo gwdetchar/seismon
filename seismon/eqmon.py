@@ -35,6 +35,11 @@ try:
 except:
     print "No pylal installed..."
 
+try:
+    from geopy.geocoders import Nominatim
+except:
+    print "No pylal installed..."
+
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
 
@@ -303,9 +308,18 @@ def run_earthquakes_info(params,segment):
             arrival_floor = np.floor(arrival / 100.0) * 100.0
             departure_ceil = np.ceil(departure / 100.0) * 100.0
 
-            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort))
+            try:
+                geolocator = Nominatim()
+                locationstr = "%.6f, %.6f"%(attributeDic["Latitude"],attributeDic["Longitude"])
+                location = geolocator.reverse(locationstr, language='en')
+                locationstr = location.address.encode('utf-8')
+                locationstr = locationstr.replace(", ",",").replace(" ","_")
+            except:
+                locationstr = "Unknown"
 
-            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort)
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],locationstr,ifoShort))
+
+            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],locationstr,ifoShort)
 
             if params["doEPICs"]:
                 #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
