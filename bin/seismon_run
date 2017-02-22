@@ -344,6 +344,13 @@ for channel in params["channels"]:
         for segment in params["segments"]:
             print "Segment: %d-%d"%(segment[0],segment[1])
             params = seismon.utils.setPath(params,segment)
+
+            timeseriesDirectory = params["dirPath"] + "/Text_Files/Timeseries/" + channel.station_underscore + "/" + str(params["fftDuration"])
+            gpsStart = segment[0]
+            gpsEnd = segment[1]
+            timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
+            if os.path.isfile(timeseriesFile): continue
+
             seismon.psd.spectra(params,channel,segment)
     if params["doAnalysis"]:
         print "Analyzing PSD significance for %s"%channel.station
