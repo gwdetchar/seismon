@@ -38,7 +38,7 @@ except:
 try:
     from geopy.geocoders import Nominatim
 except:
-    print "No pylal installed..."
+    print "No geopy installed..."
 
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
