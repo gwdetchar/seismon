@@ -1,1 +1,0 @@
-matlab -nodesktop -nosplash -nojvm -r " FeatureSet = load('FeatureSet.dat'); [label, score] = predictLOCKLOSS('lho',FeatureSet ); csvwrite('label.dat',label); csvwrite('lockloss_probability.dat',score(:,2)); quit;"
