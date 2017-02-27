@@ -29,11 +29,11 @@ if isstr(azimuth)
 end
 
 if strcmp(ifo,'H1')
-    trainedClassifier = 'optim_mdlSVM_lho.mat';
+    trainedClassifier = '../input/optim_mdlSVM_lho.mat';
 elseif strcmp(ifo,'L1')
-    trainedClassifier = 'optim_mdlSVM_llo.mat';
+    trainedClassifier = '../input/optim_mdlSVM_llo.mat';
 else
-    trainedClassifier = 'optim_mdlSVM_lho.mat';
+    trainedClassifier = '../input/optim_mdlSVM_lho.mat';
 end
     
 Mdl = load(trainedClassifier);

@@ -257,6 +257,9 @@ def run_earthquakes_info(params,segment):
     gpsStart = segment[0]
     gpsEnd = segment[1]
 
+    seismonpath = os.path.dirname(seismon.__file__)
+    scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
+
     params["earthquakesMinMag"] = 2.0
     attributeDics = retrieve_earthquakes(params,gpsStart,gpsEnd)
     attributeDics = sorted(attributeDics, key=itemgetter("Magnitude"), reverse=True)
@@ -317,9 +320,20 @@ def run_earthquakes_info(params,segment):
             except:
                 locationstr = "Unknown"
 
-            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],locationstr,ifoShort))
+            try:
+                predictionFile = os.path.join(earthquakesDirectory,"prediction_%s.txt"%ifoShort) 
+                system_command = "source %s/seismon_lockloss_prediction.sh %.1f %.5e %.1f %.1f %.1f %s %s"%(scriptpath,attributeDic["Magnitude"],traveltimes["Rfamp"][0],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort,predictionFile)
+                os.system(system_command)
+                predictiondata = np.loadtxt(predictionFile)
+                lockloss = predictiondata[0]
+                lockloss_probability = predictiondata[1]
+            except:
+                lockloss = -1
+                lockloss_probability = -1
 
-            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],locationstr,ifoShort)
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,ifoShort))
+
+            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,ifoShort)
 
             if params["doEPICs"]:
                 #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
