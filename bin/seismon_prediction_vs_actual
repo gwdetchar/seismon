@@ -45,6 +45,13 @@ import pymultinest
 import pandas as pd
 import statsmodels.api as sm
 
+try:
+    import gwpy.time, gwpy.timeseries, gwpy.plotter
+    import gwpy.segments
+    from gwpy.timeseries import StateVector
+except:
+    print "gwpy import fails... no plotting possible."
+
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __version__ = 1.0
 __date__    = "9/22/2013"
@@ -70,7 +77,8 @@ def parse_commandline():
                       default ="/home/mcoughlin/Seismon/H1/H1S6/931035615-971654415/earthquakes/earthquakes.txt")
     parser.add_option("-l", "--lockFile", help="Lock segment file.",
                       default ="/home/mcoughlin/seismon/RfPrediction/data/segs_Locked_H_1126569617_1136649617.txt")
-
+    parser.add_option("-c", "--lockChannel", help="Lock channel.",
+                      default ="L1:GRD-ISC_LOCK_STATE_N")
     parser.add_option("-o", "--outputDirectory", help="output file.",
                       default ="/home/mcoughlin/Seismon/Predictions/H1S6/")
 
@@ -204,6 +212,8 @@ def predict_events():
     opts = parse_commandline()
     params = params_struct(opts)
 
+    thresh = 1.0e-7
+
     if not os.path.isdir(params["outputDirectory"]):
         utils.mkdir(params["outputDirectory"])
     outputFile = os.path.join(params["outputDirectory"],"earthquakes.txt")
@@ -238,7 +248,7 @@ def predict_events():
     fid.close()
 
     events = np.loadtxt(outputFile)
-    idx = np.where(events[:,16] >= 1e-6)[0]
+    idx = np.where(events[:,16] >= thresh)[0]
     events = events[idx,:]
     events = events[events[:,7].argsort()[::-1]]
 
@@ -271,6 +281,8 @@ def predict_events():
     total_time = 0
     flags = []
     locklosstimes = []
+    flagsls = []
+    locklosstimesls = []
 
     segments = np.loadtxt(params["lockFile"])
     for ii, event in enumerate(events):
@@ -307,9 +319,34 @@ def predict_events():
         if flag == 2:
             total_time = total_time + segments[indexes[checkloss[0]]+1,1] - segments[indexes[checkloss[0]],1]
             total_locks = total_locks + 1
-        
+   
         locklosstimes.append(locklosstime)
         flags.append(flag)
+ 
+        #lockloss_data = gwpy.timeseries.TimeSeries.get(opts.lockChannel, eqStart, eqEnd)
+        #tt = np.array(lockloss_data.times)
+        #if opts.lockChannel[0] == "H":
+        #   MaxThresh = 350
+        #else:
+        #   MaxThresh = 1000
+        #lockloss_diff_data = -1.0*np.diff(np.array(lockloss_data))
+        #indexes = np.where(lockloss_diff_data>=MaxThresh)[0]
+
+        #locklosstimels = -1
+        #if not lockloss_data[0] == 2000:
+        #    flagls = 0
+        #else:
+        #    if len(indexes) == 0:
+        #        flagls = 1
+        #    else:
+        #        flagls = 2
+        #        locklosstimels = tt[indexes[0]]
+
+        #print lockloss_data[0], flagls, locklosstimels
+        #print stop
+
+    locklosstimes = np.array(locklosstimes)
+    flags = np.array(flags)
 
     global M, r, h, amp
     M = events[:,1]
@@ -329,8 +366,10 @@ def predict_events():
     Rf0,Rfs,cd,rs = opt_predict(params["outputDirectory"],events[:,16],M,r,h)
     pred = ampRf(M,r,h,Rf0,Rfs,cd,rs)
     events[:,7] = pred
+    locklosstimes = locklosstimes[events[:,7].argsort()]
+    flags = flags[events[:,7].argsort()]
     events = events[events[:,7].argsort()]
-
+    
     fid = open(outputFile,'w')
     for ii,event in enumerate(events):
         fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],locklosstimes[ii],flags[ii]))
@@ -350,7 +389,7 @@ def predict_events():
 
     toteqs = nolockloss + lockloss + nolock
     
-    print "Number of EQs above M5.0 and ground motion >= 1 micron/s: %d"%toteqs
+    print "Number of EQs above M4.5 and ground motion >= 1 micron/s: %d"%toteqs
     print "Lockloss: %.3f"%(lockloss/toteqs)
     print "No lockloss: %.3f"%(nolockloss/toteqs)
     print "Not locked: %.3f"%(nolock/toteqs)
@@ -493,7 +532,7 @@ def predict_events():
     ax.set_xscale('log')
     ax.set_yscale('log')
     plt.xlim([1e5,1e8])
-    plt.ylim([1e-6,1e-3])
+    plt.ylim([7e-7,1e-3])
     plt.xlabel("Distance [m]")
     plt.ylabel("Peak ground motion [m/s]")
     plt.grid()

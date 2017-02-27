@@ -346,7 +346,7 @@ def predict_events():
     ax.set_xscale('log')
     ax.set_yscale('log')
     plt.xlim([1e5,1e8])
-    plt.ylim([1e-6,1e-3])
+    plt.ylim([8e-7,1e-3])
     plt.xlabel("Distance [m]")
     plt.ylabel("Peak ground motion [m/s]")
     plt.grid()

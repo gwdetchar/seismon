@@ -39,7 +39,7 @@ end
 Mdl = load(trainedClassifier);
 mdlSVM = Mdl.mdlSVM;
 
-data = [mag,vel,distance,depth,azimuth,vel,vel,vel];
+data = [mag,vel,distance,depth,azimuth];
 
 [label,score] = predict(mdlSVM,data); 
 
