@@ -13,16 +13,16 @@
 % EMail: nikhil@iucaa.in
 % Uses  : Matlab 2016b
 
-site  = 'lho';
+site  = 'llo';
 
 SAVE_DATA = 0;
 SAVE_MODEL = 1;  
 
 Artificial_Samples = 1;
 Make_Equal_Distribution = 1; % Makes samples so that In-Lock/Lock-Loss samples are similar in size
-Multiply_factor = 2;        % Artificially increase samples [LLO:10, LHO:2]
+Multiply_factor = 10;        % Artificially increase samples [LLO:10, LHO:2]
 Noise_level     = 0.01;      % Add noise to normalized parameters 
-KFold            = 5; % KFold Cross Validatipon Factor [LLO:30, LHO:5]
+KFold            = 30; % KFold Cross Validatipon Factor [LLO:30, LHO:5]
 Normalize       = 1;  % Normalize features
 
 
@@ -63,7 +63,7 @@ ID = find(logical(DATA(:,23)==1) + logical(DATA(:,23)==2));
 % 22: lockloss time (if available)
 % 23: Detector Status
 
-VAR = [2 8 13 14 15 17 19 21  ];
+VAR = [2 8 13 14 15  ];
 Nfeatures = numel(VAR);
 
 pred = DATA(ID,VAR);
