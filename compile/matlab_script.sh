@@ -8,6 +8,8 @@ if [[ $h =~ "atlas" ]]; then
 elif [[ $h =~ "caltech" ]] || [[ $h =~ "cit" ]]; then
     MATLAB_ROOT="/ldcg/matlab_r2016a"
     eval `/ligotools/bin/use_ligotools`
+elif [[ $h =~ "MIT" ]]; then
+    MATLAB_ROOT="/usr/local/MATLAB/R2016b"
 fi
 
 export MATLAB_ROOT
