@@ -324,6 +324,7 @@ def run_earthquakes_info(params,segment):
                 predictionFile = os.path.join(earthquakesDirectory,"prediction_%s.txt"%ifoShort) 
                 system_command = "source %s/seismon_lockloss_prediction.sh %.1f %.5e %.1f %.1f %.1f %s %s"%(scriptpath,attributeDic["Magnitude"],traveltimes["Rfamp"][0],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort,predictionFile)
                 os.system(system_command)
+                print predictionFile
                 predictiondata = np.loadtxt(predictionFile)
                 lockloss = predictiondata[0]
                 lockloss_probability = predictiondata[1]
