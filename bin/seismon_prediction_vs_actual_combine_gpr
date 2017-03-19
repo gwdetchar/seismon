@@ -47,6 +47,7 @@ from sklearn import gaussian_process
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
 from sklearn import preprocessing
+from sklearn import svm
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __version__ = 1.0
@@ -254,9 +255,9 @@ def predict_events():
     ratio1 = amp/pred
     ratio2 = pred/amp
     ratio = np.max(np.vstack((ratio1,ratio2)).T,axis=1)
-    perc = float(len(np.where(ratio > 3.0)[0])) / float(len(ratio))
+    perc = float(len(np.where(ratio < 3.0)[0])) / float(len(ratio))
 
-    print "%.5f of events greater than a factor of 3."%perc
+    print "%.5f of events within a factor of 3."%perc
 
     events[:,7] = pred
     events = events[events[:,7].argsort()]
@@ -267,7 +268,43 @@ def predict_events():
     fid.close()
     events = np.loadtxt(outputFile)
 
+    indexes1 = np.where(events[:,22] == 1)[0]
+    indexes2 = np.where(events[:,22] == 2)[0]
+    indexes = np.hstack((indexes1,indexes2))
+
+    M = events[indexes,1]
+    lat = events[indexes,10]
+    lon = events[indexes,11]
+    r = events[indexes,12]/1000.0
+    h = events[indexes,13]
+    az = events[indexes,14]
+    pred = events[indexes,7]
+
+    X = np.vstack((M,lat,lon,r,h,az,np.log10(pred))).T
+    y = events[:,22]
+    y[y == 1] = 0
+    y[y == 2] = 1
+    y = y[indexes]
+
+    scaler = preprocessing.StandardScaler().fit(X)
+    X = scaler.transform(X)
+
+    perm = np.random.permutation(len(y))
+    idx = perm[:int(float(len(y))/2.0)]
+    idy = perm[int(float(len(y))/2.0)+1:]
+    
+    clf = svm.SVC(probability=True)
+    clf.fit(X[idx,:], y[idx])
+    lockloss_prediction = clf.predict(X[idy,:])
+    lockloss_prob = clf.predict_proba(X[idy,:])
+    lockloss_prob = lockloss_prob[:,1]
+
+    idx = np.where(lockloss_prediction == y[idy])[0]
+    perc = float(len(np.where(lockloss_prediction == y[idy])[0])) / float(len(y[idy]))
+    print "%.5f of events with lockloss predicted correctly."%perc
+
     ind = np.arange(len(events[:,7]))
+    indlockloss = np.arange(len(y[idy]))
     vmin = 5.0
     vmax = 7.0
 
@@ -298,6 +335,28 @@ def predict_events():
     plotName = os.path.join(params["outputDirectory"],'prediction.eps')
     plt.savefig(plotName)
     plotName = os.path.join(params["outputDirectory"],'prediction.pdf')
+    plt.savefig(plotName)
+    plt.close()
+
+    plt.figure()
+    ax = plt.gca()
+    ax.plot(indlockloss,y[idy],'ko')
+    #ax.plot(indlockloss,lockloss_prob,'bo')
+    indexes = np.where(lockloss_prediction == y[idy])[0]
+    sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='g',marker='+')
+    indexes = np.setdiff1d(indlockloss,indexes)
+    sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='r',marker='x')
+
+    plt.xlabel("Event Number")
+    plt.ylabel("Lockloss Probability")
+    plt.xlim([-0.5,len(indlockloss)+0.5])
+    plt.ylim([-0.5,1.5])
+    plt.show()
+    plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.png')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.eps')
+    plt.savefig(plotName)
+    plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.pdf')
     plt.savefig(plotName)
     plt.close()
 
