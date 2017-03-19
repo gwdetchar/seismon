@@ -30,6 +30,7 @@ import numpy as np
 import subprocess
 from subprocess import Popen
 from lxml import etree
+import pickle
 
 import lal.gpstime
 
@@ -245,6 +246,13 @@ def predict_events():
     gp.fit(X[idx,:], y[idx])
     pred, pred_std = gp.predict(X[idy,:], return_std=True)
 
+    gpfile = os.path.join(params["outputDirectory"],'gp.pickle')
+    with open(gpfile, 'wb') as handle:
+        pickle.dump((scaler,gp), handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(gpfile, 'rb') as fid:
+        scaler,gp = pickle.load(fid)
+
     #print gp._equation
 
     events = events[idy,:]
@@ -295,6 +303,14 @@ def predict_events():
     
     clf = svm.SVC(probability=True)
     clf.fit(X[idx,:], y[idx])
+
+    svmfile = os.path.join(params["outputDirectory"],'svm.pickle')
+    with open(svmfile, 'wb') as handle:
+        pickle.dump((scaler,clf), handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+    with open(svmfile, 'rb') as fid:
+        scaler,clf = pickle.load(fid)
+
     lockloss_prediction = clf.predict(X[idy,:])
     lockloss_prob = clf.predict_proba(X[idy,:])
     lockloss_prob = lockloss_prob[:,1]
