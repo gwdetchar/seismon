@@ -204,6 +204,10 @@ def predict_events():
     fid.close()
     events = np.loadtxt(outputFile)
 
+    #magthresh = 5.0
+    #idx = np.where(events[:,1] >= magthresh)[0]
+    #events = events[idx,:]
+
     global M, r, h, amp
     M = events[:,1]
     lat = events[:,10]
@@ -219,9 +223,23 @@ def predict_events():
     scaler = preprocessing.StandardScaler().fit(X)
     X = scaler.transform(X) 
 
-    perm = np.random.permutation(len(y))
-    idx = perm[:int(float(len(y))/2.0)]
-    idy = perm[int(float(len(y))/2.0)+1:]
+    Nsamples, Nvars = X.shape
+    N = 10000
+    #N = 500
+    Noise_level    =  0.01
+    Xp = np.zeros((N,Nvars))
+    yp = np.zeros((N,))
+    for ii in xrange(N):
+        idx = int(np.floor(np.random.rand()*Nsamples))
+        rand_values = Noise_level*np.std(X,axis=0)*np.random.randn(Nvars,)
+        rand_value = Noise_level*np.std(y)*np.random.randn()
+
+        Xp[ii,:] = X[idx,:] + rand_values
+        yp[ii] = y[idx] + rand_value
+
+    #perm = np.random.permutation(len(y))
+    #idx = perm[:int(float(len(y))/2.0)]
+    #idy = perm[int(float(len(y))/2.0)+1:]
 
     #idx = perm.copy()
     #idy = perm.copy()
@@ -242,9 +260,9 @@ def predict_events():
     #gp.fit(X, y)  
     #pred, pred_std = gp.predict(X, return_std=True)
 
-    gp = GaussianProcessRegressor(kernel=kernel,alpha = np.std(y[idx])) #.fit(X, y)
-    gp.fit(X[idx,:], y[idx])
-    pred, pred_std = gp.predict(X[idy,:], return_std=True)
+    gp = GaussianProcessRegressor(kernel=kernel,alpha = np.std(yp)) #.fit(X, y)
+    gp.fit(Xp, yp)
+    pred, pred_std = gp.predict(X, return_std=True)
 
     gpfile = os.path.join(params["outputDirectory"],'gp.pickle')
     with open(gpfile, 'wb') as handle:
@@ -255,10 +273,10 @@ def predict_events():
 
     #print gp._equation
 
-    events = events[idy,:]
+    #events = events[idy,:]
     amp = events[:,16]
     pred = 10**pred
-    pred_std = 10**pred_std
+    pred_std = pred*np.log(10)*pred_std
 
     ratio1 = amp/pred
     ratio2 = pred/amp
@@ -268,6 +286,7 @@ def predict_events():
     print "%.5f of events within a factor of 3."%perc
 
     events[:,7] = pred
+    pred_std = pred_std[events[:,7].argsort()]
     events = events[events[:,7].argsort()]
 
     fid = open(outputFile,'w')
@@ -279,8 +298,9 @@ def predict_events():
     indexes1 = np.where(events[:,22] == 1)[0]
     indexes2 = np.where(events[:,22] == 2)[0]
     indexes = np.hstack((indexes1,indexes2))
-    indexes3 = np.where(events[:,16] >= 2e-7)[0]
+    indexes3 = np.where(events[:,16] >= 0.0)[0]
     indexes = np.intersect1d(indexes,indexes3)
+    
 
     M = events[indexes,1]
     lat = events[indexes,10]
@@ -299,13 +319,22 @@ def predict_events():
     scaler = preprocessing.StandardScaler().fit(X)
     X = scaler.transform(X)
 
-    perm = np.random.permutation(len(y))
-    idx = perm[:int(float(len(y))/2.0)]
-    idy = perm[int(float(len(y))/2.0)+1:]
-    
+    Nsamples, Nvars = X.shape
+    N = 10000
+    #N = 500
+    Noise_level    =  0.01
+    Xp = np.zeros((N,Nvars))
+    yp = np.zeros((N,))
+    for ii in xrange(N):
+        idx = int(np.floor(np.random.rand()*Nsamples))
+        rand_values = Noise_level*np.std(X,axis=0)*np.random.randn(Nvars,)
+
+        Xp[ii,:] = X[idx,:] + rand_values
+        yp[ii] = int(y[idx])
+
     C = 1.0  # SVM regularization parameter
-    clf = svm.SVC(kernel='rbf', gamma=0.7, C=C, probability=True)
-    clf.fit(X[idx,:], y[idx])
+    clf = svm.SVC(kernel='rbf', gamma='auto', C=C, probability=True)
+    clf.fit(Xp, yp)
 
     svmfile = os.path.join(params["outputDirectory"],'svm.pickle')
     with open(svmfile, 'wb') as handle:
@@ -314,16 +343,16 @@ def predict_events():
     with open(svmfile, 'rb') as fid:
         scaler,clf = pickle.load(fid)
 
-    lockloss_prediction = clf.predict(X[idy,:])
-    lockloss_prob = clf.predict_proba(X[idy,:])
+    lockloss_prediction = clf.predict(X)
+    lockloss_prob = clf.predict_proba(X)
     lockloss_prob = lockloss_prob[:,1]
 
-    idx = np.where(lockloss_prediction == y[idy])[0]
-    perc = float(len(np.where(lockloss_prediction == y[idy])[0])) / float(len(y[idy]))
+    idx = np.where(lockloss_prediction == y)[0]
+    perc = float(len(np.where(lockloss_prediction == y)[0])) / float(len(y))
     print "%.5f of events with lockloss predicted correctly."%perc
 
     ind = np.arange(len(events[:,7]))
-    indlockloss = np.arange(len(y[idy]))
+    indlockloss = np.arange(len(y))
     vmin = 5.0
     vmax = 7.0
 
@@ -334,7 +363,8 @@ def predict_events():
     yerr[0,:] = events[:,7]/3.0
     yerr[1,:] = events[:,7]*3.0
     #plt.errorbar(ind,events[:,7],yerr=yerr,label='Predicted')
-    plt.plot(ind,events[:,7],'gray',label='Predicted')
+    #plt.plot(ind,events[:,7],'gray',label='Predicted')
+    plt.errorbar(ind,events[:,7],pred_std,label='Predicted')
     plt.fill_between(ind, yerr[0,:], yerr[1,:], facecolor='gray')
 
     sc = ax.scatter(ind,events[:,16],s=20,c=events[:,1],vmin=vmin, vmax=vmax,label='Measured')
@@ -359,9 +389,9 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    ax.plot(indlockloss,y[idy],'ko')
+    ax.plot(indlockloss,y,'ko')
     #ax.plot(indlockloss,lockloss_prob,'bo')
-    indexes = np.where(lockloss_prediction == y[idy])[0]
+    indexes = np.where(lockloss_prediction == y)[0]
     sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='g',marker='+')
     indexes = np.setdiff1d(indlockloss,indexes)
     sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='r',marker='x')
