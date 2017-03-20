@@ -279,6 +279,8 @@ def predict_events():
     indexes1 = np.where(events[:,22] == 1)[0]
     indexes2 = np.where(events[:,22] == 2)[0]
     indexes = np.hstack((indexes1,indexes2))
+    indexes3 = np.where(events[:,16] >= 2e-7)[0]
+    indexes = np.intersect1d(indexes,indexes3)
 
     M = events[indexes,1]
     lat = events[indexes,10]
@@ -301,7 +303,8 @@ def predict_events():
     idx = perm[:int(float(len(y))/2.0)]
     idy = perm[int(float(len(y))/2.0)+1:]
     
-    clf = svm.SVC(probability=True)
+    C = 1.0  # SVM regularization parameter
+    clf = svm.SVC(kernel='rbf', gamma=0.7, C=C, probability=True)
     clf.fit(X[idx,:], y[idx])
 
     svmfile = os.path.join(params["outputDirectory"],'svm.pickle')
