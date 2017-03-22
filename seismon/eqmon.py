@@ -2340,6 +2340,10 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         print "Enable ObsPy if updated earthquake estimates desired...\n"
         return attributeDic
 
+    if not "traveltimes" in attributeDic:
+        print "This analysis missing traveltimes... returning.\n"
+        return attributeDic
+
     #print attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon
     #if (np.absolute(attributeDic["Latitude"]-ifolat)**2 + np.absolute(attributeDic["Longitude"]-ifolon)**2) < 5:
     #    distance = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon) 
