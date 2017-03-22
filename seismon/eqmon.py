@@ -2005,7 +2005,7 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         from obspy.core.util.geodetics import gps2DistAzimuth
         from obspy.taup import TauPyModel
     except:
-        print "Enable ObsPy if updated earthquake estimates desired...\n"
+        print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
 
     seismonpath = os.path.dirname(seismon.__file__)
@@ -2121,7 +2121,7 @@ def ifotraveltimes_velocitymap(attributeDic,ifo,ifolat,ifolon):
         from obspy.taup.taup import getTravelTimes
         from obspy.core.util.geodetics import gps2DistAzimuth
     except:
-        print "Enable ObsPy if updated earthquake estimates desired...\n"
+        print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
 
     distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
@@ -2191,7 +2191,7 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         from obspy.core.util.geodetics import gps2DistAzimuth
         from obspy.taup import TauPyModel
     except:
-        print "Enable ObsPy if updated earthquake estimates desired...\n"
+        print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
 
     #Rf0 = 0.89256174
@@ -2337,7 +2337,7 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         from obspy.taup.taup import getTravelTimes
         from obspy.core.util.geodetics import gps2DistAzimuth
     except:
-        print "Enable ObsPy if updated earthquake estimates desired...\n"
+        print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
 
     if not "traveltimes" in attributeDic:
