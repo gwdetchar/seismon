@@ -16,7 +16,10 @@ try:
 except:
     print "No pylal installed..."
 
-import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+try:
+    import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
+except:
+    print "No glue installed..."
 
 try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter

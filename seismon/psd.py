@@ -85,28 +85,28 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     fftFile = os.path.join(fftDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(fftFile,"wb")
     for i in xrange(len(freq)):
-        f.write("%e %e %e\n"%(freq[i],data["dataFFT"].data[i].real,data["dataFFT"].data[i].imag))
+        f.write("%e %e %e\n"%(freq[i],data["dataFFT"][i].value.real,data["dataFFT"][i].value.imag))
     f.close()
 
     tt = np.array(data["dataLowpass"].times)
     timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(timeseriesFile,"wb")
-    f.write("%.10f %e\n"%(tt[np.argmin(data["dataLowpass"].data)],np.min(data["dataLowpass"].data)))
-    f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].data)],np.max(data["dataLowpass"].data)))
+    f.write("%.10f %e\n"%(tt[np.argmin(data["dataLowpass"].value)],np.min(data["dataLowpass"].value)))
+    f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].value)],np.max(data["dataLowpass"].value)))
     f.close()
 
     ttacc = np.array(data["dataLowpassAcc"].times)
     accelerationFile = os.path.join(accelerationDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(accelerationFile,"wb")
-    f.write("%.10f %e\n"%(ttacc[np.argmin(data["dataLowpassAcc"].data)],np.min(data["dataLowpassAcc"].data)))
-    f.write("%.10f %e\n"%(ttacc[np.argmax(data["dataLowpassAcc"].data)],np.max(data["dataLowpassAcc"].data)))
+    f.write("%.10f %e\n"%(ttacc[np.argmin(data["dataLowpassAcc"].value)],np.min(data["dataLowpassAcc"].value)))
+    f.write("%.10f %e\n"%(ttacc[np.argmax(data["dataLowpassAcc"].value)],np.max(data["dataLowpassAcc"].value)))
     f.close()
 
     ttdisp = np.array(data["dataLowpassDisp"].times)
     displacementFile = os.path.join(displacementDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(displacementFile,"wb")    
-    f.write("%.10f %e\n"%(ttdisp[np.argmin(data["dataLowpassDisp"].data)],np.min(data["dataLowpassDisp"].data)))
-    f.write("%.10f %e\n"%(ttdisp[np.argmax(data["dataLowpassDisp"].data)],np.max(data["dataLowpassDisp"].data)))
+    f.write("%.10f %e\n"%(ttdisp[np.argmin(data["dataLowpassDisp"].value)],np.min(data["dataLowpassDisp"].value)))
+    f.write("%.10f %e\n"%(ttdisp[np.argmax(data["dataLowpassDisp"].value)],np.max(data["dataLowpassDisp"].value)))
     f.close()
 
     specgram = data["dataSpecgram"]
@@ -122,7 +122,7 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     for ii in xrange(len(freq)):
         f.write("%.10f"%freq[ii])
         for jj in xrange(len(times)):
-                f.write(" %e "%(specgram.data[jj,ii]))
+                f.write(" %e "%(specgram[jj,ii].value))
         f.write("\n")
     f.close()
 
@@ -177,7 +177,7 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
 
                     tripsFile = os.path.join(tripsDirectory,"%d.txt"%(trip))
                     f = open(tripsFile,"wb")
-                    f.write("%d %e\n"%(tt[index],data["dataLowpass"].data[index]))
+                    f.write("%d %e\n"%(tt[index],data["dataLowpass"].value[index]))
                     f.close()
 
     for attributeDic in attributeDics:
@@ -211,8 +211,8 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
         ttCut = tt[indexes]
         dataCut = data["dataLowpass"][indexMin:indexMax]
 
-        ampMax = np.max(dataCut.data)
-        ttMax = ttCut[np.argmax(dataCut.data)]
+        ampMax = np.max(dataCut.value)
+        ttMax = ttCut[np.argmax(dataCut.value)]
         ttDiff = ttMax - attributeDic["GPS"] 
         velocity = distance / ttDiff
         velocity = velocity / 1000.0
@@ -293,42 +293,20 @@ def calculate_spectra(params,channel,dataFull):
         plot.save(pngFile,dpi=200)
         plot.close()
 
-    #dataLowpass = dataFull.lowpass(1.0)
-    dataLowpass = scipy.signal.lfilter(B_low, A_low, dataFull,
-                                        axis=0).view(dataFull.__class__)
-    #dataLowpass = scipy.signal.lfilter(B_band, A_band, dataLowpass,
-    #                                    axis=0).view(dataLowpass.__class__)
-    dataLowpass.data[np.isnan(dataLowpass.data)] = 0.0
-    dataLowpass.data[:2*channel.samplef] = dataLowpass.data[2*channel.samplef]
-    dataLowpass.data[-2*channel.samplef:] = dataLowpass.data[-2*channel.samplef]
-    dataLowpass.dx =  dataFull.dx
-    dataLowpass.epoch = dataFull.epoch
+    #dataLowpass = dataFull.copy()
+    #lowpassdata = scipy.signal.filtfilt(B_low, A_low, np.array(dataFull.value))
+    #lowpassdata[:2*channel.samplef] = lowpassdata[2*channel.samplef]
+    #lowpassdata[-2*channel.samplef:] = lowpassdata[-2*channel.samplef]
+    #lowpassdata[np.isnan(lowpassdata)] = 0.0
+    dataLowpass = dataFull.lowpass(cutoff_low)
 
-    dataLowpassAcc = dataLowpass.copy()
-    dataLowpassAcc.data[:-1] = np.diff(dataLowpass.data)/dataLowpass.dx
-    dataLowpassDisp = dataLowpass.copy()
-    dataLowpassDisp.data[:-1] = scipy.integrate.cumtrapz(dataLowpass.data, dx=dataLowpass.dx)
+    accdata = np.diff(dataLowpass.value)/dataLowpass.dx.value
+    dataLowpassAcc = gwpy.timeseries.TimeSeries(accdata, unit=dataFull.unit, sample_rate = 1/dataFull.dx.value, epoch = dataFull.epoch, dtype=float)
 
-    #dataHighpass = dataFull.highpass(1.0)
-    dataHighpass = scipy.signal.lfilter(B_high, A_high, dataFull,
-                                        axis=0).view(dataFull.__class__)
-    dataHighpass.dx =  dataFull.dx
-    dataHighpass.epoch = dataFull.epoch
+    dispdata = scipy.integrate.cumtrapz(dataLowpass.value, dx=dataLowpass.dx.value)
+    dataLowpassDisp = gwpy.timeseries.TimeSeries(dispdata, unit=dataFull.unit, sample_rate = 1/dataFull.dx.value, epoch = dataFull.epoch, dtype=float)
 
-    if "IRIS:II:BFO:00:LA1" == channel.station:
-
-        cutoff_high = 0.01 # 10 MHz
-        B_high, A_high = scipy.signal.butter(n, cutoff_high / (fs / 2.0), btype='highpass')
-        dataLowpass = scipy.signal.lfilter(B_high, A_high, dataLowpass,
-            axis=0).view(dataLowpass.__class__)
-
-        dataLowpass.data[:60*channel.samplef] = dataLowpass.data[60*channel.samplef]
-        dataLowpass.data[-60*channel.samplef:] = dataLowpass.data[-60*channel.samplef]
-        dataLowpass.dx =  dataFull.dx
-        dataLowpass.epoch = dataFull.epoch
-
-        dataHighpass.data[:60*channel.samplef] = dataHighpass.data[60*channel.samplef]
-        dataHighpass.data[-60*channel.samplef:] = dataHighpass.data[-60*channel.samplef]
+    dataHighpass = dataFull.highpass(1.0)
 
     # calculate spectrum
     NFFT = params["fftDuration"]
@@ -337,19 +315,19 @@ def calculate_spectra(params,channel,dataFull):
     dataASD = dataFull.asd(fftlength=NFFT,overlap=None,method='welch')
     freq = np.array(dataASD.frequencies)
     indexes = np.where((freq >= params["fmin"]) & (freq <= params["fmax"]))[0]
-    dataASD = np.array(dataASD.data)
+    dataASD = np.array(dataASD.value)
     freq = freq[indexes]
     dataASD = dataASD[indexes]
-    dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+    dataASD = gwpy.frequencyseries.FrequencySeries(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
 
-    nfft = len(dataFull.data)
+    nfft = len(dataFull.value)
     dataFFT = dataFull.fft(nfft=nfft)
     freqFFT = np.array(dataFFT.frequencies)
     dataFFT = np.array(dataFFT)
     dataFFTreal = np.interp(freq,freqFFT,dataFFT.real)
     dataFFTimag = np.interp(freq,freqFFT,dataFFT.imag)
     dataFFT = dataFFTreal + 1j*dataFFTimag
-    dataFFT = gwpy.frequencyseries.Spectrum(dataFFT, f0=np.min(freqFFT), df=(freqFFT[1]-freqFFT[0]))
+    dataFFT = gwpy.frequencyseries.FrequencySeries(dataFFT, f0=np.min(freqFFT), df=(freqFFT[1]-freqFFT[0]))
 
     # manually set units (units in CIS aren't correct)
     #dataASD.unit = 'counts/Hz^(1/2)'
@@ -404,7 +382,7 @@ def apply_calibration(params,channel,data):
         #a = [0,1,-1.414,1];
         w, h = scipy.signal.freqz(b, a)
 
-        f = data["dataASD"].frequencies.data
+        f = data["dataASD"].frequencies.value
       
         # Divide by f to get to displacement
         data["dataASD"]/=f
@@ -434,7 +412,7 @@ def apply_calibration(params,channel,data):
 
     elif channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
 
-        f = data["dataASD"].frequencies.data
+        f = data["dataASD"].frequencies.value
         # Multiply by f to get to velocity
         data["dataASD"]/=(2*np.pi*f)
 
@@ -449,7 +427,7 @@ def apply_calibration(params,channel,data):
 
         b, a = scipy.signal.zpk2tf(z, p, k)
 
-        f = data["dataASD"].frequencies.data
+        f = data["dataASD"].frequencies.value
 
         # Filter spectrum
         data["dataASD"].filterba(a,b,inplace=True)
@@ -483,7 +461,7 @@ def calculate_picks(params,channel,data):
 
         nsta = int(2.5 * channel.samplef)
         nlta = int(10.0 * channel.samplef)
-        cft = obspy.signal.trigger.recSTALTA(data["dataFull"].data, nsta, nlta)
+        cft = obspy.signal.trigger.recSTALTA(data["dataFull"].value, nsta, nlta)
 
         thres1 = 0.9 * np.max(cft)
         thres2 = 0.5
@@ -524,16 +502,16 @@ def spectra(params, channel, segment):
         return 
 
     dataFull = dataFull / channel.calibration
-    indexes = np.where(np.isnan(dataFull.data))[0]
-    meanSamples = np.median(np.ma.masked_array(dataFull.data,np.isnan(dataFull.data)))
+    indexes = np.where(np.isnan(dataFull.value))[0]
+    meanSamples = np.median(np.ma.masked_array(dataFull.value,np.isnan(dataFull.value)))
     for index in indexes:
         dataFull[index] = meanSamples
-    dataFull -= np.median(dataFull.data)
+    dataFull -= np.median(dataFull.value)
 
-    if np.mean(dataFull.data) == 0.0:
+    if np.mean(dataFull.value) == 0.0:
         print "data only zeroes... continuing\n"
         return
-    if len(dataFull.data) < 2*channel.samplef:
+    if len(dataFull.value) < 2*channel.samplef:
         print "timeseries too short for analysis... continuing\n"
         return
 
@@ -1106,7 +1084,7 @@ def analysis(params, channel):
         print "no data at requested time... continuing\n"
         return
 
-    if np.mean(spectraNow.data) == 0.0:
+    if np.mean(spectraNow.value) == 0.0:
         print "data only zeroes... continuing\n"
         return
 
@@ -1157,11 +1135,11 @@ def analysis(params, channel):
         for j in xrange(len(freq)):
             if ff_ave[i] <= freq[j] and freq[j] <= ff_ave[i+1]:
                 newFreq.append(freq[j])
-                newSpectraNow.append(spectraNow.data[j])
+                newSpectraNow.append(spectraNow.value[j])
                 if newSpectra == []:
-                    newSpectra = specgram.data[:,j]
+                    newSpectra = specgram.value[:,j]
                 else:                 
-                    newSpectra = np.vstack([newSpectra,specgram.data[:,j]])
+                    newSpectra = np.vstack([newSpectra,specgram.value[:,j]])
 
         newSpectra = np.array(newSpectra)
         if len(newSpectra.shape) > 1:
@@ -1182,7 +1160,6 @@ def analysis(params, channel):
         timeseries = gwpy.timeseries.TimeSeries(newSpectra, epoch=epoch, sample_rate=1.0/dt)
         
         sigDict[key] = {}
-        #timeseries.data = np.log10(timeseries.data) 
         sigDict[key]["data"] = timeseries
 
     f.close()
@@ -1283,7 +1260,7 @@ def analysis(params, channel):
         ax = plt.subplot(111)
         #im = plt.pcolor(X,Y,np.transpose(spectral_variation_norm), cmap=plt.cm.jet)
 
-        im = plt.pcolor(X,Y,np.transpose(specvar.data), cmap=plt.cm.jet)
+        im = plt.pcolor(X,Y,np.transpose(specvar.value), cmap=plt.cm.jet)
         ax.set_xscale('log')
         ax.set_yscale('log')
         plt.semilogx(freq,spectraNow, 'k', label='Current')
@@ -1343,7 +1320,7 @@ def channel_summary(params, segment):
         spectra_out = gwpy.frequencyseries.Spectrum.read(file,format='dat')
         spectra_out.unit = 'counts/Hz^(1/2)'
 
-        if np.sum(spectra_out.data) == 0.0:
+        if np.sum(spectra_out.value) == 0.0:
             continue
 
         data[channel.station_underscore] = {}

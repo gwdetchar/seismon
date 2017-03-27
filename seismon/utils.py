@@ -513,6 +513,37 @@ def frame_struct(params):
             datacache.append(frame)
         datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
 
+    elif params["ifo"] == "V1":
+        fflFile = "/virgoData/ffl/rds.ffl"
+        lines = [line.rstrip('\n') for line in open(fflFile)]
+        frameList = []
+        for line in lines:
+            lineSplit = line.split(" ")
+            frameList.append(lineSplit[0])
+
+        datacache = []
+        for frame in frameList:
+            thisFrame = frame.replace("file://localhost","")
+            if thisFrame == "":
+                continue
+
+            thisFrameSplit = thisFrame.split(".")
+            if thisFrameSplit[-1] == "log":
+                continue
+
+            thisFrameSplit = thisFrame.split("-")
+            gps = float(thisFrameSplit[-2])
+            dur = float(thisFrameSplit[-1].replace(".gwf",""))
+
+            if gps+dur < gpsStart:
+                continue
+            if gps > gpsEnd:
+                continue
+
+            #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
+            datacache.append(frame)
+        datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+
     elif params["ifo"] == "IRIS":
         datacache = "IRIS"
     else:
@@ -1310,18 +1341,39 @@ def retrieve_timeseries(params,channel,segment):
 
         #dataFull.resample(channel.samplef)
 
+    elif params["ifo"] == "V1":
+
+        frames = []
+        for frame in params["frame"]:
+            frameStart = frame.segment[0]
+            frameEnd = frame.segment[1]
+
+            if frameEnd < gpsStart:
+                continue
+            if frameStart > gpsEnd:
+                continue
+            frames.append(frame.url)
+        frames = sorted(frames)
+        frames = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, frames))
+
+        try:
+            #dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd)
+            dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
+            #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
+        except:
+            print "data read from frames failed... continuing\n"
+            return dataFull
     else:
 
         #for frame in params["frame"]:
         #    print frame.path
         #    frame_data,data_start,_,dt,_,_ = Fr.frgetvect1d(frame.path,channel.station)
 
-        #print params["frame"]
         #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, epoch=gpsStart, duration=duration)
         #print "done"
 
         # make timeseries
-        #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
+        #dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
 
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
