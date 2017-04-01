@@ -1,6 +1,8 @@
 #!/usr/bin/python
 
 import os, sys, time, glob, math, matplotlib, random, string
+import pickle
+
 matplotlib.use('Agg') 
 matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt
@@ -23,6 +25,15 @@ import astropy.time
 
 import seismon.utils, seismon.eqmon_plot
 import seismon.pybrain
+
+try:
+    from sklearn import gaussian_process
+    from sklearn.gaussian_process import GaussianProcessRegressor
+    from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
+    from sklearn import preprocessing
+    from sklearn import svm
+except:
+    print "sklearn import fails... no prediction possible."
 
 try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
@@ -321,13 +332,20 @@ def run_earthquakes_info(params,segment):
                 locationstr = "Unknown"
 
             try:
-                predictionFile = os.path.join(earthquakesDirectory,"prediction_%s.txt"%ifoShort) 
-                system_command = "source %s/seismon_lockloss_prediction.sh %.1f %.5e %.1f %.1f %.1f %s %s"%(scriptpath,attributeDic["Magnitude"],traveltimes["Rfamp"][0],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],ifoShort,predictionFile)
-                os.system(system_command)
-                print predictionFile
-                predictiondata = np.loadtxt(predictionFile)
-                lockloss = predictiondata[0]
-                lockloss_probability = predictiondata[1]
+                if ifoShort == "L1":
+                    svmfile = os.path.join(scriptpath,'svm_llo.pickle')
+                else:
+                    svmfile = os.path.join(scriptpath,'svm_lho.pickle')
+
+                with open(svmfile, 'rb') as fid:
+                    scaler,clf = pickle.load(fid)
+
+                X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"])/1000.0,attributeDic["Depth"],traveltimes["Azimuth"][0],np.log10(traveltimes["Rfamp"][0]))).T
+                X = scaler.transform(X)
+
+                lockloss_prediction = clf.predict(X)[0]
+                lockloss_prob = clf.predict_proba(X)
+                lockloss_probability = lockloss_prob[0,1]
             except:
                 lockloss = -1
                 lockloss_probability = -1
@@ -2011,32 +2029,57 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     seismonpath = os.path.dirname(seismon.__file__)
     scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
 
-    #Rf0 = 0.89256174
-    #Rfs = 1.3588703
-    #Q0 = 4169.7511
-    #Qs = -0.017424297
-    #cd = 254.13458
-    #ch = 10.331297
-    #rs = 1.0357451
+    if ifo == "LLO":
+        gpfile = os.path.join(scriptpath,'gp_llo.pickle')
+    elif ifo == "Virgo":
+        gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
+    else:
+        gpfile = os.path.join(scriptpath,'gp_lho.pickle')
 
-    Rf0 = 76.44
-    Rfs = 1.37
-    cd = 440.68
-    rs = 1.57
+    with open(gpfile, 'rb') as fid:
+        scaler,gp = pickle.load(fid)
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
-        #Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
-        Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+
+        M = attributeDic["Magnitude"]*np.ones(distances.shape)
+        lat = attributeDic["Latitude"]*np.ones(distances.shape)
+        lon = attributeDic["Longitude"]*np.ones(distances.shape)
+        h = attributeDic["Depth"]*np.ones(distances.shape)
+        az = fwd*np.ones(distances.shape)
+
+        X = np.vstack((M,lat,lon,distances/1000.0,h,az)).T
+        X = scaler.transform(X)
+
+        pred, pred_std = gp.predict(X, return_std=True)
+        pred = 10**pred
+        pred_std = pred*np.log(10)*pred_std
+
+        Rfamp = pred
+
     else:
         distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
         degrees = (distances/6370000)*(180/np.pi)
-        #Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
-        Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+
+        M = attributeDic["Magnitude"]*np.ones(distances.shape)
+        lat = attributeDic["Latitude"]*np.ones(distances.shape)
+        lon = attributeDic["Longitude"]*np.ones(distances.shape)
+        h = attributeDic["Depth"]*np.ones(distances.shape)
+        az = fwd*np.ones(distances.shape)
+
+        X = np.vstack((M,lat,lon,distances[-1]/1000.0,h,az)).T
+        X = scaler.transform(X)
+
+        pred, pred_std = gp.predict(X, return_std=True)
+        pred = 10**pred
+        pred_std = pred*np.log(10)*pred_std
+        
+        Rfamp = pred[0]
+
     Pamp = 1e-6
     Samp = 1e-5
 
@@ -2194,32 +2237,57 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
 
-    #Rf0 = 0.89256174
-    #Rfs = 1.3588703
-    #Q0 = 4169.7511
-    #Qs = -0.017424297
-    #cd = 254.13458
-    #ch = 10.331297
-    #rs = 1.0357451
+    if ifo == "LLO":
+        gpfile = os.path.join(scriptpath,'gp_llo.pickle')
+    elif ifo == "Virgo":
+        gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
+    else:
+        gpfile = os.path.join(scriptpath,'gp_lho.pickle')
 
-    Rf0 = 76.44
-    Rfs = 1.37
-    cd = 440.68
-    rs = 1.57 
+    with open(gpfile, 'rb') as fid:
+        scaler,gp = pickle.load(fid)
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
-        #Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
-        Rfamp = ampRf(attributeDic["Magnitude"],distances/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+
+        M = attributeDic["Magnitude"]*np.ones(distances.shape)
+        lat = attributeDic["Latitude"]*np.ones(distances.shape)
+        lon = attributeDic["Longitude"]*np.ones(distances.shape) 
+        h = attributeDic["Depth"]*np.ones(distances.shape)
+        az = fwd*np.ones(distances.shape)
+
+        X = np.vstack((M,lat,lon,distances/1000.0,h,az)).T
+        X = scaler.transform(X)
+
+        pred, pred_std = gp.predict(X, return_std=True)
+        pred = 10**pred
+        pred_std = pred*np.log(10)*pred_std
+
+        Rfamp = pred
+
     else:
         distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
         degrees = (distances/6370000)*(180/np.pi)
-        #Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,Q0,Qs,cd,ch,rs)
-        Rfamp = ampRf(attributeDic["Magnitude"],distances[-1]/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+
+        M = attributeDic["Magnitude"]*np.ones(distances.shape)
+        lat = attributeDic["Latitude"]*np.ones(distances.shape)
+        lon = attributeDic["Longitude"]*np.ones(distances.shape)
+        h = attributeDic["Depth"]*np.ones(distances.shape)
+        az = fwd*np.ones(distances.shape)
+
+        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distances[-1]/1000.0,attributeDic["Depth"],az)).T
+        X = scaler.transform(X)
+
+        pred, pred_std = gp.predict(X, return_std=True)
+        pred = 10**pred
+        pred_std = pred*np.log(10)*pred_std
+
+        Rfamp = pred[0]
+
     Pamp = 1e-6
     Samp = 1e-5
 
@@ -2344,6 +2412,9 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         print "This analysis missing traveltimes... returning.\n"
         return attributeDic
 
+    seismonpath = os.path.dirname(seismon.__file__)
+    scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
+
     #print attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon
     #if (np.absolute(attributeDic["Latitude"]-ifolat)**2 + np.absolute(attributeDic["Longitude"]-ifolon)**2) < 5:
     #    distance = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon) 
@@ -2364,37 +2435,24 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     rfamp_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
         attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
 
-    if ifo == "LHO":
-        Rf0 = 0.16
-        Rfs = 1.31
-        cd = 4672.83
-        rs = 0.83
-
-    elif ifo == "LLO":
-        Rf0 = 0.16
-        Rfs = 1.31
-        cd = 4672.83
-        rs = 0.81
-
+    if ifo == "LLO":
+        gpfile = os.path.join(scriptpath,'gp_llo.pickle')
     elif ifo == "Virgo":
-        Rf0 = 1.60
-        Rfs = 0.89
-        cd = 4992.70
-        rs = 0.83
-
-    elif ifo == "GEO":
-        Rf0 = 8.65
-        Rfs = 1.92
-        cd = 324.52
-        rs = 1.40
-
+        gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
     else:
-        Rf0 = 0.16
-        Rfs = 1.31
-        cd = 4672.83
-        rs = 0.83
+        gpfile = os.path.join(scriptpath,'gp_lho.pickle')
 
-    Rfamp = ampRf(attributeDic["Magnitude"],distance/1000.0,attributeDic["Depth"],Rf0,Rfs,cd,rs)
+    with open(gpfile, 'rb') as fid:
+        scaler,gp = pickle.load(fid)
+
+    X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance/1000.0,attributeDic["Depth"],fwd)).T
+    X = scaler.transform(X)
+
+    pred, pred_std = gp.predict(X, return_std=True)
+    pred = 10**pred
+    pred_std = pred*np.log(10)*pred_std
+
+    Rfamp = pred[0]
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
