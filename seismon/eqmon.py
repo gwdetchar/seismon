@@ -2,6 +2,7 @@
 
 import os, sys, time, glob, math, matplotlib, random, string
 import pickle
+import calendar
 
 matplotlib.use('Agg') 
 matplotlib.rcParams.update({'font.size': 18})
@@ -1513,7 +1514,7 @@ def read_eqxml(file,eventName):
 
     attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
-    dt = datetime.fromtimestamp(time.mktime(tm))
+    dt = datetime.utcfromtimestamp(calendar.timegm(tm))
 
     attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
@@ -1583,7 +1584,7 @@ def read_quakeml(file,eventName):
 
     attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
-    dt = datetime.fromtimestamp(time.mktime(tm))
+    dt = datetime.utcfromtimestamp(calendar.timegm(tm))
 
     attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
@@ -1665,12 +1666,12 @@ def jsonread(event):
         attributeDic["Review"] = "Manual"
 
     Time = time.gmtime(attributeDic["UTC"])
-    dt = datetime.fromtimestamp(time.mktime(Time))
+    dt = datetime.utcfromtimestamp(calendar.timegm(Time))
 
     attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
     SentTime = time.gmtime()
-    dt = datetime.fromtimestamp(time.mktime(SentTime))
+    dt = datetime.utcfromtimestamp(calendar.timegm(SentTime))
     attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
     attributeDic['SentUTC'] = time.time()
@@ -1680,7 +1681,7 @@ def jsonread(event):
 
     attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
-    dt = datetime.fromtimestamp(time.mktime(tm))
+    dt = datetime.utcfromtimestamp(calendar.timegm(tm))
     attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
     attributeDic['WrittenUTC'] = float(time.time())
@@ -1737,7 +1738,7 @@ def irisread(event):
         attributeDic["Review"] = "Manual"
 
     SentTime = time.gmtime()
-    dt = datetime.fromtimestamp(time.mktime(SentTime))
+    dt = datetime.utcfromtimestamp(calendar.timegm(SentTime))
     attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
     attributeDic['SentUTC'] = time.time()
@@ -1745,7 +1746,7 @@ def irisread(event):
 
     attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
-    dt = datetime.fromtimestamp(time.mktime(tm))
+    dt = datetime.utcfromtimestamp(calendar.timegm(tm))
 
     attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
@@ -1810,21 +1811,22 @@ def databaseread(event):
 
     return attributeDic
 
-def fakeeventread():
+def fakeeventread(params):
 
     attributeDic = {}
 
-    Time = time.gmtime()
-    dt = datetime.fromtimestamp(time.mktime(Time))
-    tm = time.struct_time(dt.timetuple())
-    attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
-    #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
-    attributeDic['UTC'] = time.time()
-    attributeDic['Time'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", Time)
+    attributeDic['GPS'] = astropy.time.Time(params["gps"], format='gps', scale='utc').gps
+    timeString = astropy.time.Time(params["gps"], format='gps', scale='utc').isot
 
-    attributeDic["Longitude"] = random.uniform(-180.0,180.0)
-    attributeDic["Latitude"] = random.uniform(0.0,10.0)
-    attributeDic["Depth"] = 0
+    dt = datetime.strptime(timeString, "%Y-%m-%dT%H:%M:%S.%f")
+    tm = time.struct_time(dt.timetuple())
+   
+    attributeDic['UTC'] = float(dt.strftime("%s"))
+    attributeDic['Time'] = timeString
+
+    attributeDic["Longitude"] = params["longitude"]
+    attributeDic["Latitude"] = params["latitude"]
+    attributeDic["Depth"] = params["depth"]
 
     eventID = "%.0f"%attributeDic['GPS']
     eventName = ''.join(["fake",str(eventID)])
@@ -1832,7 +1834,7 @@ def fakeeventread():
     attributeDic["eventName"] = eventName
     attributeDic["eventID"] = eventID
 
-    attributeDic["Magnitude"] = random.uniform(9.0,10.0)
+    attributeDic["Magnitude"] = params["magnitude"]
     attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
     attributeDic["DataSource"] = "FAKE"
     attributeDic["Version"] = 1.0
@@ -1841,7 +1843,8 @@ def fakeeventread():
     attributeDic["Review"] = "FAKE"
 
     SentTime = time.gmtime()
-    dt = datetime.fromtimestamp(time.mktime(SentTime))
+    dt = datetime.utcfromtimestamp(calendar.timegm(SentTime))
+
     attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
     attributeDic['SentUTC'] = time.time()
@@ -1849,7 +1852,7 @@ def fakeeventread():
 
     #attributeDic = calculate_traveltimes(attributeDic)
     tm = time.struct_time(time.gmtime())
-    dt = datetime.fromtimestamp(time.mktime(tm))
+    dt = datetime.utcfromtimestamp(calendar.timegm(tm))
 
     attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
