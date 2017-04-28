@@ -2534,23 +2534,25 @@ def retrieve_earthquakes(params,gpsStart,gpsEnd):
     """
 
     attributeDics = []
-    eventfilesLocation = os.path.join(params["eventfilesLocation"],params["eventfilesType"])
-    files = glob.glob(os.path.join(eventfilesLocation,"*.xml"))
+    eventfilesTypes = params["eventfilesType"].split(",")
+    for eventfilesType in eventfilesTypes:
 
-#    for numFile in xrange(100):
-    for numFile in xrange(len(files)):
+        eventfilesLocation = os.path.join(params["eventfilesLocation"],eventfilesType)
+        files = glob.glob(os.path.join(eventfilesLocation,"*.xml"))
 
-        file = files[numFile]
+        for numFile in xrange(len(files)):
 
-        fileSplit = file.replace(".xml","").split("-")
-        gps = float(fileSplit[-1])
-        if (gps < gpsStart - 3600) or (gps > gpsEnd):
-           continue
+            file = files[numFile]
 
-        attributeDic = read_eqmon(params,file)
+            fileSplit = file.replace(".xml","").split("-")
+            gps = float(fileSplit[-1])
+            if (gps < gpsStart - 3600) or (gps > gpsEnd):
+                continue
 
-        if attributeDic["Magnitude"] >= params["earthquakesMinMag"]:
-            attributeDics.append(attributeDic)
+            attributeDic = read_eqmon(params,file)
+
+            if attributeDic["Magnitude"] >= params["earthquakesMinMag"]:
+                attributeDics.append(attributeDic)
 
     return attributeDics
 
