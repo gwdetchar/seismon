@@ -78,6 +78,8 @@ def parse_commandline():
     parser.add_option("--doMultipleEvents",  action="store_true", default=False)
     parser.add_option("--doCopy",  action="store_true", default=False)
     parser.add_option("--doPurge",  action="store_true", default=False)
+    parser.add_option("--doMoment",  action="store_true", default=False)
+    parser.add_option("--doCMT",  action="store_true", default=False)
 
     opts, args = parser.parse_args()
 
@@ -116,6 +118,8 @@ def params_struct(opts):
     params["doMultipleEvents"] = opts.doMultipleEvents
     params["doCopy"] = opts.doCopy
     params["doPurge"] = opts.doPurge
+    params["doMoment"] = opts.doMoment
+    params["doCMT"] = opts.doCMT
 
     params["paramsFile"] = opts.paramsFile
     params["paramsFileCopy"] = opts.paramsFileCopy
@@ -149,16 +153,16 @@ def write_info(file,attributeDic):
         if not key == "traveltimes":
             element = etree.SubElement(root,key)
             element.text = str(value)
-    element = etree.SubElement(root,'traveltimes')
-    for key, value in attributeDic["traveltimes"].items():
-        subelement = etree.SubElement(element,key)
-        for category in value:
-            if category in ["Latitudes","Longitudes","arrivalMin","arrivalMax"]:
-                continue
-            subsubelement = etree.SubElement(subelement,category)
-            subsubelement.text = write_array(value[category])
+    if "traveltimes" in attributeDic:
+        element = etree.SubElement(root,'traveltimes')
+        for key, value in attributeDic["traveltimes"].items():
+            subelement = etree.SubElement(element,key)
+            for category in value:
+                if category in ["Latitudes","Longitudes","arrivalMin","arrivalMax"]:
+                    continue
+                subsubelement = etree.SubElement(subelement,category)
+                subsubelement.text = write_array(value[category])
 
-    
     tree = etree.tostring(root, pretty_print=True)
     write_file(file,tree)
     #tree = etree.ElementTree(root)
@@ -319,6 +323,36 @@ def save_fake_event(params,timeFolder,eventName):
 
         print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
 
+def save_moment_event(params,timeFolder,eventName):
+
+    attributeDic = []
+    productfile = os.path.join(timeFolder,"quakeml.xml")
+
+    if os.path.isfile(os.path.join(timeFolder,"eqxml.txt")):
+        return
+
+    #f = open(os.path.join(timeFolder,"eqxml.txt"),"w")
+    #f.write("Done")
+    #f.close()
+
+    if os.path.isfile(productfile):
+        attributeDic = eqmon.read_product(productfile,eventName)
+
+    print attributeDic
+
+    if attributeDic == []:
+        return
+
+    if params["doMultipleEvents"]:
+        file = os.path.join(params["eventfilesLocation"],"moment/%s-%.0f-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["SentGPS"]))
+    else:
+        file = os.path.join(params["eventfilesLocation"],"moment/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+
+    if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+        write_info(file,attributeDic)
+
+        print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+
 def save_private_event(params,timeFolder,eventName):
 
     attributeDic = []
@@ -353,6 +387,82 @@ def save_private_event(params,timeFolder,eventName):
 
         print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
 
+def cmt_events(params):
+    """@write pdl events
+
+    @param params
+        seismon params structure
+    """
+
+    numEventsAdded = 0
+
+    years = np.arange(2007,2018)
+    months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+
+    import obspy
+
+    for year in years:
+        for month in months:
+            try:
+                catfile = "http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY/%d/%s%d.ndk"%(year,month,np.mod(year,100))
+                cat = obspy.readEvents(catfile)
+                print catfile
+            except:
+                continue 
+
+            for event in cat:
+                attributeDic = eqmon.cmtread(event)
+
+                print attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
+
+                if not "GPS" in attributeDic:
+                    continue
+                if os.path.isfile(os.path.join(params["eventfilesLocation"],"cmt/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))):
+                    continue
+
+                file = os.path.join(params["eventfilesLocation"],"cmt/%s-%.0f.xml"%(attributeDic["eventName"],attributeDic["GPS"]))
+                if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
+                    write_info(file,attributeDic)
+
+                    print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+                    numEventsAdded = numEventsAdded + 1
+
+    return numEventsAdded
+
+def moment_events(params):
+    """@write pdl events
+
+    @param params
+        seismon params structure
+    """
+
+    numEventsAdded = 0
+
+    folders = glob.glob(os.path.join(params["momentDataLocation"],"*"))
+    #folders = []
+    for numFolder in xrange(len(folders)):
+
+        folder = folders[numFolder]
+
+        folderSplit = folder.split("/")
+        eventName = folderSplit[len(folderSplit) - 1]
+
+        dataFolder = os.path.join(params["momentDataLocation"],eventName,eventName[0:2])
+        timeFolders = glob.glob(os.path.join(dataFolder,"*"))
+        timeFolders = sorted(timeFolders)
+
+        if timeFolders == []:
+            continue
+
+        if params["doMultipleEvents"]:
+            if len(timeFolders) == 1:
+                continue
+
+        for timeFolder in timeFolders:
+                save_moment_event(params,timeFolder,eventName)
+                numEventsAdded = numEventsAdded + 1
+
+    return numEventsAdded
 
 def private_events(params):
     """@write pdl events
@@ -595,6 +705,12 @@ def run_traveltimes():
     if params["doCopy"]:
         print "Copying events..."
         rsync_files(params)
+    if params["doMoment"]:
+        print "Running moment tensor events..."
+        numEventsAddedMoment = moment_events(params)
+    if params["doCMT"]:
+        print "Running CMT moment tensor events..."
+        numEventsAddedCMT = cmt_events(params)
 
 # =============================================================================
 #

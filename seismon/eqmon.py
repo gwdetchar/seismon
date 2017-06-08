@@ -1451,6 +1451,196 @@ def parse_xml(element):
 
     return dic
 
+def cmtread(event):
+    """@read cmt event.
+
+    @param event
+        cmt event
+    """
+
+    attributeDic = {}
+
+    attributeDic['Time'] = str(event.origins[0].time)
+    timeString = attributeDic['Time'].replace("T"," ").replace("Z","")
+    dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+    tm = time.struct_time(dt.timetuple())
+
+    attributeDic["Longitude"] = event.origins[0].longitude
+    attributeDic["Latitude"] = event.origins[0].latitude
+    if not event.origins[0].depth == None:
+        attributeDic["Depth"] = event.origins[0].depth / 1000.0
+    else:
+        attributeDic["Depth"] = 0
+    attributeDic["eventID"] = event.origins[0].region
+
+    td = dt - datetime(1970, 1, 1)
+    thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+
+    if thistime < 300000000:
+        attributeDic['GPS'] = thistime
+    else:
+        attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+        #attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
+
+    attributeDic['UTC'] = float(dt.strftime("%s"))
+
+    eventID = "%.0f"%attributeDic['GPS']
+    eventName = ''.join(["cmt",str(eventID)])
+
+    attributeDic["eventName"] = eventName
+    attributeDic["Magnitude"] = event.magnitudes[0].mag
+    attributeDic["MomentMagnitude"] = (attributeDic["Magnitude"] - 9.1)/1.5
+    attributeDic["DataSource"] = "CMT"
+    attributeDic["Version"] = 1.0
+    attributeDic["Type"] = 1.0
+    attributeDic['Region'] = event.origins[0].region
+
+    if event.origins[0].evaluation_status == "AUTOMATIC":
+        attributeDic["Review"] = "Automatic"
+    else:
+        attributeDic["Review"] = "Manual"
+
+    SentTime = time.gmtime()
+    dt = datetime.utcfromtimestamp(calendar.timegm(SentTime))
+    attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+    #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
+    attributeDic['SentUTC'] = time.time()
+    attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
+
+    attributeDic = calculate_traveltimes(attributeDic)
+    tm = time.struct_time(time.gmtime())
+    dt = datetime.utcfromtimestamp(calendar.timegm(tm))
+
+    attributeDic['WrittenGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+    #attributeDic['WrittenGPS'] = float(lal.gpstime.utc_to_gps(dt))
+    attributeDic['WrittenUTC'] = float(time.time())
+
+    nodalPlane1 = event["focal_mechanisms"][0]["nodal_planes"]["nodal_plane_1"]
+    nodalPlane2 = event["focal_mechanisms"][0]["nodal_planes"]["nodal_plane_2"]
+
+    attributeDic["nodalPlane1_strike"] = float(nodalPlane1["strike"])
+    attributeDic["nodalPlane1_rake"] = float(nodalPlane1["rake"])
+    attributeDic["nodalPlane1_dip"] = float(nodalPlane1["dip"])
+    attributeDic["nodalPlane2_strike"] = float(nodalPlane2["strike"])
+    attributeDic["nodalPlane2_rake"] = float(nodalPlane2["rake"])
+    attributeDic["nodalPlane2_dip"] = float(nodalPlane2["dip"])
+
+    momentTensor = event["focal_mechanisms"][0]["moment_tensor"]
+    tensor = momentTensor["tensor"]
+    attributeDic["momentTensor_Mrt"] = float(tensor["m_rt"]) / float(momentTensor["scalar_moment"])
+    attributeDic["momentTensor_Mtp"] = float(tensor["m_tp"]) / float(momentTensor["scalar_moment"])
+    attributeDic["momentTensor_Mrp"] = float(tensor["m_rp"]) / float(momentTensor["scalar_moment"])
+    attributeDic["momentTensor_Mtt"] = float(tensor["m_tt"]) / float(momentTensor["scalar_moment"])
+    attributeDic["momentTensor_Mrr"] = float(tensor["m_rr"]) / float(momentTensor["scalar_moment"])
+    attributeDic["momentTensor_Mpp"] = float(tensor["m_pp"]) / float(momentTensor["scalar_moment"])
+
+    return attributeDic
+
+def read_product(file,eventName):
+    """@read eqxml file.
+
+    @param file
+        eqxml file
+    @param eventName
+        name of earthquake event
+    """
+
+    tree = etree.parse(file)
+    root = tree.getroot()
+    dic = parse_xml(root)
+
+    attributeDic = []
+
+    if not "event" in dic["eventParameters"]:
+        return attributeDic
+
+    if "origin" not in dic["eventParameters"]["event"]:
+        return attributeDic
+
+    if "nodalPlanes" not in dic["eventParameters"]["event"]["focalMechanism"]:
+        return attributeDic
+
+    attributeDic = {}
+
+    #triggeringOriginID = dic["eventParameters"]["event"]["focalMechanism"]["triggeringOriginID"]
+    #eventID = triggeringOriginID.split("/")[-1]
+    #creationInfo = dic["eventParameters"]["event"]["focalMechanism"]["creationInfo"]
+    #agencyID = creationInfo["agencyID"]
+
+    eventNameSplit = eventName.split("_")
+    if len(eventNameSplit) == 3:
+        eventID = "%s%s"%(eventNameSplit[0],eventNameSplit[1])
+    else:
+        eventID = eventNameSplit[0]
+
+    attributeDic["eventID"] = eventID
+    attributeDic["eventName"] = eventID
+
+    attributeDic["Longitude"] = float(dic["eventParameters"]["event"]["origin"]["longitude"]["value"])
+    attributeDic["Latitude"] = float(dic["eventParameters"]["event"]["origin"]["latitude"]["value"])
+    attributeDic["Depth"] = float(dic["eventParameters"]["event"]["origin"]["depth"]["value"]) / 1000
+
+    attributeDic["Time"] = dic["eventParameters"]["event"]["origin"]["time"]["value"]
+    timeString = attributeDic["Time"].replace("T"," ").replace("Z","")
+    try:
+        dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+        tm = time.struct_time(dt.timetuple())
+        attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+        attributeDic['UTC'] = float(dt.strftime("%s"))
+    except:
+        dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S")
+        tm = time.struct_time(dt.timetuple())
+        attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+        attributeDic['UTC'] = float(dt.strftime("%s"))
+
+    if "creationInfo" in dic["eventParameters"]["event"]:
+        attributeDic["Sent"] = dic["eventParameters"]["event"]["creationInfo"]["creationTime"]
+        timeString = attributeDic["Sent"].replace("T"," ").replace("Z","")
+
+        try:
+            dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+            tm = time.struct_time(dt.timetuple())
+            attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+            attributeDic['SentUTC'] = float(dt.strftime("%s"))
+        except:
+            dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S")
+            tm = time.struct_time(dt.timetuple())
+            attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+            attributeDic['SentUTC'] = float(dt.strftime("%s"))
+    else:
+        tm = time.struct_time(time.gmtime())
+        dt = datetime.utcfromtimestamp(calendar.timegm(tm))
+
+        attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+        attributeDic['SentUTC'] = float(time.time())
+
+    if "magnitude" in dic["eventParameters"]["event"]:
+        attributeDic["Magnitude"] = float(dic["eventParameters"]["event"]["magnitude"]["mag"]["value"])
+    else:
+        attributeDic["Magnitude"] = 0
+
+    nodalPlanes = dic["eventParameters"]["event"]["focalMechanism"]["nodalPlanes"]
+    nodalPlane1 = nodalPlanes["nodalPlane1"]
+    nodalPlane2 = nodalPlanes["nodalPlane2"]
+
+    attributeDic["nodalPlane1_strike"] = float(nodalPlane1["strike"]["value"])
+    attributeDic["nodalPlane1_rake"] = float(nodalPlane1["rake"]["value"])
+    attributeDic["nodalPlane1_dip"] = float(nodalPlane1["dip"]["value"])
+    attributeDic["nodalPlane2_strike"] = float(nodalPlane2["strike"]["value"])
+    attributeDic["nodalPlane2_rake"] = float(nodalPlane2["rake"]["value"])
+    attributeDic["nodalPlane2_dip"] = float(nodalPlane2["dip"]["value"])
+
+    momentTensor = dic["eventParameters"]["event"]["focalMechanism"]["momentTensor"]
+    tensor = momentTensor["tensor"]
+    attributeDic["momentTensor_Mrt"] = float(tensor["Mrt"]["value"]) / float(momentTensor["scalarMoment"]["value"])
+    attributeDic["momentTensor_Mtp"] = float(tensor["Mtp"]["value"]) / float(momentTensor["scalarMoment"]["value"])
+    attributeDic["momentTensor_Mrp"] = float(tensor["Mrp"]["value"]) / float(momentTensor["scalarMoment"]["value"])
+    attributeDic["momentTensor_Mtt"] = float(tensor["Mtt"]["value"]) / float(momentTensor["scalarMoment"]["value"])
+    attributeDic["momentTensor_Mrr"] = float(tensor["Mrr"]["value"]) / float(momentTensor["scalarMoment"]["value"])
+    attributeDic["momentTensor_Mpp"] = float(tensor["Mpp"]["value"]) / float(momentTensor["scalarMoment"]["value"])
+
+    return attributeDic
+
 def read_eqxml(file,eventName):
     """@read eqxml file.
 
