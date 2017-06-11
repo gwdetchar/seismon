@@ -65,7 +65,7 @@ for distance, degree in zip(distances, degrees):
         for phase in arrivals:
             if Ptime == -1 and phase.name.lower()[0] == "p":
                 Ptime = GPS+phase.time
-            if Stime == -1 and phase.name.lower()[0] == "s":
+            if Stime == -1 and phase.name.lower()[-1] == "s":
                 Stime = GPS+phase.time
             Rtwotime = GPS+distance/2000.0
             RthreePointFivetime = GPS+distance/3500.0

@@ -66,7 +66,7 @@ for distance, degree, parrival, sarrival in zip(distances, degrees,parrivals,sar
     for phase in arrivals:
         if Ptime == -1 and phase.name.lower()[0] == "p":
             Ptime = GPS+phase.time
-        if Stime == -1 and phase.name.lower()[0] == "s":
+        if Stime == -1 and phase.name.lower()[-1] == "s":
             Stime = GPS+phase.time
     Ptime = GPS+parrival
     Stime = GPS+sarrival
