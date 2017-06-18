@@ -28,6 +28,10 @@ for line in lines:
     starttime = lineSplit[5]
     endtime = lineSplit[6]
 
+    channelSplit = channel.split(":")
+    array = channelSplit[0]
+    if not array in ["TA","US"]: continue
+
     print channel, samplef, latitude, longitude, starttime, endtime
 
     #if starttime < starttime_min:
@@ -36,7 +40,11 @@ for line in lines:
     #    endtime = obspy.UTCDateTime(2016, 1, 1, 12, 0, 0, 0)
 
     minMagnitude = 6.0
-    events = client.get_events(minmagnitude=minMagnitude,starttime=starttime,endtime=endtime)
+    try:
+        events = client.get_events(minmagnitude=minMagnitude,starttime=starttime,endtime=endtime)
+    except:
+        print "No events from %s-%s"%(starttime,endtime)
+        continue
 
     starttime = astropy.time.Time(starttime, format='isot', scale='utc')
     endtime = astropy.time.Time(endtime, format='isot', scale='utc')
@@ -46,7 +54,7 @@ for line in lines:
 
     eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQ/%s.txt"%(channel.replace(":","_"))
 
-    if os.path.isfile(eqfile): continue
+    #if os.path.isfile(eqfile): continue
 
     f = open(eqfile,'w')
 
@@ -68,9 +76,9 @@ for line in lines:
         arrival_floor = np.floor(arrival / 100.0) * 100.0
         departure_ceil = np.ceil(departure / 100.0) * 100.0
 
-        f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s\n"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],channel))
+        f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s\n"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],max(traveltimes["Azimuth"]),channel))
 
-        print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %s\n"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],channel)
+        print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s\n"%(attributeDic["eventName"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],max(traveltimes["Azimuth"]),channel)
 
         gpsStart = arrival_floor.copy()
         gpsEnd = departure_ceil.copy()

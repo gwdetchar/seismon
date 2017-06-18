@@ -24,6 +24,10 @@ for line in lines:
     starttime = lineSplit[5]
     endtime = lineSplit[6]
 
+    channelSplit = channel.split(":")
+    array = channelSplit[0]
+    if not array in ["TA","7D","US"]: continue
+
     print channel, samplef, latitude, longitude, starttime, endtime
 
     #if starttime < starttime_min:
@@ -36,7 +40,7 @@ for line in lines:
 
     starttime = astropy.time.Time(starttime, format='isot', scale='utc')
     #endtime = astropy.time.Time(endtime, format='isot', scale='utc')
-    endtime = starttime + 3600*12 * astropy.units.s
+    endtime = starttime + 86400*30*astropy.units.s
 
     if starttime > endtime:
         continue
@@ -47,7 +51,7 @@ for line in lines:
         gpsEnd = gpss[ii+1]
 
         psdfiles = glob.glob("/home/mcoughlin/Seismon/USArray/Text_Files/PSD/%s/*.txt"%channel.replace(":","_"))
-        if len(psdfiles)>3: break
+        if len(psdfiles)>400: break
 
         psdfile = "/home/mcoughlin/Seismon/USArray/Text_Files/PSD/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
         if os.path.isfile(psdfile): continue

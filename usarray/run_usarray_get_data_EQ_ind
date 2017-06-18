@@ -1,0 +1,170 @@
+
+import os, sys, glob
+import numpy as np
+import astropy.time
+
+import matplotlib
+from mpl_toolkits.basemap import Basemap
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+import obspy
+import obspy.iris
+
+import seismon
+from seismon import eqmon
+
+client = obspy.fdsn.client.Client("IRIS")
+
+channellist = "input/channels.txt"
+lines = [line.rstrip('\n') for line in open(channellist)]
+
+starttime_min=obspy.UTCDateTime(2015, 1, 1, 0, 0, 0, 0)
+endtime_max=obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
+minMagnitude = 6.0
+events = client.get_events(minmagnitude=minMagnitude,starttime=starttime_min,endtime=endtime_max)
+
+#starttime_min=obspy.UTCDateTime(2016, 1, 1, 0, 0, 0, 0)
+#endtime_max=obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
+#minMagnitude = 7.5
+#events = client.get_events(minmagnitude=minMagnitude,starttime=starttime_min,endtime=endtime_max)
+
+print events
+
+for event in events.events:
+    attributeDic = eqmon.irisread(event)
+    eqtime = astropy.time.Time(attributeDic["GPS"], format='gps', scale='utc')
+    eqtime = obspy.UTCDateTime(eqtime.isot)
+    print attributeDic["eventName"], attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
+
+    data = {}
+
+    for line in lines:
+        lineSplit = line.split(" ")
+        lineSplit = filter(None, lineSplit)
+    
+        channel = lineSplit[0]
+        samplef = float(lineSplit[1])
+        calibration = float(lineSplit[2])
+        latitude = float(lineSplit[3])
+        longitude = float(lineSplit[4])
+        starttime = obspy.UTCDateTime(lineSplit[5])
+        endtime = obspy.UTCDateTime(lineSplit[6])
+ 
+        if starttime > eqtime: continue
+        if endtime < eqtime: continue
+   
+        print channel, samplef, latitude, longitude, starttime, endtime, eqtime
+    
+        ifo = "%s,%.5f,%.5f"%(channel, latitude, longitude)
+     
+        attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo)
+        traveltimes = attributeDicTemp["traveltimes"][channel]
+    
+        #print attributeDic["eventName"], attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"], traveltimes["Distances"][0], traveltimes["Ptimes"][0], traveltimes["Stimes"][0], traveltimes["Rtwotimes"][0], traveltimes["RthreePointFivetimes"][0], traveltimes["Rfivetimes"][0], traveltimes["Rfamp"][0]
+    
+        arrival = np.min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+        departure = np.max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+    
+        arrival_floor = np.floor(arrival / 100.0) * 100.0
+        departure_ceil = np.ceil(departure / 100.0) * 100.0
+    
+        gpsStart = arrival_floor.copy()
+        gpsEnd = departure_ceil.copy()
+    
+        timefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/Timeseries/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
+        if not os.path.isfile(timefile):
+            system_command = "python usarray_get_data_EQ -c %s -s %d -e %d --doDownload"%(channel,gpsStart,gpsEnd)
+            os.system(system_command)
+        if not os.path.isfile(timefile): continue
+
+        data_out = np.loadtxt(timefile)
+
+        data[channel] = {}                
+        data[channel]["tt"] = data_out[1,0] - attributeDic["GPS"]
+        data[channel]["velocity"] = data_out[1,1]
+        data[channel]["latitude"] = latitude
+        data[channel]["longitude"] = longitude
+        data[channel]["distance"] = traveltimes["Distances"][0]
+        data[channel]["azimuth"] = traveltimes["Azimuth"][0] 
+
+    plotDirectory = os.path.join("/home/mcoughlin/Seismon/USArray/","EQs",attributeDic["eventName"])
+    seismon.utils.mkdir(plotDirectory)
+
+    pngFile = os.path.join(plotDirectory,'azimuth_distance.png')
+    plt.figure()
+    ax = plt.gca()
+    for channel in data.iterkeys():
+        distance = data[channel]["distance"]
+        azimuth = data[channel]["azimuth"]
+        sc = plt.scatter(distance,azimuth,s=20,c=np.log10(data[channel]["velocity"]),zorder=10,vmin=-6,vmax=-3)
+
+    ax.set_xscale('log')
+    plt.xlabel("Distance [m]")
+    plt.ylabel("Azimuth [deg]")
+    cbar = plt.colorbar(sc)
+    cbar.set_label("log10(Ground velocity [m/s])")
+    #plt.xlim([1e-6,1e-3])
+    #plt.ylim([5,9])
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+    pngFile = os.path.join(plotDirectory,"maps_vel.png")
+    plt.figure(figsize=(12,6))
+    m =\
+Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+    # draw coastlines, meridians and parallels.
+    m.drawcoastlines(linewidth=1.25)
+    m.fillcontinents(color='0.8')
+    m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1]) 
+
+    for channel in data.iterkeys():
+        latitude = data[channel]["latitude"]
+        longitude = np.mod(data[channel]["longitude"],360.0)
+
+        x, y = m(longitude,latitude)
+        cs = m.scatter(x,y,s=20,c=np.log10(data[channel]["velocity"]),zorder=10,vmin=-6,vmax=-3)
+    cbar = m.colorbar(cs,location='right',pad="5%")
+    cbar.set_label('log10(Peak Amplitude) [m/s]')
+
+    latitude = attributeDic["Latitude"]
+    longitude = np.mod(attributeDic["Longitude"],360.0)
+    x, y = m(longitude,latitude)
+    m.plot(x,y,'rx',markersize=20)
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+    pngFile = os.path.join(plotDirectory,"maps_time.png")
+    plt.figure(figsize=(12,6))
+    m =\
+Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+    # draw coastlines, meridians and parallels.
+    m.drawcoastlines(linewidth=1.25) 
+    m.fillcontinents(color='0.8')
+    m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1]) 
+    
+    for channel in data.iterkeys():
+        latitude = data[channel]["latitude"]
+        longitude = np.mod(data[channel]["longitude"],360.0)
+        
+        x, y = m(longitude,latitude)
+        cs = m.scatter(x,y,s=20,c=data[channel]["tt"],zorder=10,vmin=0,vmax=7200)
+    cbar = m.colorbar(cs,location='right',pad="5%")
+    cbar.set_label('Time Delay [s]')
+
+    latitude = attributeDic["Latitude"]
+    longitude = np.mod(attributeDic["Longitude"],360.0)
+    x, y = m(longitude,latitude)
+    m.plot(x,y,'rx',markersize=20)
+ 
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+ 

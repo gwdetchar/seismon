@@ -1,0 +1,267 @@
+
+import os, sys, glob
+import pickle
+import numpy as np
+import astropy.time
+
+import matplotlib
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+import pymultinest
+
+from sklearn import gaussian_process
+from sklearn.gaussian_process import GaussianProcessRegressor
+from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
+from sklearn import preprocessing
+from sklearn import svm
+
+def ampRf(M,r,h,Rf0,Rfs,cd,rs):
+    #def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
+    # Rf amplitude estimate
+    # M = magnitude
+    # r = distance [km]
+    # h = depth [km]
+
+    # Rf0 = Rf amplitude parameter
+    # Rfs = exponent of power law for f-dependent Rf amplitude
+    # Q0 = Q-value of Earth for Rf waves at 1Hz
+    # Qs = exponent of power law for f-dependent Q
+    # cd = speed parameter for surface coupling  [km/s]
+    # ch = speed parameter for horizontal propagation  [km/s]
+    # rs
+
+    # exp(-2*pi*h.*fc./cd), coupling of source to surface waves
+    # exp(-2*pi*r.*fc./ch./Q), dissipation
+
+    fc = 10**(2.3-M/2)
+    #Q = Q0/(fc**Qs)
+    Af = Rf0/(fc**Rfs)
+
+    #Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)*np.exp(-2*np.pi*r*(fc/ch)/Q)/(r**(rs))
+    Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)/(r**(rs))
+
+    return Rf
+
+channellist = "input/channels.txt"
+lines = [line.rstrip('\n') for line in open(channellist)]
+
+outputDirectory = "/home/mcoughlin/Seismon/USArray/EQCombineAll"
+
+eqcombinefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/EQ.txt"
+
+eqcombinefilegpr = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/EQ_GPR.txt"
+
+loadData = False
+if loadData:
+    
+    f = open(eqcombinefile,'w')
+    
+    for line in lines:
+        lineSplit = line.split(" ")
+        lineSplit = filter(None, lineSplit)
+    
+        channel = lineSplit[0]
+        samplef = float(lineSplit[1])
+        calibration = float(lineSplit[2])
+        latitude = float(lineSplit[3])
+        longitude = float(lineSplit[4])
+        starttime = lineSplit[5]
+        endtime = lineSplit[6]
+    
+        eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombine/%s.txt"%(channel.replace(":","_"))
+        if not os.path.isfile(eqfile): continue
+        events = [line.rstrip('\n') for line in open(eqfile)]
+        if len(events) == 0: continue
+    
+        for event in events:
+            event = event.split(" ")
+    
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),float(event[15]),event[16],float(event[17]),float(event[18])))
+    f.close()
+
+events = np.genfromtxt(eqcombinefile)
+idx = np.where(~np.isnan(events[0,:]))[0]
+events = events[:,idx]
+idx = np.where(events[:,16]!=0.0)[0]
+events = events[idx,:]
+
+global M, r, h, amp
+M = events[:,1]
+lat = events[:,10]
+lon = events[:,11]
+r = events[:,12]/1000.0
+h = events[:,13]
+az = events[:,14]
+amp = events[:,16]
+
+X = np.vstack((M,lat,lon,r,h,az)).T
+y = np.log10(amp)
+
+scaler = preprocessing.StandardScaler().fit(X)
+X = scaler.transform(X)
+
+Nsamples, Nvars = X.shape
+N = 10000
+Noise_level    =  0.01
+Xp = np.zeros((N,Nvars))
+yp = np.zeros((N,))
+
+for ii in xrange(N):
+    idx = int(np.floor(np.random.rand()*Nsamples))
+    rand_values = Noise_level*np.std(X,axis=0)*np.random.randn(Nvars,)
+    rand_value = Noise_level*np.std(y)*np.random.randn()
+
+    Xp[ii,:] = X[idx,:] + rand_values
+    yp[ii] = y[idx] + rand_value
+
+kernel = WhiteKernel(noise_level=1, noise_level_bounds=(1e-10, 1e+10)) + RBF(length_scale=1.0, length_scale_bounds=(1e-2, 1e2))
+
+gp = GaussianProcessRegressor(kernel=kernel,alpha = np.std(yp)) #.fit(X, y)
+
+gp.fit(Xp, yp)
+pred, pred_std = gp.predict(X, return_std=True)
+
+gpfile = os.path.join(outputDirectory,'gp.pickle')
+with open(gpfile, 'wb') as handle:
+    pickle.dump((scaler,gp), handle, protocol=pickle.HIGHEST_PROTOCOL)
+
+with open(gpfile, 'rb') as fid:
+    scaler,gp = pickle.load(fid)
+
+#events = events[idy,:]
+amp = events[:,16]
+pred = 10**pred
+pred_std = pred*np.log(10)*pred_std
+
+ratio1 = amp/pred
+ratio2 = pred/amp
+ratio = np.max(np.vstack((ratio1,ratio2)).T,axis=1)
+perc = float(len(np.where(ratio < 3.0)[0])) / float(len(ratio))
+
+print "%.5f of events within a factor of 3."%perc
+
+events[:,7] = pred
+
+fid = open(eqcombinefilegpr,'w')
+for ii,event in enumerate(events):
+    fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16]))
+fid.close()
+
+pred_std = pred_std[events[:,7].argsort()]
+events = events[events[:,7].argsort()]
+
+ind = np.arange(len(events[:,7]))
+vmin = 5.0
+vmax = 7.0
+
+plt.figure()
+ax = plt.gca()
+sc = ax.scatter(ind,events[:,16],s=20,c=events[:,1],vmin=vmin, vmax=vmax,label='Measured')
+ax.set_yscale('log')
+#plt.semilogy(events[:,15],'kx',label='Measured')
+#plt.semilogy(events[:,7],'c*',label='Predicted')
+yerr = np.zeros((2,len(events)))
+yerr[0,:] = events[:,7]*4.0/5.0
+yerr[1,:] = events[:,7]*4.0
+plt.errorbar(ind,events[:,7],yerr=yerr,label='Predicted')
+plt.legend(loc='best',numpoints=1)
+plt.xlabel("Event number")
+plt.ylabel("Ground Velocity [m/s]")
+plt.xlim([-0.5,len(events[:,0])+0.5])
+plt.ylim([1e-8,1e-3])
+cbar = plt.colorbar(sc)
+cbar.set_label("Earthquake Magnitude")
+plt.show()
+plotName = os.path.join(outputDirectory,'prediction.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'prediction.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'prediction.pdf')
+plt.savefig(plotName)
+plt.close()
+
+vel = (events[:,12]/1000.0)/(events[:,15]-events[:,0])
+
+distances = np.linspace(0,100000,1000)
+times = distances / 3.5
+plt.figure()
+ax = plt.gca()
+ax.plot(events[:,7],vel,'kx')
+ax.plot([1e-7,1e-3],[3.5,3.5],'k--')
+#ax.set_yscale('log')
+ax.set_xscale('log')
+plt.xlabel("Ground velocity [m/s]")
+plt.ylabel("Earthquake velocity [m/s]")
+plt.xlim([1e-8,1e-3])
+plt.ylim([2,5])
+plt.show()
+plotName = os.path.join(outputDirectory,'velocity.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'velocity.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'velocity.pdf')
+plt.savefig(plotName)
+plt.close()
+
+vmin = -8
+vmax = -4
+
+plt.figure()
+ax = plt.gca()
+sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+ax.set_xscale('log')
+plt.xlabel("Distance [m]")
+plt.ylabel("Earthquake Magnitude")
+cbar = plt.colorbar(sc)
+cbar.set_label("log10(Ground velocity [m/s])")
+#plt.xlim([1e-6,1e-3])
+#plt.ylim([5,9])
+plt.show()
+plotName = os.path.join(outputDirectory,'mag_distance.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'mag_distance.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'mag_distance.pdf')
+plt.savefig(plotName)
+plt.close()
+
+plt.figure()
+ax = plt.gca()
+sc = ax.scatter(events[:,12],events[:,14],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+ax.set_xscale('log')
+plt.xlabel("Distance [m]")
+plt.ylabel("Azimuth [deg]")
+cbar = plt.colorbar(sc)
+cbar.set_label("log10(Ground velocity [m/s])")
+#plt.xlim([1e-6,1e-3])
+#plt.ylim([5,9])
+plt.show()
+plotName = os.path.join(outputDirectory,'azimuth_distance.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'azimuth_distance.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'azimuth_distance.pdf')
+plt.savefig(plotName)
+plt.close()
+
+plt.figure()
+ax = plt.gca()
+sc = ax.scatter(events[:,14],events[:,1],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+plt.xlabel("Azimuth [deg]")
+plt.ylabel("Earthquake Magnitude")
+cbar = plt.colorbar(sc)
+cbar.set_label("log10(Ground velocity [m/s])")
+#plt.xlim([1e-6,1e-3])
+#plt.ylim([5,9])
+plt.show()
+plotName = os.path.join(outputDirectory,'mag_azimuth.png')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'mag_azimuth.eps')
+plt.savefig(plotName)
+plotName = os.path.join(outputDirectory,'mag_azimuth.pdf')
+plt.savefig(plotName)
+plt.close()
+
