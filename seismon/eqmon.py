@@ -103,7 +103,6 @@ def run_earthquakes(params,segment):
             attributeDic = calculate_traveltimes_velocitymap(attributeDic)
         if params["doEarthquakesLookUp"]:
             attributeDic = calculate_traveltimes_lookup(attributeDic)        
-
         if not "Arbitrary" in attributeDic["traveltimes"]:
             continue
 
@@ -140,8 +139,8 @@ def run_earthquakes(params,segment):
             if attributeDic["Longitude"] > maxlongitude:
                 continue
 
-            if attributeDic["Magnitude"] < 6.0:
-                continue
+            #if attributeDic["Magnitude"] < 6.0:
+            #    continue
 
         #traveltimes = attributeDic["traveltimes"][ifo]
 
@@ -158,9 +157,16 @@ def run_earthquakes(params,segment):
 
             if traveltimes["Rfamp"][0] >= threshold:
 
-                f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
+                if "nodalPlane1_strike" in attributeDic:     
 
-                print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0])
+                    f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"]))
+
+                    print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"])
+
+                else:
+                    f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
+
+                    print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0])
 
                 g.write("%.1f %.1f %.5e\n"%(arrival,departure-arrival,traveltimes["Rfamp"][0]))
                 h.write("%.0f %.0f\n"%(arrival_floor,departure_ceil))
