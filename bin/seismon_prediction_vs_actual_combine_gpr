@@ -42,8 +42,6 @@ matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt
 from matplotlib import cm
 
-import pymultinest
-
 from sklearn import gaussian_process
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
@@ -67,6 +65,7 @@ def parse_commandline():
 
     parser.add_option("-i", "--inputFiles", help="Seismon files.")
     parser.add_option("-o", "--outputDirectory", help="output file.")
+    parser.add_option("--doLockloss",  action="store_true", default=False)
 
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
@@ -100,84 +99,6 @@ def params_struct(opts):
 
     return params
 
-def ampRf(M,r,h,Rf0,Rfs,cd,rs):
-    #def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
-    # Rf amplitude estimate
-    # M = magnitude
-    # r = distance [km]
-    # h = depth [km]
-
-    # Rf0 = Rf amplitude parameter
-    # Rfs = exponent of power law for f-dependent Rf amplitude
-    # Q0 = Q-value of Earth for Rf waves at 1Hz
-    # Qs = exponent of power law for f-dependent Q
-    # cd = speed parameter for surface coupling  [km/s]
-    # ch = speed parameter for horizontal propagation  [km/s]
-    # rs
-
-    # exp(-2*pi*h.*fc./cd), coupling of source to surface waves
-    # exp(-2*pi*r.*fc./ch./Q), dissipation
-
-    fc = 10**(2.3-M/2)
-    #Q = Q0/(fc**Qs)
-    Af = Rf0/(fc**Rfs)
-
-    #Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)*np.exp(-2*np.pi*r*(fc/ch)/Q)/(r**(rs))
-    Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)/(r**(rs))
-
-    return Rf
-
-def myprior(cube, ndim, nparams):
-    cube[0] = cube[0]*1.0
-    cube[1] = cube[1]*2.0
-    cube[2] = cube[2]*5000.0
-    cube[3] = cube[3]*2.0
-    return cube  
-
-def myloglike(cube, ndim, nparams):
-
-    Rf0,Rfs,cd,rs = [cube[i] for i in range(nparams)]
-    pred = ampRf(M,r,h,Rf0,Rfs,cd,rs)
-
-    ratio1 = amp/pred
-    ratio2 = pred/amp
-
-    ratio = np.max(np.vstack((ratio1,ratio2)).T,axis=1)
-    prob = float(len(np.where(ratio < 5.0)[0])) / float(len(ratio))
-
-    if not np.isfinite(prob):
-        prob = 0.0
-    return prob
-
-def opt_predict(plotDirectory,amp,M,r,h):
-
-    rm_command = "rm %s/2-*"%plotDirectory
-    os.system(rm_command)
-
-    # number of dimensions our problem has
-    parameters = ["Rf0","Rfs","cd","rs"]
-    n_params = len(parameters)
-
-    # we want to see some output while it is running
-    progress = pymultinest.ProgressPlotter(n_params = n_params, outputfiles_basename='%s/2-'%plotDirectory); progress.start()
-    # run MultiNest
-    pymultinest.run(myloglike, myprior, n_params, importance_nested_sampling = False, resume = True, verbose = True, sampling_efficiency = 'model', n_live_points = 1000, outputfiles_basename='%s/2-'%plotDirectory)
-    # ok, done. Stop our progress watcher
-    progress.stop()
-
-    livefile = os.path.join(plotDirectory,"2-phys_live.points")
-    livepoints = np.loadtxt(livefile)
-    sens = livepoints[:,4]
-    index = np.argmax(sens)
-    livepoint = livepoints[index,:]
-   
-    Rf0 = livepoint[0]
-    Rfs = livepoint[1]
-    cd = livepoint[2]
-    rs = livepoint[3]
- 
-    return Rf0,Rfs,cd,rs
-
 def predict_events():
     """@write pdl events
 
@@ -200,12 +121,10 @@ def predict_events():
     for inputFile in inputFiles:
         events = np.loadtxt(inputFile)
         for ii,event in enumerate(events):
-            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22]))
+            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %e %.1f %.1f %.1f %e %.1f %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],event[24],event[25],event[26],event[27],event[28],event[29],event[30],event[31]))
     fid.close()
     events = np.loadtxt(outputFile)
 
-    #magthresh = 5.0
-    #idx = np.where(events[:,1] >= magthresh)[0]
     #events = events[idx,:]
 
     global M, r, h, amp
@@ -215,7 +134,7 @@ def predict_events():
     r = events[:,12]/1000.0
     h = events[:,13]
     az = events[:,14]
-    amp = events[:,16]
+    amp = events[:,25]
 
     X = np.vstack((M,lat,lon,r,h,az)).T
     y = np.log10(amp)
@@ -224,7 +143,7 @@ def predict_events():
     X = scaler.transform(X) 
 
     Nsamples, Nvars = X.shape
-    N = 10000
+    N = 1000
     #N = 500
     Noise_level    =  0.01
     Xp = np.zeros((N,Nvars))
@@ -274,7 +193,7 @@ def predict_events():
     #print gp._equation
 
     #events = events[idy,:]
-    amp = events[:,16]
+    amp = events[:,25]
     pred = 10**pred
     pred_std = pred*np.log(10)*pred_std
 
@@ -291,68 +210,70 @@ def predict_events():
 
     fid = open(outputFile,'w')
     for ii,event in enumerate(events):
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22]))
+        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],event[24],event[25],event[26],event[27],event[28],event[29],event[30],event[31]))
     fid.close()
     events = np.loadtxt(outputFile)
 
-    indexes1 = np.where(events[:,22] == 1)[0]
-    indexes2 = np.where(events[:,22] == 2)[0]
-    indexes = np.hstack((indexes1,indexes2))
-    indexes3 = np.where(events[:,16] >= 0.0)[0]
-    indexes = np.intersect1d(indexes,indexes3)
-    
+    if opts.doLockloss:
 
-    M = events[indexes,1]
-    lat = events[indexes,10]
-    lon = events[indexes,11]
-    r = events[indexes,12]/1000.0
-    h = events[indexes,13]
-    az = events[indexes,14]
-    pred = events[indexes,7]
+        indexes1 = np.where(events[:,31] == 1)[0]
+        indexes2 = np.where(events[:,31] == 2)[0]
+        indexes = np.hstack((indexes1,indexes2))
+        indexes3 = np.where(events[:,25] >= 0.0)[0]
+        indexes = np.intersect1d(indexes,indexes3)
 
-    X = np.vstack((M,lat,lon,r,h,az,np.log10(pred))).T
-    y = events[:,22]
-    y[y == 1] = 0
-    y[y == 2] = 1
-    y = y[indexes]
+        M = events[indexes,1]
+        lat = events[indexes,10]
+        lon = events[indexes,11]
+        r = events[indexes,12]/1000.0
+        h = events[indexes,13]
+        az = events[indexes,14]
+        pred = events[indexes,7]
 
-    scaler = preprocessing.StandardScaler().fit(X)
-    X = scaler.transform(X)
+        X = np.vstack((M,lat,lon,r,h,az,np.log10(pred))).T
+        y = events[:,31]
+        y[y == 1] = 0
+        y[y == 2] = 1
+        y = y[indexes]
 
-    Nsamples, Nvars = X.shape
-    N = 10000
-    #N = 500
-    Noise_level    =  0.01
-    Xp = np.zeros((N,Nvars))
-    yp = np.zeros((N,))
-    for ii in xrange(N):
-        idx = int(np.floor(np.random.rand()*Nsamples))
-        rand_values = Noise_level*np.std(X,axis=0)*np.random.randn(Nvars,)
+        scaler = preprocessing.StandardScaler().fit(X)
+        X = scaler.transform(X)
 
-        Xp[ii,:] = X[idx,:] + rand_values
-        yp[ii] = int(y[idx])
+        Nsamples, Nvars = X.shape
+        N = 10000
+        #N = 500
+        Noise_level    =  0.01
+        Xp = np.zeros((N,Nvars))
+        yp = np.zeros((N,))
+        for ii in xrange(N):
+            idx = int(np.floor(np.random.rand()*Nsamples))
+            rand_values = Noise_level*np.std(X,axis=0)*np.random.randn(Nvars,)
 
-    C = 1.0  # SVM regularization parameter
-    clf = svm.SVC(kernel='rbf', gamma='auto', C=C, probability=True)
-    clf.fit(Xp, yp)
+            Xp[ii,:] = X[idx,:] + rand_values
+            yp[ii] = int(y[idx])
 
-    svmfile = os.path.join(params["outputDirectory"],'svm.pickle')
-    with open(svmfile, 'wb') as handle:
-        pickle.dump((scaler,clf), handle, protocol=pickle.HIGHEST_PROTOCOL)
+        C = 1.0  # SVM regularization parameter
+        clf = svm.SVC(kernel='rbf', gamma='auto', C=C, probability=True)
+        clf.fit(Xp, yp)
 
-    with open(svmfile, 'rb') as fid:
-        scaler,clf = pickle.load(fid)
+        svmfile = os.path.join(params["outputDirectory"],'svm.pickle')
+        with open(svmfile, 'wb') as handle:
+            pickle.dump((scaler,clf), handle, protocol=pickle.HIGHEST_PROTOCOL)
 
-    lockloss_prediction = clf.predict(X)
-    lockloss_prob = clf.predict_proba(X)
-    lockloss_prob = lockloss_prob[:,1]
+        with open(svmfile, 'rb') as fid:
+            scaler,clf = pickle.load(fid)
 
-    idx = np.where(lockloss_prediction == y)[0]
-    perc = float(len(np.where(lockloss_prediction == y)[0])) / float(len(y))
-    print "%.5f of events with lockloss predicted correctly."%perc
+        lockloss_prediction = clf.predict(X)
+        lockloss_prob = clf.predict_proba(X)
+        lockloss_prob = lockloss_prob[:,1]
+
+        idx = np.where(lockloss_prediction == y)[0]
+        perc = float(len(np.where(lockloss_prediction == y)[0])) / float(len(y))
+        print "%.5f of events with lockloss predicted correctly."%perc
+
+        indlockloss = np.arange(len(y))
 
     ind = np.arange(len(events[:,7]))
-    indlockloss = np.arange(len(y))
     vmin = 5.0
     vmax = 7.0
 
@@ -367,7 +288,7 @@ def predict_events():
     plt.errorbar(ind,events[:,7],pred_std,label='Predicted')
     plt.fill_between(ind, yerr[0,:], yerr[1,:], facecolor='gray')
 
-    sc = ax.scatter(ind,events[:,16],s=20,c=events[:,1],vmin=vmin, vmax=vmax,label='Measured')
+    sc = ax.scatter(ind,events[:,25],s=20,c=events[:,1],vmin=vmin, vmax=vmax,label='Measured')
     ax.set_yscale('log')
     #plt.semilogy(events[:,15],'kx',label='Measured')
     #plt.semilogy(events[:,7],'c*',label='Predicted')
@@ -387,29 +308,60 @@ def predict_events():
     plt.savefig(plotName)
     plt.close()
 
-    plt.figure()
-    ax = plt.gca()
-    ax.plot(indlockloss,y,'ko')
-    #ax.plot(indlockloss,lockloss_prob,'bo')
-    indexes = np.where(lockloss_prediction == y)[0]
-    sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='g',marker='+')
-    indexes = np.setdiff1d(indlockloss,indexes)
-    sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='r',marker='x')
+    if opts.doLockloss:
+        plt.figure()
+        ax = plt.gca()
+        ax.plot(indlockloss,y,'ko')
+        #ax.plot(indlockloss,lockloss_prob,'bo')
+        indexes = np.where(lockloss_prediction == y)[0]
+        sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='g',marker='+')
+        indexes = np.setdiff1d(indlockloss,indexes)
+        sc = ax.scatter(indlockloss[indexes],lockloss_prob[indexes],s=20,c='r',marker='x')
+    
+        plt.xlabel("Event Number")
+        plt.ylabel("Lockloss Probability")
+        plt.xlim([-0.5,len(indlockloss)+0.5])
+        plt.ylim([-0.5,1.5])
+        plt.show()
+        plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.png')
+        plt.savefig(plotName)
+        plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.eps')
+        plt.savefig(plotName)
+        plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.pdf')
+        plt.savefig(plotName)
+        plt.close()
 
-    plt.xlabel("Event Number")
-    plt.ylabel("Lockloss Probability")
-    plt.xlim([-0.5,len(indlockloss)+0.5])
-    plt.ylim([-0.5,1.5])
-    plt.show()
-    plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.png')
-    plt.savefig(plotName)
-    plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.eps')
-    plt.savefig(plotName)
-    plotName = os.path.join(params["outputDirectory"],'lockloss_prediction.pdf')
-    plt.savefig(plotName)
-    plt.close()
+        plt.figure()
+        ax = plt.gca()
 
-    vel = (events[:,12]/1000.0)/(events[:,15]-events[:,0])
+        bins = np.linspace(0,1,50)
+        indexes = np.where(y == 0)[0]
+        hist1, bin_edges = np.histogram(lockloss_prob[indexes], bins=bins)
+        hist1 = hist1 / float(np.sum(hist1))
+        indexes = np.setdiff1d(indlockloss,indexes)
+        hist2, bin_edges = np.histogram(lockloss_prob[indexes], bins=bins)
+        hist2 = hist2 / float(np.sum(hist2))
+        bins = (bins[1:] + bins[:-1])/2.0
+
+        plt.plot(bins,hist1,'r',label="No lockloss")
+        plt.plot(bins,hist2,'k--',label="Lockloss")
+
+        plt.legend(loc='best',numpoints=1)
+
+        plt.ylabel("Probability Density Function")
+        plt.xlabel("Lockloss Probability")
+        #plt.xlim([-0.5,len(indlockloss)+0.5])
+        #plt.ylim([-0.5,1.5])
+        plt.show()
+        plotName = os.path.join(params["outputDirectory"],'lockloss_histogram.png')
+        plt.savefig(plotName)
+        plotName = os.path.join(params["outputDirectory"],'lockloss_histogram.eps')
+        plt.savefig(plotName)
+        plotName = os.path.join(params["outputDirectory"],'lockloss_histogram.pdf')
+        plt.savefig(plotName)
+        plt.close()
+
+    vel = (events[:,12]/1000.0)/(events[:,24]-events[:,0])
 
     distances = np.linspace(0,100000,1000)
     times = distances / 3.5
@@ -437,7 +389,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,25]),vmin=vmin, vmax=vmax)
     ax.set_xscale('log')
     plt.xlabel("Distance [m]")
     plt.ylabel("Earthquake Magnitude")
@@ -456,7 +408,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,12],events[:,14],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,12],events[:,14],c=np.log10(events[:,25]),vmin=vmin, vmax=vmax)
     ax.set_xscale('log')
     plt.xlabel("Distance [m]")
     plt.ylabel("Azimuth [deg]")
@@ -475,7 +427,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,14],events[:,1],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,14],events[:,1],c=np.log10(events[:,25]),vmin=vmin, vmax=vmax)
     plt.xlabel("Azimuth [deg]")
     plt.ylabel("Earthquake Magnitude")
     cbar = plt.colorbar(sc)
@@ -493,12 +445,12 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    indexes = np.where(events[:,22] == 0)[0]
-    sc = ax.scatter(events[indexes,12],events[indexes,16],s=20,c='b')
-    indexes = np.where(events[:,22] == 1)[0]
-    sc = ax.scatter(events[indexes,12],events[indexes,16],s=20,c='g',marker='+')
-    indexes = np.where(events[:,22] == 2)[0]
-    sc = ax.scatter(events[indexes,12],events[indexes,16],s=20,c='r',marker='x')
+    indexes = np.where(events[:,31] == 0)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,25],s=20,c='b')
+    indexes = np.where(events[:,31] == 1)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,25],s=20,c='g',marker='+')
+    indexes = np.where(events[:,31] == 2)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,25],s=20,c='r',marker='x')
     ax.set_xscale('log')
     ax.set_yscale('log')
     plt.xlim([1e5,1e8])

@@ -41,7 +41,6 @@ matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt
 from matplotlib import cm
 
-import pymultinest
 import pandas as pd
 import statsmodels.api as sm
 
@@ -121,83 +120,12 @@ def params_struct(opts):
 
     return params
 
-def ampRf(M,r,h,Rf0,Rfs,cd,rs):
-    #def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
-    # Rf amplitude estimate
-    # M = magnitude
-    # r = distance [km]
-    # h = depth [km]
-
-    # Rf0 = Rf amplitude parameter
-    # Rfs = exponent of power law for f-dependent Rf amplitude
-    # Q0 = Q-value of Earth for Rf waves at 1Hz
-    # Qs = exponent of power law for f-dependent Q
-    # cd = speed parameter for surface coupling  [km/s]
-    # ch = speed parameter for horizontal propagation  [km/s]
-    # rs
-
-    # exp(-2*pi*h.*fc./cd), coupling of source to surface waves
-    # exp(-2*pi*r.*fc./ch./Q), dissipation
-
-    fc = 10**(2.3-M/2)
-    #Q = Q0/(fc**Qs)
-    Af = Rf0/(fc**Rfs)
-
-    #Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)*np.exp(-2*np.pi*r*(fc/ch)/Q)/(r**(rs))
-    Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)/(r**(rs))
-
-    return Rf
-
 def myprior(cube, ndim, nparams):
     cube[0] = cube[0]*1.0
     cube[1] = cube[1]*2.0
     cube[2] = cube[2]*5000.0
     cube[3] = cube[3]*2.0
     return cube  
-
-def myloglike(cube, ndim, nparams):
-
-    Rf0,Rfs,cd,rs = [cube[i] for i in range(nparams)]
-    pred = ampRf(M,r,h,Rf0,Rfs,cd,rs)
-
-    ratio1 = amp/pred
-    ratio2 = pred/amp
-
-    ratio = np.max(np.vstack((ratio1,ratio2)).T,axis=1)
-    prob = float(len(np.where(ratio < 5.0)[0])) / float(len(ratio))
-
-    if not np.isfinite(prob):
-        prob = 0.0
-    return prob
-
-def opt_predict(plotDirectory,amp,M,r,h):
-
-    rm_command = "rm %s/2-*"%plotDirectory
-    os.system(rm_command)
-
-    # number of dimensions our problem has
-    parameters = ["Rf0","Rfs","cd","rs"]
-    n_params = len(parameters)
-
-    # we want to see some output while it is running
-    progress = pymultinest.ProgressPlotter(n_params = n_params, outputfiles_basename='%s/2-'%plotDirectory); progress.start()
-    # run MultiNest
-    pymultinest.run(myloglike, myprior, n_params, importance_nested_sampling = False, resume = True, verbose = True, sampling_efficiency = 'model', n_live_points = 1000, outputfiles_basename='%s/2-'%plotDirectory)
-    # ok, done. Stop our progress watcher
-    progress.stop()
-
-    livefile = os.path.join(plotDirectory,"2-phys_live.points")
-    livepoints = np.loadtxt(livefile)
-    sens = livepoints[:,4]
-    index = np.argmax(sens)
-    livepoint = livepoints[index,:]
-   
-    Rf0 = livepoint[0]
-    Rfs = livepoint[1]
-    cd = livepoint[2]
-    rs = livepoint[3]
- 
-    return Rf0,Rfs,cd,rs
 
 def predict_events():
     """@write pdl events
@@ -220,6 +148,8 @@ def predict_events():
 
     fid = open(outputFile,'w')
     events = np.loadtxt(params["predictionFile"])
+    neqs, ncols = events.shape
+
     for event in events:
         gpsMin = event[8]
         gpsMax = event[9]
@@ -241,7 +171,12 @@ def predict_events():
         else:
             data_out_disp = np.loadtxt(filename)
 
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1],data_out_disp[1,0],data_out_disp[1,1]))
+        if ncols == 15:
+            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f nan nan nan nan nan nan nan nan nan %.1f %.5e %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1],data_out_disp[1,0],data_out_disp[1,1]))
+        elif ncols == 24:
+            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1],data_out_disp[1,0],data_out_disp[1,1]))
+        else:
+            error("Incorrect number of columns")
 
         print gpsMin, gpsMax
 
@@ -323,65 +258,25 @@ def predict_events():
         locklosstimes.append(locklosstime)
         flags.append(flag)
  
-        #lockloss_data = gwpy.timeseries.TimeSeries.get(opts.lockChannel, eqStart, eqEnd)
-        #tt = np.array(lockloss_data.times)
-        #if opts.lockChannel[0] == "H":
-        #   MaxThresh = 350
-        #else:
-        #   MaxThresh = 1000
-        #lockloss_diff_data = -1.0*np.diff(np.array(lockloss_data))
-        #indexes = np.where(lockloss_diff_data>=MaxThresh)[0]
-
-        #locklosstimels = -1
-        #if not lockloss_data[0] == 2000:
-        #    flagls = 0
-        #else:
-        #    if len(indexes) == 0:
-        #        flagls = 1
-        #    else:
-        #        flagls = 2
-        #        locklosstimels = tt[indexes[0]]
-
-        #print lockloss_data[0], flagls, locklosstimels
-        #print stop
-
     locklosstimes = np.array(locklosstimes)
     flags = np.array(flags)
 
-    global M, r, h, amp
-    M = events[:,1]
-    r = events[:,12]/1000.0
-    h = events[:,13]
-    amp = events[:,16]
-    Rf0 = 0.16
-    Rfs = 1.31
-    cd = 4672.83
-    rs = 0.83
-    pred = ampRf(M,r,h,Rf0,Rfs,cd,rs)
-    ratio1 = amp/pred
-    ratio2 = pred/amp
-    ratio = np.max(np.vstack((ratio1,ratio2)).T,axis=1)
-    perc = float(len(np.where(ratio > 5.0)[0])) / float(len(ratio))
-
-    Rf0,Rfs,cd,rs = opt_predict(params["outputDirectory"],events[:,16],M,r,h)
-    pred = ampRf(M,r,h,Rf0,Rfs,cd,rs)
-    events[:,7] = pred
     locklosstimes = locklosstimes[events[:,7].argsort()]
     flags = flags[events[:,7].argsort()]
     events = events[events[:,7].argsort()]
     
     fid = open(outputFile,'w')
     for ii,event in enumerate(events):
-        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],locklosstimes[ii],flags[ii]))
+        fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],event[24],event[25],event[26],event[27],event[28],event[29],locklosstimes[ii],flags[ii]))
+
     fid.close()
     events = np.loadtxt(outputFile)
 
     thresh = 1.0e-6
-    idx = np.where(events[:,16] > thresh)[0]
-
-    indexes1 = np.where(events[idx,22] == 0)[0]
-    indexes2 = np.where(events[idx,22] == 1)[0]
-    indexes3 = np.where(events[idx,22] == 2)[0]
+    idx = np.where(events[:,25] > thresh)[0]
+    indexes1 = np.where(events[idx,31] == 0)[0]
+    indexes2 = np.where(events[idx,31] == 1)[0]
+    indexes3 = np.where(events[idx,31] == 2)[0]
 
     nolock = float(len(indexes1))
     nolockloss = float(len(indexes2))
@@ -394,30 +289,13 @@ def predict_events():
     print "No lockloss: %.3f"%(nolockloss/toteqs)
     print "Not locked: %.3f"%(nolock/toteqs)
 
-    index = ['Row'+str(i) for i in range(1, len(events)+1)]
-    columns = ["GPS","MAGNITUDE","P_GPS","S_GPS","R_2_GPS","R_3p5_GPS","R_5_GPS","RFAMP_VEL_PRED","LOW_GPS","HIGH_GPS","LATITUDE","LONGITUDE","DISTANCE","DEPTH","AZIMUTH","RFAMP_VEL_GPS_MEAS","RFAMP_VEL_MEAS","RFAMP_ACC_GPS_MEAS","RFAMP_ACC_MEAS","RFAMP_DISP_GPS_MEAS","RFAMP_DISP_MEAS","LOCKLOSS_GPS","LOCKLOSS_FLAG"]
-    df = pd.DataFrame(events, index=index, columns=columns)
-    df = df[df['LOCKLOSS_FLAG']>0]
-    idx1 = np.where(df['LOCKLOSS_FLAG'] == 1.0)[0]
-    idx2 = np.where(df['LOCKLOSS_FLAG'] == 2.0)[0]
-
-    df.loc[df['LOCKLOSS_FLAG'] == 1.0, 'LOCKLOSS_FLAG'] = 0.0
-    df.loc[df['LOCKLOSS_FLAG'] == 2.0, 'LOCKLOSS_FLAG'] = 1.0
-
-    #logit = sm.Logit(df['LOCKLOSS_FLAG'], df[["DISTANCE","DEPTH","MAGNITUDE","AZIMUTH","RFAMP_VEL_PRED"]])
-    # fit the model
-    #result = logit.fit()
-    #df['LOCKLOSS_PREDICT'] = np.round(result.predict(df[["DISTANCE","DEPTH","MAGNITUDE","AZIMUTH","RFAMP_VEL_PRED"]]))
-    #idx = np.where(df['LOCKLOSS_PREDICT'] == df['LOCKLOSS_FLAG'])[0]
-    #print "Percentage of correct predictions: %.5f"%(len(ifx)/len(df['LOCKLOSS_PREDICT']))
-
     ind = np.arange(len(events[:,7]))
     vmin = 5.0
     vmax = 7.0
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(ind,events[:,16],s=20,c=events[:,1],vmin=vmin, vmax=vmax,label='Measured')
+    sc = ax.scatter(ind,events[:,25],s=20,c=events[:,1],vmin=vmin, vmax=vmax,label='Measured')
     ax.set_yscale('log')
     yerr = np.zeros((2,len(events)))
     yerr[0,:] = events[:,7]*4.0/5.0
@@ -439,7 +317,7 @@ def predict_events():
     plt.savefig(plotName)
     plt.close()
 
-    vel = (events[:,12]/1000.0)/(events[:,15]-events[:,0])
+    vel = (events[:,12]/1000.0)/(events[:,24]-events[:,0])
 
     distances = np.linspace(0,100000,1000)
     times = distances / 3.5
@@ -467,7 +345,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,12],events[:,1],c=np.log10(events[:,25]),vmin=vmin, vmax=vmax)
     ax.set_xscale('log')
     plt.xlabel("Distance [m]")
     plt.ylabel("Earthquake Magnitude")
@@ -486,7 +364,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,12],events[:,14],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,12],events[:,14],c=np.log10(events[:,25]),vmin=vmin, vmax=vmax)
     ax.set_xscale('log')
     plt.xlabel("Distance [m]")
     plt.ylabel("Azimuth [deg]")
@@ -505,7 +383,7 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    sc = ax.scatter(events[:,14],events[:,1],c=np.log10(events[:,16]),vmin=vmin, vmax=vmax)
+    sc = ax.scatter(events[:,14],events[:,1],c=np.log10(events[:,25]),vmin=vmin, vmax=vmax)
     plt.xlabel("Azimuth [deg]")
     plt.ylabel("Earthquake Magnitude")
     cbar = plt.colorbar(sc)
@@ -523,12 +401,12 @@ def predict_events():
 
     plt.figure()
     ax = plt.gca()
-    indexes = np.where(events[:,22] == 0)[0]
-    sc = ax.scatter(events[indexes,12],events[indexes,16],s=20,c='b')
-    indexes = np.where(events[:,22] == 1)[0]
-    sc = ax.scatter(events[indexes,12],events[indexes,16],s=20,c='g',marker='+')
-    indexes = np.where(events[:,22] == 2)[0]
-    sc = ax.scatter(events[indexes,12],events[indexes,16],s=20,c='r',marker='x')
+    indexes = np.where(events[:,31] == 0)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,25],s=20,c='b')
+    indexes = np.where(events[:,31] == 1)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,25],s=20,c='g',marker='+')
+    indexes = np.where(events[:,31] == 2)[0]
+    sc = ax.scatter(events[indexes,12],events[indexes,25],s=20,c='r',marker='x')
     ax.set_xscale('log')
     ax.set_yscale('log')
     plt.xlim([1e5,1e8])
