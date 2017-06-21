@@ -121,11 +121,12 @@ def predict_events():
     for inputFile in inputFiles:
         events = np.loadtxt(inputFile)
         for ii,event in enumerate(events):
-            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %e %.1f %.1f %.1f %e %.1f %.1f %.1f %e %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],event[24],event[25],event[26],event[27],event[28],event[29],event[30],event[31]))
+            fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e %.1f %d\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],event[24],event[25],event[26],event[27],event[28],event[29],event[30],event[31]))
     fid.close()
     events = np.loadtxt(outputFile)
 
-    #events = events[idx,:]
+    idx = np.where(~np.isnan(np.log10(events[:,25])))[0]
+    events = events[idx,:]
 
     global M, r, h, amp
     M = events[:,1]
