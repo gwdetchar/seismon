@@ -10,40 +10,11 @@ matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt
 from matplotlib import cm
 
-import pymultinest
-
 from sklearn import gaussian_process
 from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
 from sklearn import preprocessing
 from sklearn import svm
-
-def ampRf(M,r,h,Rf0,Rfs,cd,rs):
-    #def ampRf(M,r,h,Rf0,Rfs,Q0,Qs,cd,ch,rs):
-    # Rf amplitude estimate
-    # M = magnitude
-    # r = distance [km]
-    # h = depth [km]
-
-    # Rf0 = Rf amplitude parameter
-    # Rfs = exponent of power law for f-dependent Rf amplitude
-    # Q0 = Q-value of Earth for Rf waves at 1Hz
-    # Qs = exponent of power law for f-dependent Q
-    # cd = speed parameter for surface coupling  [km/s]
-    # ch = speed parameter for horizontal propagation  [km/s]
-    # rs
-
-    # exp(-2*pi*h.*fc./cd), coupling of source to surface waves
-    # exp(-2*pi*r.*fc./ch./Q), dissipation
-
-    fc = 10**(2.3-M/2)
-    #Q = Q0/(fc**Qs)
-    Af = Rf0/(fc**Rfs)
-
-    #Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)*np.exp(-2*np.pi*r*(fc/ch)/Q)/(r**(rs))
-    Rf = 1e-3 * M*Af*np.exp(-2*np.pi*h*fc/cd)/(r**(rs))
-
-    return Rf
 
 channellist = "input/channels.txt"
 lines = [line.rstrip('\n') for line in open(channellist)]
@@ -54,9 +25,9 @@ eqcombinefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/EQ.t
 
 eqcombinefilegpr = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/EQ_GPR.txt"
 
-loadData = False
+loadData = True
 if loadData:
-    
+    print "Loading data..."    
     f = open(eqcombinefile,'w')
     
     for line in lines:
@@ -70,7 +41,11 @@ if loadData:
         longitude = float(lineSplit[4])
         starttime = lineSplit[5]
         endtime = lineSplit[6]
-    
+   
+        channelSplit = channel.split(":")
+        array = channelSplit[0]
+        if not array in ["TA","US"]: continue
+ 
         eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombine/%s.txt"%(channel.replace(":","_"))
         if not os.path.isfile(eqfile): continue
         events = [line.rstrip('\n') for line in open(eqfile)]
@@ -81,6 +56,8 @@ if loadData:
     
             f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),float(event[15]),event[16],float(event[17]),float(event[18])))
     f.close()
+
+    print "Finished loading data."
 
 events = np.genfromtxt(eqcombinefile)
 idx = np.where(~np.isnan(events[0,:]))[0]
@@ -104,7 +81,7 @@ scaler = preprocessing.StandardScaler().fit(X)
 X = scaler.transform(X)
 
 Nsamples, Nvars = X.shape
-N = 10000
+N = 1000
 Noise_level    =  0.01
 Xp = np.zeros((N,Nvars))
 yp = np.zeros((N,))

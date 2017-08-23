@@ -18,6 +18,10 @@ for line in lines:
     starttime = lineSplit[5]
     endtime = lineSplit[6]
 
+    channelSplit = channel.split(":")
+    array = channelSplit[0]
+    if not array in ["TA","US"]: continue
+
     #print channel, samplef, latitude, longitude, starttime, endtime
 
     starttime = astropy.time.Time(starttime, format='isot', scale='utc')
