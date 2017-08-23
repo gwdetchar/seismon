@@ -274,9 +274,6 @@ def predict_events():
     events = np.loadtxt(outputFile)
 
     thresh = 1.0e-6
-    print events.shape
-    print events[:,25]
-    print np.where(events[:,25] > thresh)
     idx = np.where(events[:,25] > thresh)[0]
     indexes1 = np.where(events[idx,31] == 0)[0]
     indexes2 = np.where(events[idx,31] == 1)[0]
