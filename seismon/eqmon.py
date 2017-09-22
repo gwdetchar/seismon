@@ -401,7 +401,24 @@ def run_earthquakes_info(params,segment):
 
         f.close()
         write_info(earthquakesXMLFile,[attributeDic])
-    
+   
+    if not attributeDics:
+        earthquakesDirectory = os.path.join(params["path_temp"],"earthquakes")
+        earthquakesDirectory = os.path.join(earthquakesDirectory,"tmp")
+
+        earthquakesFile = os.path.join(earthquakesDirectory,"earthquakes.txt")
+        earthquakesXMLFile = os.path.join(earthquakesDirectory,"earthquakes.xml")
+        seismon.utils.mkdir(earthquakesDirectory)
+
+        f = open(earthquakesFile,"w+")
+        for ifo in ifos:
+            ifoShort = ifo
+            params["ifo"] = ifo
+            ifo = seismon.utils.getIfo(params)
+
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %s\n"%("tmp",-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,"tmp",ifoShort))
+        f.close()
+ 
     if os.path.isdir(params["path_temp"]):
 
         sys_command = "cp -r %s/* %s"%(params["path_temp"],params["path"])
