@@ -225,8 +225,8 @@ def save_data(params,data,asd):
     tt = np.array(data.times)
     timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(timeseriesFile,"wb")
-    f.write("%.10f %e\n"%(tt[np.argmin(data.data)],np.min(data.data)))
-    f.write("%.10f %e\n"%(tt[np.argmax(data.data)],np.max(data.data)))
+    f.write("%.10f %e\n"%(tt[np.argmin(data.value)],np.min(data.value)))
+    f.write("%.10f %e\n"%(tt[np.argmax(data.value)],np.max(data.value)))
     f.close()
 
 def download_data(params):

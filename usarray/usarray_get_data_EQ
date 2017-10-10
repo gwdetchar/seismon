@@ -122,6 +122,7 @@ def get_response(client,channel,starttime, endtime):
     endtime_utc = obspy.core.UTCDateTime(endtime.utc.iso)
 
     channelSplit = channel.split(":")
+    print client
     response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime_utc,endtime=endtime_utc,level="resp")
 
     channel_response = response.get_response(channel.replace(":",".").replace("--",""),starttime_utc)
@@ -165,19 +166,15 @@ def get_asd(params,dataFull):
     #dataASD = dataFull.asd()
     dataASD = dataFull.asd(fftlength=NFFT,overlap=None,method='welch')
     freq = np.array(dataASD.frequencies)
-    dataASD = np.array(dataASD.data)
+    dataASD = np.array(dataASD.value)
 
-    #indexes = np.where((freq >= params["fmin"]) & (freq <= params["fmax"]))[0]
-    #freq = freq[indexes]
-    #dataASD = dataASD[indexes]
-   
     freq2 = np.arange(params["fmin"],params["fmax"],params["df"])
     dataASD2 = 10.0**np.interp(np.log10(freq2),np.log10(freq),np.log10(dataASD))
  
     freq = freq2.copy()
     dataASD = dataASD2.copy()
 
-    dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+    dataASD = gwpy.frequencyseries.FrequencySeries(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
     dataASD.override_unit('m/s/Hz^(1/2)')
 
     return dataASD
@@ -229,8 +226,8 @@ def save_data(params,data,asd):
     tt = np.array(data.times)
     timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(timeseriesFile,"wb")
-    f.write("%.10f %e\n"%(tt[np.argmin(data.data)],np.min(data.data)))
-    f.write("%.10f %e\n"%(tt[np.argmax(data.data)],np.max(data.data)))
+    f.write("%.10f %e\n"%(tt[np.argmin(data.value)],np.min(data.value)))
+    f.write("%.10f %e\n"%(tt[np.argmax(data.value)],np.max(data.value)))
     f.close()
 
 def download_data(params):
@@ -249,7 +246,7 @@ def download_data(params):
     endtime = astropy.time.Time(params["gpsEnd"], format='gps')
 
     client = obspy.fdsn.client.Client("IRIS")
-    #client = obspy.fdsn.client.Client("http://earthquake.usgs.gov")
+    ##client = obspy.fdsn.client.Client("http://earthquake.usgs.gov")
   
     channel = params["channel"]
     calibration, latitude, longitude, samplef = get_response(client,channel,starttime, endtime) 
