@@ -26,7 +26,7 @@ for line in lines:
 
     channelSplit = channel.split(":")
     array = channelSplit[0]
-    if not array in ["TA","7D","US"]: continue
+    if not array in ["TA","US"]: continue
 
     print channel, samplef, latitude, longitude, starttime, endtime
 
@@ -51,7 +51,7 @@ for line in lines:
         gpsEnd = gpss[ii+1]
 
         psdfiles = glob.glob("/home/mcoughlin/Seismon/USArray/Text_Files/PSD/%s/*.txt"%channel.replace(":","_"))
-        if len(psdfiles)>400: break
+        if len(psdfiles)>2000: break
 
         psdfile = "/home/mcoughlin/Seismon/USArray/Text_Files/PSD/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
         if os.path.isfile(psdfile): continue

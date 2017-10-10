@@ -165,19 +165,15 @@ def get_asd(params,dataFull):
     #dataASD = dataFull.asd()
     dataASD = dataFull.asd(fftlength=NFFT,overlap=None,method='welch')
     freq = np.array(dataASD.frequencies)
-    dataASD = np.array(dataASD.data)
+    dataASD = np.array(dataASD.value)
 
-    #indexes = np.where((freq >= params["fmin"]) & (freq <= params["fmax"]))[0]
-    #freq = freq[indexes]
-    #dataASD = dataASD[indexes]
-   
     freq2 = np.arange(params["fmin"],params["fmax"],params["df"])
     dataASD2 = 10.0**np.interp(np.log10(freq2),np.log10(freq),np.log10(dataASD))
  
     freq = freq2.copy()
     dataASD = dataASD2.copy()
 
-    dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+    dataASD = gwpy.frequencyseries.FrequencySeries(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
     dataASD.override_unit('m/s/Hz^(1/2)')
 
     return dataASD

@@ -13,6 +13,9 @@ client = obspy.fdsn.client.Client("IRIS")
 channellist = "input/channels.txt"
 lines = [line.rstrip('\n') for line in open(channellist)]
 
+GSNlist = "input/GSN.txt"
+GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
 #starttime_min=obspy.UTCDateTime(2016, 1, 1, 0, 0, 0, 0)
 #endtime_max=obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
 
@@ -30,7 +33,17 @@ for line in lines:
 
     channelSplit = channel.split(":")
     array = channelSplit[0]
-    if not array in ["TA","US"]: continue
+
+    GSNcheck = False
+    for GSN in GSNs:
+        GSNsplit = filter(None,GSN.split("\t"))
+        GSNstation = GSNsplit[0]
+        GSNnetwork = GSNsplit[1]
+        if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
+            GSNcheck = True
+
+    print channelSplit, GSNcheck
+    if (not array in ["TA","US"]) and (not GSNcheck): continue
 
     print channel, samplef, latitude, longitude, starttime, endtime
 

@@ -21,8 +21,11 @@ client = obspy.fdsn.client.Client("IRIS")
 channellist = "input/channels.txt"
 lines = [line.rstrip('\n') for line in open(channellist)]
 
-starttime_min=obspy.UTCDateTime(2015, 1, 1, 0, 0, 0, 0)
-endtime_max=obspy.UTCDateTime(2016, 12, 1, 0, 0, 0, 0)
+GSNlist = "input/GSN.txt"
+GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
+starttime_min=obspy.UTCDateTime(2000, 1, 1, 0, 0, 0, 0)
+endtime_max=obspy.UTCDateTime(2004, 12, 1, 0, 0, 0, 0)
 minMagnitude = 6.0
 events = client.get_events(minmagnitude=minMagnitude,starttime=starttime_min,endtime=endtime_max)
 
@@ -41,6 +44,17 @@ for event in events.events:
 
     data = {}
 
+    plotDirectory = os.path.join("/home/mcoughlin/Seismon/USArray/","EQs",attributeDic["eventName"])
+    seismon.utils.mkdir(plotDirectory)
+
+    dataFile = os.path.join(plotDirectory,"params.txt")
+    fid = open(dataFile,"w")
+    fid.write("%s %.5f %.5f %.5f %.5f\n"%(attributeDic["eventName"],attributeDic["Magnitude"],attributeDic["Depth"],attributeDic["Latitude"],attributeDic["Longitude"]))    
+    fid.close()
+
+    dataFile = os.path.join(plotDirectory,"data.txt")
+    fid = open(dataFile,"w")
+
     for line in lines:
         lineSplit = line.split(" ")
         lineSplit = filter(None, lineSplit)
@@ -55,6 +69,20 @@ for event in events.events:
  
         if starttime > eqtime: continue
         if endtime < eqtime: continue
+
+        channelSplit = channel.split(":")
+        array = channelSplit[0]
+    
+        GSNcheck = False
+        for GSN in GSNs:
+            GSNsplit = filter(None,GSN.split("\t"))
+            GSNstation = GSNsplit[0]
+            GSNnetwork = GSNsplit[1]
+            if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
+                GSNcheck = True
+    
+        print channelSplit, GSNcheck
+        if (not array in ["TA","US"]) and (not GSNcheck): continue
    
         print channel, samplef, latitude, longitude, starttime, endtime, eqtime
     
@@ -77,7 +105,7 @@ for event in events.events:
         timefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/Timeseries/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
         if not os.path.isfile(timefile):
             system_command = "python usarray_get_data_EQ -c %s -s %d -e %d --doDownload"%(channel,gpsStart,gpsEnd)
-            os.system(system_command)
+            #os.system(system_command)
         if not os.path.isfile(timefile): continue
 
         data_out = np.loadtxt(timefile)
@@ -90,8 +118,11 @@ for event in events.events:
         data[channel]["distance"] = traveltimes["Distances"][0]
         data[channel]["azimuth"] = traveltimes["Azimuth"][0] 
 
-    plotDirectory = os.path.join("/home/mcoughlin/Seismon/USArray/","EQs",attributeDic["eventName"])
-    seismon.utils.mkdir(plotDirectory)
+        fid.write("%s %.5f %.5f %.5f %.5f %.5f %.5e\n"%(channel,data[channel]["tt"],data[channel]["latitude"],data[channel]["longitude"],data[channel]["distance"],data[channel]["azimuth"],data[channel]["velocity"]))
+    
+    fid.close()
+
+    if not data: continue
 
     pngFile = os.path.join(plotDirectory,'azimuth_distance.png')
     plt.figure()
