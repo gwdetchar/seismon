@@ -1,0 +1,352 @@
+
+import os, sys, glob, optparse
+import numpy as np
+import astropy.time
+
+import matplotlib
+from mpl_toolkits.basemap import Basemap
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+
+import obspy
+import obspy.iris
+
+import seismon
+from seismon import eqmon
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+# =============================================================================
+#
+#                               DEFINITIONS
+#
+# =============================================================================
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1167264018,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1198800018,type=int)
+    parser.add_option("-m", "--minMagnitude", help="Minimum earthquake magnitude.", default=6.0,type=float)
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    parser.add_option("--doIRIS",  action="store_true", default=False)
+    parser.add_option("--doCMT",  action="store_true", default=False)
+    parser.add_option("--doDownload",  action="store_true", default=False)
+    parser.add_option("--doPlots",  action="store_true", default=False)
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+def plot_maps():
+
+    pngFile = os.path.join(plotDirectory,'azimuth_distance.pdf')
+    plt.figure()
+    ax = plt.gca()
+    for channel in data.iterkeys():
+        distance = data[channel]["distance"]
+        azimuth = data[channel]["azimuth"]
+        sc = plt.scatter(distance,azimuth,s=20,c=np.log10(data[channel]["velocity"]),zorder=10,vmin=-6,vmax=-3)
+    ax.set_xscale('log')
+    plt.xlabel("Distance [m]")
+    plt.ylabel("Azimuth [deg]")
+    cbar = plt.colorbar(sc)
+    cbar.set_label("log10(Ground velocity [m/s])")
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+    pngFile = os.path.join(plotDirectory,"maps_vel.pdf")
+    plt.figure(figsize=(12,6))
+    m = Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+    m.drawcoastlines(linewidth=1.25)
+    m.fillcontinents(color='0.8')
+    m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+    for channel in data.iterkeys():
+        latitude = data[channel]["latitude"]
+        longitude = np.mod(data[channel]["longitude"],360.0)
+        x, y = m(longitude,latitude)
+        cs = m.scatter(x,y,s=20,c=np.log10(data[channel]["velocity"]),zorder=10,vmin=-6,vmax=-3)
+    cbar = m.colorbar(cs,location='right',pad="5%")
+    cbar.set_label('log10(Peak Amplitude) [m/s]')
+    latitude = attributeDic["Latitude"]
+    longitude = np.mod(attributeDic["Longitude"],360.0)
+    x, y = m(longitude,latitude)
+    m.plot(x,y,'rx',markersize=20)
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+    pngFile = os.path.join(plotDirectory,"maps_vel_pred.pdf")
+    plt.figure(figsize=(12,6))
+    m = Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+    m.drawcoastlines(linewidth=1.25)
+    m.fillcontinents(color='0.8')
+    m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+    for channel in data.iterkeys():
+        latitude = data[channel]["latitude"]
+        longitude = np.mod(data[channel]["longitude"],360.0)
+        x, y = m(longitude,latitude)
+        cs = m.scatter(x,y,s=20,c=np.log10(data[channel]["velocity_prediction"]),zorder=10,vmin=-6,vmax=-3)
+    cbar = m.colorbar(cs,location='right',pad="5%")
+    cbar.set_label('log10(Peak Amplitude) [m/s]')
+    latitude = attributeDic["Latitude"]
+    longitude = np.mod(attributeDic["Longitude"],360.0)
+    x, y = m(longitude,latitude)
+    m.plot(x,y,'rx',markersize=20)
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+    pngFile = os.path.join(plotDirectory,"maps_vel_pred_vs_measured.pdf")
+    fig = plt.figure(figsize=(8,6))
+    ax = fig.add_subplot(111)
+    m = gen_basemap()
+    for channel in data.iterkeys():
+        latitude = data[channel]["latitude"]
+        longitude = np.mod(data[channel]["longitude"],360.0)
+        x, y = m(longitude,latitude)
+        cs = m.scatter(x,y,s=20,c=data[channel]["frac_error"],zorder=10,vmin=0,vmax=2)
+    cbar = m.colorbar(cs,location='right',pad="20%")
+    cbar.set_label('Fractional Error')
+    latitude = attributeDic["Latitude"]
+    longitude = np.mod(attributeDic["Longitude"],360.0)
+
+    size = 30.0
+    axins = inset_axes(ax, width="30%", height=1., loc=3)
+    axins.set_xlim(longitude-size, longitude+size)
+    axins.set_ylim(latitude-size, latitude+size)
+    m2 = Basemap(llcrnrlon=longitude-size,llcrnrlat=latitude-size,urcrnrlon=longitude+size,urcrnrlat=latitude+size,
+    projection='lcc',lat_1=latitude,lat_2=latitude+10,lon_0=longitude,resolution ='l',area_thresh=1000.)
+    m2.drawcoastlines(linewidth=1.25)
+    m2.fillcontinents(color='0.8')
+    m2.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m2.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+    x, y = m2(longitude,latitude)
+    m2.plot(x,y,'rx',markersize=20)
+
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+    pngFile = os.path.join(plotDirectory,"maps_time.pdf")
+    plt.figure(figsize=(12,6))
+    m = Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+    m.drawcoastlines(linewidth=1.25)
+    m.fillcontinents(color='0.8')
+    m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+    for channel in data.iterkeys():
+        latitude = data[channel]["latitude"]
+        longitude = np.mod(data[channel]["longitude"],360.0)
+        x, y = m(longitude,latitude)
+        cs = m.scatter(x,y,s=20,c=data[channel]["tt"],zorder=10,vmin=0,vmax=7200)
+    cbar = m.colorbar(cs,location='right',pad="5%")
+    cbar.set_label('Time Delay [s]')
+    latitude = attributeDic["Latitude"]
+    longitude = np.mod(attributeDic["Longitude"],360.0)
+    x, y = m(longitude,latitude)
+    m.plot(x,y,'rx',markersize=20)
+    plt.show()
+    plt.savefig(pngFile)
+    plt.close()
+
+def gen_basemap():
+    #m = Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
+    #m.drawcoastlines(linewidth=1.25)
+    #m.fillcontinents(color='0.8')
+    #m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    #m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+
+    m = Basemap(llcrnrlon=-120.,llcrnrlat=0.0,urcrnrlon=-20.0,urcrnrlat=80.,
+            projection='lcc',lat_1=20.,lat_2=40.,lon_0=-60.,
+            resolution ='l',area_thresh=1000.)
+    m.drawcoastlines(linewidth=1.25)
+    m.fillcontinents(color='0.8')
+    m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+
+    return m
+
+# Parse command line
+opts = parse_commandline()
+
+client = obspy.fdsn.client.Client("IRIS")
+
+channellist = "input/channels.txt"
+lines = [line.rstrip('\n') for line in open(channellist)]
+
+GSNlist = "input/GSN.txt"
+GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
+starttime_min = astropy.time.Time(opts.gpsStart, format='gps')
+endtime_max = astropy.time.Time(opts.gpsEnd, format='gps')
+starttime_min = obspy.core.UTCDateTime(starttime_min.utc.iso)
+endtime_max = obspy.core.UTCDateTime(endtime_max.utc.iso)
+if opts.doIRIS:
+    events = client.get_events(minmagnitude=opts.minMagnitude,starttime=starttime_min,endtime=endtime_max)
+    events = events.events
+elif opts.doCMT:
+    events = []
+    years = np.arange(2007,2018)
+    months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
+    monthnums = np.arange(1,13)
+    for year in years:
+        for month, monthnum in zip(months,monthnums):
+            monthtime = "%d-%02d-01"%(year,monthnum)
+            tstart = astropy.time.Time(monthtime, format='iso')
+            if monthnum == 12:
+                monthtime = "%d-%02d-01"%(year+1,1)
+            else:
+                monthtime = "%d-%02d-01"%(year,monthnum+1)
+            tend = astropy.time.Time(monthtime, format='iso')
+
+            start_min = obspy.core.UTCDateTime(tstart.utc.iso)
+            end_max = obspy.core.UTCDateTime(tend.utc.iso)
+
+            if (start_min > endtime_max) or (end_max < starttime_min): continue
+            print year,month
+
+            try:
+                catfile = "http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY/%d/%s%d.ndk"%(year,month,np.mod(year,100))
+                cat = obspy.readEvents(catfile)
+            except:
+                continue
+            for event in cat:
+                if event.magnitudes[0].mag < opts.minMagnitude: continue
+                events.append(event)
+else:
+    print "Must enable doIRIS or doCMT"
+    exit(0)
+
+for event in events:
+    if opts.doIRIS:
+        attributeDic = eqmon.irisread(event)
+    elif opts.doCMT:
+        attributeDic = eqmon.cmtread(event)
+
+    eqtime = astropy.time.Time(attributeDic["GPS"], format='gps', scale='utc')
+    eqtime = obspy.UTCDateTime(eqtime.isot)
+    #print attributeDic["eventName"], attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
+
+    data = {}
+
+    if opts.doIRIS:
+        plotDirectory = os.path.join("/home/mcoughlin/Seismon/USArray/","EQs",attributeDic["eventName"])
+    elif opts.doCMT:
+        plotDirectory = os.path.join("/home/mcoughlin/Seismon/USArray/","EQs_CMT",attributeDic["eventName"])
+
+    seismon.utils.mkdir(plotDirectory)
+
+    dataFile = os.path.join(plotDirectory,"params.txt")
+    fid = open(dataFile,"w")
+    fid.write("%s %.5f %.5f %.5f %.5f\n"%(attributeDic["eventName"],attributeDic["Magnitude"],attributeDic["Depth"],attributeDic["Latitude"],attributeDic["Longitude"]))    
+    fid.close()
+
+    dataFile = os.path.join(plotDirectory,"data.txt")
+    fid = open(dataFile,"w")
+
+    for line in lines:
+        lineSplit = line.split(" ")
+        lineSplit = filter(None, lineSplit)
+    
+        channel = lineSplit[0]
+        samplef = float(lineSplit[1])
+        calibration = float(lineSplit[2])
+        latitude = float(lineSplit[3])
+        longitude = float(lineSplit[4])
+        starttime = obspy.UTCDateTime(lineSplit[5])
+        endtime = obspy.UTCDateTime(lineSplit[6])
+ 
+        if starttime > eqtime: continue
+        if endtime < eqtime: continue
+
+        channelSplit = channel.split(":")
+        array = channelSplit[0]
+    
+        GSNcheck = False
+        for GSN in GSNs:
+            GSNsplit = filter(None,GSN.split("\t"))
+            GSNstation = GSNsplit[0]
+            GSNnetwork = GSNsplit[1]
+            if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
+                GSNcheck = True
+    
+        if (not array in ["TA","US"]) and (not GSNcheck): continue
+   
+        #print channel, samplef, latitude, longitude, starttime, endtime, eqtime
+    
+        ifo = "%s,%.5f,%.5f"%(channel, latitude, longitude)
+     
+        attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo)
+        traveltimes = attributeDicTemp["traveltimes"][channel]
+    
+        #print attributeDic["eventName"], attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"], traveltimes["Distances"][0], traveltimes["Ptimes"][0], traveltimes["Stimes"][0], traveltimes["Rtwotimes"][0], traveltimes["RthreePointFivetimes"][0], traveltimes["Rfivetimes"][0], traveltimes["Rfamp"][0]
+    
+        arrival = np.min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+        departure = np.max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+    
+        arrival_floor = np.floor(arrival / 100.0) * 100.0
+        departure_ceil = np.ceil(departure / 100.0) * 100.0
+    
+        gpsStart = arrival_floor.copy()
+        gpsEnd = departure_ceil.copy()
+    
+        timefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/Timeseries/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
+        if opts.doDownload:
+            if not os.path.isfile(timefile):
+                system_command = "python usarray_get_data_EQ -c %s -s %d -e %d --doDownload"%(channel,gpsStart,gpsEnd)
+                os.system(system_command)
+        if not os.path.isfile(timefile): continue
+
+        data_out = np.loadtxt(timefile)
+        if data_out[0,1] == 0.0:
+            system_command = "rm %s"%timefile
+            os.system(system_command)
+            continue
+
+        data[channel] = {}                
+        data[channel]["tt"] = data_out[1,0] - attributeDic["GPS"]
+        data[channel]["velocity"] = data_out[1,1]
+        data[channel]["latitude"] = latitude
+        data[channel]["longitude"] = longitude
+        data[channel]["distance"] = traveltimes["Distances"][0]
+        data[channel]["azimuth"] = traveltimes["Azimuth"][0] 
+        data[channel]["velocity_prediction"] = traveltimes["Rfamp"][0]
+
+        frac_error = np.abs(data[channel]["velocity_prediction"]-data[channel]["velocity"]) / np.min([data[channel]["velocity_prediction"],data[channel]["velocity"]])
+        data[channel]["frac_error"] = frac_error
+
+        fid.write("%s %.5f %.5f %.5f %.5f %.5f %.5e\n"%(channel,data[channel]["tt"],data[channel]["latitude"],data[channel]["longitude"],data[channel]["distance"],data[channel]["azimuth"],data[channel]["velocity"]))
+    
+    fid.close()
+
+    if not data: continue
+
+    if opts.doPlots:
+        plot_maps()
