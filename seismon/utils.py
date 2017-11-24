@@ -10,7 +10,7 @@ from lxml import etree
 try:
     import lal.gpstime
 except:
-    print "No lal installed..."
+    print("No lal installed...")
 import astropy.time
 from astropy import units
 
@@ -19,7 +19,7 @@ import __future__
 try:
     import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 except:
-    print "Glue import fails... no datafind possible."
+    print("Glue import fails... no datafind possible.")
 
 import seismon.NLNM, seismon.html
 import seismon.eqmon
@@ -29,7 +29,7 @@ try:
     import gwpy.segments
     from gwpy.timeseries import StateVector
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -175,7 +175,7 @@ def read_eqmons(file):
     attributeDics = []
 
     if not os.path.isfile(file):
-        print "Missing eqmon file: %s"%file
+        print("Missing eqmon file: %s"%file)
         return attributeDics
 
     tree = etree.parse(file)
@@ -689,7 +689,7 @@ def channel_struct(params,channelList):
                        longitude = thisLongitude
 
            elif params["ifo"] == "IRIS":
-               import obspy.iris, obspy.core, obspy.fdsn
+               import obspy.iris, obspy.core, obspy.clients.fdsn
 
                channelSplit = station.split(":")
 
@@ -705,7 +705,7 @@ def channel_struct(params,channelList):
                    endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 
                client = params["client"]
-               #client = obspy.fdsn.client.Client("IRIS")
+               #client = obspy.clients.fdsn.Client("IRIS")
 
                if channelSplit[2] == "--":
                    channelSplit[2] = "*"
@@ -722,7 +722,7 @@ def channel_struct(params,channelList):
                    samplef = float(response[0].stations[0].channels[0].sample_rate)
 
                except:
-                   print "No response data available... continuing"
+                   print("No response data available... continuing")
                    continue
 
            channel.append( structproxy_channel(station,station_underscore,samplef,calibration,latitude,longitude))
@@ -961,7 +961,7 @@ def retrieve_timeseries(params,channel,segment):
             st = client.get_waveforms(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],\
                 starttime,endtime)
         except:
-            print "data read from IRIS failed... continuing\n"
+            print("data read from IRIS failed... continuing\n")
             return dataFull
         data = np.array(st[0].data)
         data = data.astype(float)
@@ -1361,7 +1361,7 @@ def retrieve_timeseries(params,channel,segment):
             dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
             #dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
         except:
-            print "data read from frames failed... continuing\n"
+            print("data read from frames failed... continuing\n")
             return dataFull
     else:
 
@@ -1378,7 +1378,7 @@ def retrieve_timeseries(params,channel,segment):
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
         except:
-            print "data read from frames failed... continuing\n"
+            print("data read from frames failed... continuing\n")
             return dataFull
 
     return dataFull
@@ -1440,7 +1440,7 @@ def flag_struct(params,segment):
     segmentlist = glue.segments.segmentlist()
 
     if params["doFlagsDatabase"]:
-        print "Generating flags from database"
+        print("Generating flags from database")
         dqsegments = gwpy.segments.DataQualityFlag.query(params["flagsFlag"],gpsStart,gpsEnd,url=params["flagsDatabase"])
         segmentlist = dqsegments.active
     elif params["doFlagsTextFile"]:
@@ -1451,7 +1451,7 @@ def flag_struct(params,segment):
             segmentlist.append(glue.segments.segment(seg[0],seg[1]))
 
     elif params["doFlagsChannel"]:
-        print "Generating flags from timeseries"
+        print("Generating flags from timeseries")
         if params["doPlots"]:
             plotDirectory = params["path"] + "/flags" 
             seismon.utils.mkdir(plotDirectory)
@@ -1470,7 +1470,7 @@ def flag_struct(params,segment):
             try:
                 dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel, start=gpsStart, end=gpsEnd)
             except:
-                print "data read from frames failed... continuing\n"
+                print("data read from frames failed... continuing\n")
                 continue
 
             if params["doPlots"]:
@@ -1546,15 +1546,15 @@ def run_flags_analysis(params,segment):
     flag_minus_earthquake_segmentlist_percentage = \
         100 * flag_minus_earthquake_segmentlist_duration/float(gpsEnd - gpsStart)
 
-    print "Flags statistics"
-    print "Earthquakes total time: %d s"%earthquake_segmentlist_duration
-    print "Earthquakes percentage time: %.5e"%earthquake_segmentlist_percentage
-    print "Flags total time: %d s"%flag_segmentlist_duration
-    print "Flags percentage time: %.5e"%flag_segmentlist_percentage
-    print "Earthquakes minus flag total time: %d s"%earthquake_minus_flag_segmentlist_duration
-    print "Earthquakes minus flag percentage time: %.5e"%earthquake_minus_flag_segmentlist_percentage
-    print "Flags minus earthquake total time: %d s"%flag_minus_earthquake_segmentlist_duration
-    print "Flags minus earthquake percentage time: %.5e"%flag_minus_earthquake_segmentlist_percentage
+    print("Flags statistics")
+    print("Earthquakes total time: %d s"%earthquake_segmentlist_duration)
+    print("Earthquakes percentage time: %.5e"%earthquake_segmentlist_percentage)
+    print("Flags total time: %d s"%flag_segmentlist_duration)
+    print("Flags percentage time: %.5e"%flag_segmentlist_percentage)
+    print("Earthquakes minus flag total time: %d s"%earthquake_minus_flag_segmentlist_duration)
+    print("Earthquakes minus flag percentage time: %.5e"%earthquake_minus_flag_segmentlist_percentage)
+    print("Flags minus earthquake total time: %d s"%flag_minus_earthquake_segmentlist_duration)
+    print("Flags minus earthquake percentage time: %.5e"%flag_minus_earthquake_segmentlist_percentage)
 
 def xcorr(x, y, normed=True, maxlags=None):
     """

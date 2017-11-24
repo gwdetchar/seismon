@@ -594,7 +594,7 @@ def iris_events(params):
         seismon params structure
     """
 
-    import obspy.fdsn, obspy.core
+    import obspy.clients.fdsn, obspy.core
 
     #starttime = lal.gpstime.gps_to_utc(params["gpsStart"])
     #endtime = lal.gpstime.gps_to_utc(params["gpsEnd"])
@@ -606,7 +606,7 @@ def iris_events(params):
     starttime = obspy.core.UTCDateTime(starttime.utc.iso)
     endtime = obspy.core.UTCDateTime(endtime.utc.iso)
 
-    client = obspy.fdsn.client.Client("IRIS")
+    client = obspy.clients.fdsn.Client("IRIS")
     #client = obspy.fdsn.client.Client("http://earthquake.usgs.gov")
     
     events = client.get_events(minmagnitude=params["minMagnitude"],starttime=starttime,endtime=endtime)

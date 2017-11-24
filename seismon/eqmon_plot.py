@@ -15,7 +15,7 @@ import scipy.optimize
 try:
     from mpl_toolkits.basemap import Basemap
 except:
-    print "Basemap import failed ..."
+    print("Basemap import failed ...")
 matplotlib.use("AGG")
 matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt
@@ -28,7 +28,7 @@ try:
     import gwpy.frequencyseries, gwpy.spectrogram
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 # =============================================================================
 #
@@ -1719,7 +1719,7 @@ def trip_time_plot(params,attributeDics,data,type,plotName):
 
         for trip in trips:
             if np.absolute(x-trip) < 3600:
-                print x, y, trip
+                print(x, y, trip)
 
         xs.append(x)
         ys.append(y)
@@ -1805,11 +1805,11 @@ def trip_plot(params,attributeDics,data,type,plotName):
 
         for trip in trips:
             if np.absolute(x-trip) < 3600:
-                #print x, y, trip
+                #print(x, y, trip)
                 numtrips = numtrips + 1
                 trip_dist = x-trip
 
-        print x, y, numtrips
+        print(x, y, numtrips)
 
         if type == "amplitude": 
             xs.append(y)

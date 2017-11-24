@@ -15,7 +15,7 @@ from operator import itemgetter
 try:
     import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 except:
-    print "Glue import fails... no datafind possible."
+    print("Glue import fails... no datafind possible.")
 
 from lxml import etree
 import scipy.spatial
@@ -25,7 +25,6 @@ import astropy.time
 #import lal.gpstime
 
 import seismon.utils, seismon.eqmon_plot
-import seismon.pybrain
 
 try:
     from sklearn import gaussian_process
@@ -34,23 +33,23 @@ try:
     from sklearn import preprocessing
     from sklearn import svm
 except:
-    print "sklearn import fails... no prediction possible."
+    print("sklearn import fails... no prediction possible.")
 
 try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 try:
     from pylal import Fr
 except:
-    print "No pylal installed..."
+    print("No pylal installed...")
 
 try:
     from geopy.geocoders import Nominatim
 except:
-    print "No geopy installed..."
+    print("No geopy installed...")
 
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
@@ -648,11 +647,6 @@ def run_earthquakes_analysis(params,segment):
         create_kml(params,attributeDics,data,"time",kmlName)
         kmlName = os.path.join(earthquakesDirectory,"earthquakes_amplitude.kml") 
         create_kml(params,attributeDics,data,"amplitude",kmlName)
-
-    if params["doEarthquakesTraining"]:
-        seismon.pybrain.earthquakes_training(params,attributeDics,data)
-    if params["doEarthquakesTesting"]:
-        seismon.pybrain.earthquakes_testing(params,attributeDics,data)
 
     save_predictions(params,data)
 
@@ -2235,15 +2229,14 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     """
 
     try:
-        from obspy.taup.taup import getTravelTimes
-        from obspy.core.util.geodetics import gps2DistAzimuth
+        from obspy.geodetics.base import gps2dist_azimuth
         from obspy.taup import TauPyModel
     except:
         print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
 
     seismonpath = os.path.dirname(seismon.__file__)
-    scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
+    scriptpath = os.path.join(seismonpath,'input')
 
     if ifo == "LLO":
         gpfile = os.path.join(scriptpath,'gp_llo.pickle')
@@ -2277,7 +2270,7 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         Rfamp = pred
 
     else:
-        distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
+        distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
         degrees = (distances/6370000)*(180/np.pi)
 
@@ -2377,7 +2370,6 @@ def ifotraveltimes_velocitymap(attributeDic,ifo,ifolat,ifolon):
     """
 
     try:
-        from obspy.taup.taup import getTravelTimes
         from obspy.core.util.geodetics import gps2DistAzimuth
     except:
         print "Enable ObsPy if traveltimes information desired...\n"
@@ -2446,7 +2438,6 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     """
 
     try:
-        from obspy.taup.taup import getTravelTimes
         from obspy.core.util.geodetics import gps2DistAzimuth
         from obspy.taup import TauPyModel
     except:
@@ -2618,8 +2609,7 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     """
 
     try:
-        from obspy.taup.taup import getTravelTimes
-        from obspy.core.util.geodetics import gps2DistAzimuth
+        from obspy.geodetics.base import gps2dist_azimuth
     except:
         print "Enable ObsPy if traveltimes information desired...\n"
         return attributeDic
@@ -2629,13 +2619,13 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         return attributeDic
 
     seismonpath = os.path.dirname(seismon.__file__)
-    scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
+    scriptpath = os.path.join(seismonpath,'input')
 
     #print attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon
     #if (np.absolute(attributeDic["Latitude"]-ifolat)**2 + np.absolute(attributeDic["Longitude"]-ifolon)**2) < 5:
     #    distance = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon) 
     #else:       
-    distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
+    distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
     degree = (distance/6370000)*(180/np.pi)
 
     ptime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
