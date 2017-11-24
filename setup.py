@@ -24,6 +24,7 @@
 import glob
 import os.path
 from setuptools import (find_packages, setup)
+import tokenize
 
 from utils import version
 
@@ -51,13 +52,15 @@ RELEASE = vcinfo.version != vcinfo.id and 'dev' not in VERSION
 packagenames = find_packages(exclude=['utils'])
 
 # find all scripts
-scripts = glob.glob('bin/*') + glob.glob('input/*')
+#scripts = glob.glob('bin/*') + glob.glob('input/*') 
+scripts = glob.glob('bin/*')
 
 setup(name=PACKAGENAME,
       version=VERSION,
       description=DESCRIPTION,
       scripts=scripts,
       packages=packagenames,
+      include_package_data=True,
       ext_modules=[],
       requires=['gwpy', 'obspy'],
       provides=[PACKAGENAME],

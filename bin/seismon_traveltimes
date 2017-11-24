@@ -288,9 +288,9 @@ def download_publiceventfiles(params):
     x = subprocess.Popen(["wget",file,"-O","%s/events.txt"%path])
     x.wait()
     if x.returncode==0:
-        print 'Copying complete'
+        print('Copying complete')
     else:
-        print 'Copying failed'
+        print('Copying failed')
 
 def save_fake_event(params,timeFolder,eventName):
 
@@ -321,7 +321,7 @@ def save_fake_event(params,timeFolder,eventName):
     if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
         write_info(file,attributeDic)
 
-        print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+        print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
 
 def save_moment_event(params,timeFolder,eventName):
 
@@ -338,8 +338,6 @@ def save_moment_event(params,timeFolder,eventName):
     if os.path.isfile(productfile):
         attributeDic = eqmon.read_product(productfile,eventName)
 
-    print attributeDic
-
     if attributeDic == []:
         return
 
@@ -351,7 +349,7 @@ def save_moment_event(params,timeFolder,eventName):
     if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
         write_info(file,attributeDic)
 
-        print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+        print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
 
 def save_private_event(params,timeFolder,eventName):
 
@@ -385,7 +383,7 @@ def save_private_event(params,timeFolder,eventName):
     if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
         write_info(file,attributeDic)
 
-        print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+        print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
 
 def cmt_events(params):
     """@write pdl events
@@ -397,6 +395,7 @@ def cmt_events(params):
     numEventsAdded = 0
 
     years = np.arange(2007,2018)
+    years = np.arange(2017,2018)
     months = ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"]
 
     import obspy
@@ -406,14 +405,14 @@ def cmt_events(params):
             try:
                 catfile = "http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY/%d/%s%d.ndk"%(year,month,np.mod(year,100))
                 cat = obspy.readEvents(catfile)
-                print catfile
+                print(catfile)
             except:
                 continue 
 
             for event in cat:
                 attributeDic = eqmon.cmtread(event)
 
-                print attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
+                print(attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"])
 
                 if not "GPS" in attributeDic:
                     continue
@@ -424,7 +423,7 @@ def cmt_events(params):
                 if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
                     write_info(file,attributeDic)
 
-                    print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+                    print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
                     numEventsAdded = numEventsAdded + 1
 
     return numEventsAdded
@@ -553,7 +552,7 @@ def public_events(params):
         if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
             write_info(file,attributeDic)
 
-            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
             numEventsAdded = numEventsAdded + 1
 
     return numEventsAdded
@@ -583,7 +582,7 @@ def database_events(params):
             if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
                 write_info(file,attributeDic)
 
-            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
             numEventsAdded = numEventsAdded + 1
 
     return numEventsAdded
@@ -618,14 +617,14 @@ def iris_events(params):
     for event in events.events:
         attributeDic = eqmon.irisread(event)
 
-        print attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
+        print(attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"])
 
         for ifo in ifos:
             attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo)
             traveltimes = attributeDicTemp["traveltimes"][ifo]
-            print "%s %.0f %.0f %.0f %.0f %.0f %.5e %.0f"%(ifo,max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],max(traveltimes["Distances"]))
-        print ""
-        print ""
+            print("%s %.0f %.0f %.0f %.0f %.0f %.5e %.0f"%(ifo,max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],max(traveltimes["Distances"])))
+        print("")
+        print("")
 
         if not "GPS" in attributeDic:
             continue
@@ -636,7 +635,7 @@ def iris_events(params):
         if attributeDic["Magnitude"] >= float(params["minMagnitude"]):
             write_info(file,attributeDic)
 
-            print "%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"])
+            print("%s added at "%attributeDic["eventName"], time.time(), ". %.3f seconds after event"%(attributeDic["SentGPS"] - attributeDic["GPS"]))
             numEventsAdded = numEventsAdded + 1
 
     return numEventsAdded
@@ -688,28 +687,28 @@ def run_traveltimes():
     params = params_struct(opts)
 
     if params["doPublic"]:
-        print "Running public events..."
+        print("Running public events...")
         numEventsAddedPublic = public_events(params)
     if params["doPrivate"]:
-        print "Running private events..."
+        print("Running private events...")
         numEventsAddedPrivate = private_events(params)
     if params["doDatabase"]:
-        print "Running database events..."
+        print("Running database events...")
         numEventsAddedDatabase = database_events(params)
     if params["doIRIS"]:
-        print "Running IRIS events..."
+        print("Running IRIS events...")
         numEventsIRIS = iris_events(params)
     if params["doFake"]:
-        print "Running Fake events..."
+        print("Running Fake events...")
         numEventsFake = fake_events(params)
     if params["doCopy"]:
-        print "Copying events..."
+        print("Copying events...")
         rsync_files(params)
     if params["doMoment"]:
-        print "Running moment tensor events..."
+        print("Running moment tensor events...")
         numEventsAddedMoment = moment_events(params)
     if params["doCMT"]:
-        print "Running CMT moment tensor events..."
+        print("Running CMT moment tensor events...")
         numEventsAddedCMT = cmt_events(params)
 
 # =============================================================================

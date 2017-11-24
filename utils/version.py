@@ -25,7 +25,7 @@ __credits__ = 'Adam Mercer <adam.mercer@ligo.org>'
 import os
 import subprocess
 import time
-
+import six
 
 class GitStatus(object):
     """Git repository version information
@@ -61,7 +61,7 @@ class GitStatus(object):
         p = subprocess.Popen(cmdargs,
                              stdout=subprocess.PIPE,
                              stderr=subprocess.PIPE,
-                             shell=isinstance(args, basestring))
+                             shell=isinstance(args, six.string_types))
         out, err = p.communicate()
         if p.returncode != 0:
             raise subprocess.CalledProcessError(p.returncode,
@@ -75,7 +75,7 @@ class GitStatus(object):
         """Determine basic info about the latest commit
         """
         a, b, c, d, e, f =  self.git(
-            'log', '-1', '--pretty=format:%H,%ct,%an,%ae,%cn,%ce').split(',')
+            'log', '-1', '--pretty=format:%H,%ct,%an,%ae,%cn,%ce').decode('utf-8').split(',')
         self.id = a
         self.udate = b
         author = c
