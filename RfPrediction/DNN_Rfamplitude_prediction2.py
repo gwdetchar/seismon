@@ -100,6 +100,10 @@ def parse_commandline():
 # Parse command line
 opts = parse_commandline()
 
+outputDirectory = os.path.join(opts.outputDirectory,opts.runType)
+if not os.path.isdir(outputDirectory):
+    os.makedirs(outputDirectory)
+
 data = pd.read_csv(opts.earthquakesFile,delimiter=' ',header=None)
 neqs, ncols = data.shape
 if ncols == 32:
@@ -109,8 +113,8 @@ elif ncols == 27:
     data = data.drop(data.columns[[24]], 1)
     data = data.rename(index=int, columns={25: 24, 26: 25})
 else:
-    print "I do not understand the file type..."
-exit(0)
+    print("I do not understand the file type...")
+    exit(0)
 
 # find magnitudes greater than minimum magnitude
 index = data[1] > opts.minMagnitude
@@ -142,7 +146,7 @@ elif opts.runType == "lowlatency":
 elif opts.runType == "original":
     FeatSet_index = [1,12,13] #  Just Mag, Dist, Depth
 else:
-    print "--runType must be original, lowlatency, and cmt"
+    print("--runType must be original, lowlatency, and cmt")
     exit(0)
 
 
@@ -198,34 +202,25 @@ def boost_samples(x_samples,y_samples,copy_num=3,noise_level=1e-2):
 
 data = data_temp
 
+# Take Log10 of certain features (Mag, Dist, Depth)
+data[[Mag_idx, Dist_idx, Depth_idx]] = np.log10(data[[Mag_idx, Dist_idx, Depth_idx]])
+data[Target_index] = np.log10(data[Target_index])
+
 data_unscaled = data
 X_us = np.asarray(data[FeatSet_index])
 Y_us = np.asarray(data[Target_index])
 x_train_us, x_test_us, y_train_us, y_test_us = train_test_split(X_us, Y_us, test_size=0.2,random_state=42)
 x_train_us, x_val_us, y_train_us, y_val_us = train_test_split(x_train_us, y_train_us, test_size=0.4,random_state=42)
 
-
-
 X = np.asarray(data[FeatSet_index])
 Y = np.asarray(data[Target_index])
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.3,random_state=42)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.3,random_state=42)
 
-# Take Log10 of certain features (Mag, Dist, Depth)
-x_train[:,[Mag_idx, Dist_idx, Depth_idx]] = np.log10(x_train[:,[Mag_idx, Dist_idx, Depth_idx]]);
-y_train = np.log10(y_train);
-
-x_val[:,[Mag_idx, Dist_idx, Depth_idx]]  = np.log10(x_val[:,[Mag_idx, Dist_idx, Depth_idx]]);
-y_val  = np.log10(y_val);
-
-x_test[:,[Mag_idx, Dist_idx, Depth_idx]]  = np.log10(x_test[:,[Mag_idx, Dist_idx, Depth_idx]]); 
-y_test  = np.log10(y_test);
-
 # boost_samples + normalize + shuffle them
 TUPLE1 = boost_samples(x_train,y_train,copy_num,noise_level); 
 TUPLE2 = boost_samples(x_val,y_val,copy_num,noise_level);     
 TUPLE3 = boost_samples(x_test,y_test,copy_num,noise_level);   
-TUPLE4 = boost_samples(x_test_new,y_test_new,copy_num,noise_level);   
 
 x_train = TUPLE1[0];
 y_train = TUPLE1[1];
