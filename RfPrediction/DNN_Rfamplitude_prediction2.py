@@ -19,6 +19,7 @@ import matplotlib.cm as cm
 
 from sklearn.model_selection import train_test_split
 from sklearn import preprocessing
+from sklearn.externals import joblib
 
 from keras.models import Sequential, model_from_json
 from keras.layers import Dense, Dropout, Activation
@@ -192,14 +193,7 @@ def boost_samples(x_samples,y_samples,copy_num=3,noise_level=1e-2):
     x_samples_boosted = x_samples_boosted[IDX,:]
     y_samples_boosted = y_samples_boosted[IDX,:]
     
-    # Normalize samples
-    x_min_max_scaler = preprocessing.MinMaxScaler()
-    x_samples_boosted = x_min_max_scaler.fit_transform(x_samples_boosted)
-    
-    y_min_max_scaler = preprocessing.MinMaxScaler()
-    y_samples_boosted = y_min_max_scaler.fit_transform(y_samples_boosted)
-    
-    return x_samples_boosted, y_samples_boosted, x_min_max_scaler, y_min_max_scaler
+    return x_samples_boosted, y_samples_boosted
 
 data = data_temp
 
@@ -207,36 +201,33 @@ data = data_temp
 data[[Dist_idx, Depth_idx]] = np.log10(data[[Dist_idx, Depth_idx]])
 data[Target_index] = np.log10(data[Target_index])
 
-data_unscaled = data
-X_us = np.asarray(data[FeatSet_index])
-Y_us = np.asarray(data[Target_index])
-x_train_us, x_test_us, y_train_us, y_test_us = train_test_split(X_us, Y_us, test_size=0.2,random_state=42)
-x_train_us, x_val_us, y_train_us, y_val_us = train_test_split(x_train_us, y_train_us, test_size=0.4,random_state=42)
-
 X = np.asarray(data[FeatSet_index])
 Y = np.asarray(data[Target_index])
+
+# Normalize samples
+x_scaler = preprocessing.MinMaxScaler()
+#x_scaler = preprocessing.data.QuantileTransformer()
+X = x_scaler.fit_transform(X)
+y_scaler = preprocessing.MinMaxScaler()
+#y_scaler = preprocessing.data.QuantileTransformer()
+Y = y_scaler.fit_transform(Y)
+
 x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.3,random_state=42)
 x_train, x_val, y_train, y_val = train_test_split(x_train, y_train, test_size=0.3,random_state=42)
 
 # boost_samples + normalize + shuffle them
-TUPLE1 = boost_samples(x_train,y_train,copy_num,noise_level); 
-TUPLE2 = boost_samples(x_val,y_val,copy_num,noise_level);     
-TUPLE3 = boost_samples(x_test,y_test,copy_num,noise_level);   
+TUPLE1 = boost_samples(x_train,y_train,copy_num,noise_level)
+TUPLE2 = boost_samples(x_val,y_val,copy_num,noise_level)  
+TUPLE3 = boost_samples(x_test,y_test,copy_num,noise_level)  
 
-x_train = TUPLE1[0];
-y_train = TUPLE1[1];
-x_train_min_max_scaler = TUPLE1[2];
-y_train_min_max_scaler = TUPLE1[3];  
+x_train = TUPLE1[0]
+y_train = TUPLE1[1]
 
-x_val   = TUPLE2[0];
-y_val   = TUPLE2[1];
-x_val_min_max_scaler = TUPLE2[2];  
-y_val_min_max_scaler = TUPLE2[3];
+x_val   = TUPLE2[0]
+y_val   = TUPLE2[1]
 
-x_test  = TUPLE3[0]; 
-y_test  = TUPLE3[1];
-x_test_min_max_scaler = TUPLE3[2];
-y_test_min_max_scaler = TUPLE3[3];
+x_test  = TUPLE3[0] 
+y_test  = TUPLE3[1]
 
 #############################################
 # Construct the neural network and train it #
@@ -303,8 +294,8 @@ model.fit(x_train, y_train,
 y_pred = model.predict(x_test)
 
 # Rescale Back
-y_pred = 10**y_train_min_max_scaler.inverse_transform(y_pred)
-y_test = 10**y_test_min_max_scaler.inverse_transform(y_test)
+y_pred = 10**y_scaler.inverse_transform(y_pred)
+y_test = 10**y_scaler.inverse_transform(y_test)
 
 # Reject test samples below certain threshold
 Rf_thresh = 0.5*1e-7 # 0.5*1e-6
@@ -312,7 +303,6 @@ ijk = y_test > Rf_thresh
 y_test = y_test[ijk]
 y_pred = y_pred[ijk]
 x_test = x_test[ijk.flatten(),:]
-
 
 # Add bias
 #y_pred = y_pred + 0.1*y_pred
@@ -324,7 +314,7 @@ y_pred_sort = y_pred[np.argsort(y_test,axis=0)]
 
 
 ## Percentage within the specified factor
-Fac = 3
+Fac = 2
 IDX = y_pred_sort/(y_test_sort+np.finfo(float).eps) >= 1
 K = y_pred_sort[IDX]
 Q = y_test_sort[IDX]
@@ -388,6 +378,7 @@ with open("%s/model.json"%outputDirectory, "w") as json_file:
     json_file.write(model_json)
 # serialize weights to HDF5
 model.save_weights("%s/model.h5"%outputDirectory)
+joblib.dump([x_scaler,y_scaler], "%s/model.pkl"%outputDirectory)
 print("Saved model to disk")
 
 '''
