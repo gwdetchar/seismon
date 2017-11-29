@@ -142,7 +142,8 @@ if opts.runType == "cmt":
     # Select features
     FeatSet_index = [1,10,7,11,12,13,14,15,16,17,18,19,20,21,22,23]
 elif opts.runType == "lowlatency":
-    FeatSet_index = [1,7,10,11,12,13,14,15,16,17] #  these lower set paramaters makes  sense
+    #FeatSet_index = [1,7,10,11,12,13,14,15,16,17] #  these lower set paramaters makes  sense
+    FeatSet_index = [1,10,11,12,13,14] #  these lower set paramaters makes  sense
 elif opts.runType == "original":
     FeatSet_index = [1,12,13] #  Just Mag, Dist, Depth
 else:
@@ -400,3 +401,4 @@ loaded_model = model_from_json(loaded_model_json)
 loaded_model.load_weights('%s/model.h5'%outputDirectory  )
 print("Loaded model from disk")
 '''
+
