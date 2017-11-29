@@ -27,13 +27,15 @@ import astropy.time
 import seismon.utils, seismon.eqmon_plot
 
 try:
-    from sklearn import gaussian_process
-    from sklearn.gaussian_process import GaussianProcessRegressor
-    from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
-    from sklearn import preprocessing
-    from sklearn import svm
+    #from sklearn import gaussian_process
+    #from sklearn.gaussian_process import GaussianProcessRegressor
+    #from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
+    #from sklearn import preprocessing
+    #from sklearn import svm
+    from sklearn.externals import joblib
+    from keras.models import Sequential, model_from_json
 except:
-    print("sklearn import fails... no prediction possible.")
+    print("sklearn/keras import fails... no prediction possible.")
 
 try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
@@ -2240,13 +2242,25 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
 
     if ifo == "LLO":
         gpfile = os.path.join(scriptpath,'gp_llo.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
     elif ifo == "Virgo":
         gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
     else:
         gpfile = os.path.join(scriptpath,'gp_lho.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
 
-    with open(gpfile, 'rb') as fid:
-        scaler,gp = pickle.load(fid)
+    #with open(gpfile, 'rb') as fid:
+    #    scaler,gp = pickle.load(fid)
+
+    json_file = open(jsonfile, 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    loaded_model.load_weights(h5file)
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
@@ -2446,13 +2460,25 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
 
     if ifo == "LLO":
         gpfile = os.path.join(scriptpath,'gp_llo.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
     elif ifo == "Virgo":
         gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
     else:
         gpfile = os.path.join(scriptpath,'gp_lho.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
 
-    with open(gpfile, 'rb') as fid:
-        scaler,gp = pickle.load(fid)
+    #with open(gpfile, 'rb') as fid:
+    #    scaler,gp = pickle.load(fid)
+
+    json_file = open(jsonfile, 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    loaded_model.load_weights(h5file)
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
@@ -2643,22 +2669,36 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
 
     if ifo == "LLO":
         gpfile = os.path.join(scriptpath,'gp_llo.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
     elif ifo == "Virgo":
         gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
     else:
         gpfile = os.path.join(scriptpath,'gp_lho.pickle')
+        h5file = os.path.join(scriptpath,'model_llo.h5')
+        jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
 
-    with open(gpfile, 'rb') as fid:
-        scaler,gp = pickle.load(fid)
+    #with open(gpfile, 'rb') as fid:
+    #    scaler,gp = pickle.load(fid)
 
-    X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance/1000.0,attributeDic["Depth"],fwd)).T
-    X = scaler.transform(X)
+    json_file = open(jsonfile, 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    loaded_model.load_weights(h5file)
+    [x_scaler,y_scaler] = joblib.load(pklfile) 
 
-    pred, pred_std = gp.predict(X, return_std=True)
-    pred = 10**pred
-    pred_std = pred*np.log(10)*pred_std
-
-    Rfamp = pred[0]
+    X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
+    X = x_scaler.transform(X)
+    y_pred = loaded_model.predict(X)
+    y_pred = y_scaler.inverse_transform(y_pred)
+    pred = 10**y_pred
+    Rfamp = pred[0][0]
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
