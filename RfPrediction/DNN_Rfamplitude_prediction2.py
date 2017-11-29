@@ -140,7 +140,7 @@ data = data[:][index]
 
 if opts.runType == "cmt":
     # Select features
-    FeatSet_index = [1,10,7,11,12,13,14,15,16,17,18,19,20,21,22,23]
+    FeatSet_index = [1,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
 elif opts.runType == "lowlatency":
     #FeatSet_index = [1,7,10,11,12,13,14,15,16,17] #  these lower set paramaters makes  sense
     FeatSet_index = [1,10,11,12,13,14] #  these lower set paramaters makes  sense
@@ -204,7 +204,7 @@ def boost_samples(x_samples,y_samples,copy_num=3,noise_level=1e-2):
 data = data_temp
 
 # Take Log10 of certain features (Mag, Dist, Depth)
-data[[Mag_idx, Dist_idx, Depth_idx]] = np.log10(data[[Mag_idx, Dist_idx, Depth_idx]])
+data[[Dist_idx, Depth_idx]] = np.log10(data[[Dist_idx, Depth_idx]])
 data[Target_index] = np.log10(data[Target_index])
 
 data_unscaled = data
