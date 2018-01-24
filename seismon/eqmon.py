@@ -2259,6 +2259,8 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     json_file = open(jsonfile, 'r')
     loaded_model_json = json_file.read()
     json_file.close()
+
+    
     loaded_model = model_from_json(loaded_model_json)
     loaded_model.load_weights(h5file)
 
@@ -2689,16 +2691,20 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     json_file = open(jsonfile, 'r')
     loaded_model_json = json_file.read()
     json_file.close()
-    loaded_model = model_from_json(loaded_model_json)
-    loaded_model.load_weights(h5file)
-    [x_scaler,y_scaler] = joblib.load(pklfile) 
 
-    X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
-    X = x_scaler.transform(X)
-    y_pred = loaded_model.predict(X)
-    y_pred = y_scaler.inverse_transform(y_pred)
-    pred = 10**y_pred
-    Rfamp = pred[0][0]
+    try:
+        loaded_model = model_from_json(loaded_model_json)
+        loaded_model.load_weights(h5file)
+        [x_scaler,y_scaler] = joblib.load(pklfile) 
+
+        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
+        X = x_scaler.transform(X)
+        y_pred = loaded_model.predict(X)
+        y_pred = y_scaler.inverse_transform(y_pred)
+        pred = 10**y_pred
+        Rfamp = pred[0][0]
+    except:
+        Rfamp = -1
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
@@ -2712,11 +2718,9 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     traveltimes["Rtwotimes"] = [rtwotime_interp]
     traveltimes["RthreePointFivetimes"] = [rthreePointFivetime_interp]
     traveltimes["Rfivetimes"] = [rfivetime_interp]
-    #traveltimes["Rfamp"] = [rfamp_interp]
     traveltimes["Rfamp"] = [Rfamp]
     traveltimes["Pamp"] = [attributeDic["traveltimes"]["Arbitrary"]["Pamp"][0]]
     traveltimes["Samp"] = [attributeDic["traveltimes"]["Arbitrary"]["Samp"][0]]
-
     attributeDic["traveltimes"][ifo] = traveltimes
 
     return attributeDic
