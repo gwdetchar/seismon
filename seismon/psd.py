@@ -332,8 +332,8 @@ def calculate_spectra(params,channel,dataFull):
     # manually set units (units in CIS aren't correct)
     #dataASD.unit = 'counts/Hz^(1/2)'
     #dataFFT.unit = 'counts/Hz^(1/2)'
-    dataASD.override_unit('counts/Hz^(1/2)')
-    dataFFT.override_unit('counts/Hz^(1/2)')
+    dataASD.override_unit('count/Hz^(1/2)')
+    dataFFT.override_unit('count/Hz^(1/2)')
 
     data = {}
     data["dataFull"] = dataFull
@@ -506,7 +506,7 @@ def spectra(params, channel, segment):
     meanSamples = np.median(np.ma.masked_array(dataFull.value,np.isnan(dataFull.value)))
     for index in indexes:
         dataFull[index] = meanSamples
-    dataFull -= np.median(dataFull.value)
+    dataFull -= np.median(dataFull)
 
     if np.mean(dataFull.value) == 0.0:
         print "data only zeroes... continuing\n"
