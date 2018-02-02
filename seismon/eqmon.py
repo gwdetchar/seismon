@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import os, sys, time, glob, math, matplotlib, random, string
+import csv
 import pickle
 import calendar
 
@@ -162,12 +163,12 @@ def run_earthquakes(params,segment):
 
                     f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"]))
 
-                    print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"])
+                    print("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"]))
 
                 else:
                     f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
 
-                    print "%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0])
+                    print("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
 
                 g.write("%.1f %.1f %.5e\n"%(arrival,departure-arrival,traveltimes["Rfamp"][0]))
                 h.write("%.0f %.0f\n"%(arrival_floor,departure_ceil))
@@ -203,7 +204,7 @@ def run_earthquakes(params,segment):
         s = smtplib.SMTP('localhost')
         s.sendmail(sender,receivers, message)         
         s.quit()
-        print "mail sent"
+        print("mail sent")
 
     return segmentlist
 
@@ -277,7 +278,7 @@ def run_earthquakes_info(params,segment):
     gpsEnd = segment[1]
 
     seismonpath = os.path.dirname(seismon.__file__)
-    scriptpath = os.path.join(seismonpath,'..','EGG-INFO','scripts')
+    scriptpath = os.path.join(seismonpath,'input')
 
     params["earthquakesMinMag"] = 2.0
     attributeDics = retrieve_earthquakes(params,gpsStart,gpsEnd)
@@ -301,6 +302,17 @@ def run_earthquakes_info(params,segment):
             epics_dicts[ifoShort]["amp"] = 0
             epics_dicts[ifoShort]["mult"] = 0
 
+    csvFile = os.path.join(scriptpath,"countries.csv")
+    abbreviations, latitudes, longitudes, countries = [], [], [], []
+    with open(csvFile,'r') as f:
+        reader=csv.reader(f,delimiter='\t')
+        for abb,lat,lon,country in reader:
+            abbreviations.append(abb)
+            latitudes.append(float(lat))
+            longitudes.append(float(lon))
+            countries.append(country)
+    latitudes, longitudes = np.array(latitudes), np.array(longitudes)
+
     params["path_temp"] = "%s_temp"%params["path"]
     for attributeDic in attributeDics:
         if attributeDic["eventID"] == "None":
@@ -314,6 +326,27 @@ def run_earthquakes_info(params,segment):
         earthquakesFile = os.path.join(earthquakesDirectory,"earthquakes.txt")
         earthquakesXMLFile = os.path.join(earthquakesDirectory,"earthquakes.xml")
         seismon.utils.mkdir(earthquakesDirectory)
+
+        try:
+            geolocator = Nominatim()
+            geoLocation = True
+        except:
+            geoLocation = False
+
+        if geoLocation:
+            locationstr = "%.6f, %.6f"%(attributeDic["Latitude"],attributeDic["Longitude"])
+            location = geolocator.reverse(locationstr, language='en')
+            if not location.address == None:
+                locationstr = location.address.encode('utf-8')
+                locationstr = locationstr.replace(", ",",").replace(" ","_")
+            else:
+                distances = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],latitudes, longitudes)
+                idx = np.argmin(distances)
+                country = countries[idx]
+                locationstr = "Offshore of %s"%country
+                locationstr = locationstr.replace(", ",",").replace(" ","_")
+        else:
+            locationstr = "Unknown"
 
         f = open(earthquakesFile,"w+")
         for ifo in ifos:
@@ -329,15 +362,6 @@ def run_earthquakes_info(params,segment):
 
             arrival_floor = np.floor(arrival / 100.0) * 100.0
             departure_ceil = np.ceil(departure / 100.0) * 100.0
-
-            try:
-                geolocator = Nominatim()
-                locationstr = "%.6f, %.6f"%(attributeDic["Latitude"],attributeDic["Longitude"])
-                location = geolocator.reverse(locationstr, language='en')
-                locationstr = location.address.encode('utf-8')
-                locationstr = locationstr.replace(", ",",").replace(" ","_")
-            except:
-                locationstr = "Unknown"
 
             try:
                 if ifoShort == "L1":
@@ -358,9 +382,9 @@ def run_earthquakes_info(params,segment):
                 lockloss = -1
                 lockloss_probability = -1
 
-            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,ifoShort))
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,attributeDic["SentGPS"],ifoShort))
 
-            print "%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,ifoShort)
+            print("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,attributeDic["SentGPS"],ifoShort))
 
             if params["doEPICs"]:
                 #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
@@ -2244,22 +2268,21 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         gpfile = os.path.join(scriptpath,'gp_llo.pickle')
         h5file = os.path.join(scriptpath,'model_llo.h5')
         jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
     elif ifo == "Virgo":
         gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
         h5file = os.path.join(scriptpath,'model_llo.h5')
         jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
     else:
         gpfile = os.path.join(scriptpath,'gp_lho.pickle')
         h5file = os.path.join(scriptpath,'model_llo.h5')
         jsonfile = os.path.join(scriptpath,'model_llo.json')
-
-    #with open(gpfile, 'rb') as fid:
-    #    scaler,gp = pickle.load(fid)
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
 
     json_file = open(jsonfile, 'r')
     loaded_model_json = json_file.read()
     json_file.close()
-
     
     loaded_model = model_from_json(loaded_model_json)
     loaded_model.load_weights(h5file)
@@ -2273,37 +2296,45 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         M = attributeDic["Magnitude"]*np.ones(distances.shape)
         lat = attributeDic["Latitude"]*np.ones(distances.shape)
         lon = attributeDic["Longitude"]*np.ones(distances.shape)
-        h = attributeDic["Depth"]*np.ones(distances.shape)
+
+        if attributeDic["Depth"] >= 2.0:
+            depth = attributeDic["Depth"]
+        else:
+            depth = 2.0
+
+        h = depth*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        X = np.vstack((M,lat,lon,distances/1000.0,h,az)).T
-        X = scaler.transform(X)
+        [x_scaler,y_scaler] = joblib.load(pklfile)
+        X = np.vstack((M,lat,lon,np.log10(distances),np.log10(h),az)).T
+        X = x_scaler.transform(X)
 
-        pred, pred_std = gp.predict(X, return_std=True)
-        pred = 10**pred
-        pred_std = pred*np.log(10)*pred_std
+        y_pred = loaded_model.predict(X)
+        y_pred = y_scaler.inverse_transform(y_pred)
+        pred = 10**y_pred
 
-        Rfamp = pred
+        Rfamp = np.squeeze(np.array(pred).T)
 
     else:
         distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
         degrees = (distances/6370000)*(180/np.pi)
 
-        M = attributeDic["Magnitude"]*np.ones(distances.shape)
-        lat = attributeDic["Latitude"]*np.ones(distances.shape)
-        lon = attributeDic["Longitude"]*np.ones(distances.shape)
-        h = attributeDic["Depth"]*np.ones(distances.shape)
-        az = fwd*np.ones(distances.shape)
+        if attributeDic["Depth"] >= 2.0:
+            depth = attributeDic["Depth"]
+        else:
+            depth = 2.0
 
-        X = np.vstack((M,lat,lon,distances[-1]/1000.0,h,az)).T
-        X = scaler.transform(X)
+        loaded_model = model_from_json(loaded_model_json)
+        loaded_model.load_weights(h5file)
+        [x_scaler,y_scaler] = joblib.load(pklfile)
 
-        pred, pred_std = gp.predict(X, return_std=True)
-        pred = 10**pred
-        pred_std = pred*np.log(10)*pred_std
-        
-        Rfamp = pred[0]
+        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(depth),fwd)).T
+        X = x_scaler.transform(X)
+        y_pred = loaded_model.predict(X)
+        y_pred = y_scaler.inverse_transform(y_pred)
+        pred = 10**y_pred
+        Rfamp = pred[0][0]
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2464,14 +2495,17 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         gpfile = os.path.join(scriptpath,'gp_llo.pickle')
         h5file = os.path.join(scriptpath,'model_llo.h5')
         jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
     elif ifo == "Virgo":
         gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
         h5file = os.path.join(scriptpath,'model_llo.h5')
         jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
     else:
         gpfile = os.path.join(scriptpath,'gp_lho.pickle')
         h5file = os.path.join(scriptpath,'model_llo.h5')
         jsonfile = os.path.join(scriptpath,'model_llo.json')
+        pklfile = os.path.join(scriptpath,'model_llo.pkl')
 
     #with open(gpfile, 'rb') as fid:
     #    scaler,gp = pickle.load(fid)
@@ -2494,14 +2528,12 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         h = attributeDic["Depth"]*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        X = np.vstack((M,lat,lon,distances/1000.0,h,az)).T
-        X = scaler.transform(X)
-
-        pred, pred_std = gp.predict(X, return_std=True)
-        pred = 10**pred
-        pred_std = pred*np.log(10)*pred_std
-
-        Rfamp = pred
+        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
+        X = x_scaler.transform(X)
+        y_pred = loaded_model.predict(X)
+        y_pred = y_scaler.inverse_transform(y_pred)
+        pred = 10**y_pred
+        Rfamp = pred[0]
 
     else:
         distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
@@ -2514,14 +2546,12 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         h = attributeDic["Depth"]*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distances[-1]/1000.0,attributeDic["Depth"],az)).T
-        X = scaler.transform(X)
-
-        pred, pred_std = gp.predict(X, return_std=True)
-        pred = 10**pred
-        pred_std = pred*np.log(10)*pred_std
-
-        Rfamp = pred[0]
+        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
+        X = x_scaler.transform(X)
+        y_pred = loaded_model.predict(X)
+        y_pred = y_scaler.inverse_transform(y_pred)
+        pred = 10**y_pred
+        Rfamp = pred[0][0]
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2610,15 +2640,15 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
 def distance_latlon(lat1,lon1,lat2,lon2):
     R = 6373.0
 
-    lat1 = math.radians(lat1)
-    lat2 = math.radians(lat2)
-    lon1 = math.radians(lon1)
-    lon2 = math.radians(lon2)
+    lat1 = np.radians(lat1)
+    lat2 = np.radians(lat2)
+    lon1 = np.radians(lon1)
+    lon2 = np.radians(lon2)
 
     dlon = lon2 - lon1
     dlat = lat2 - lat1
-    a = (math.sin(dlat/2))**2 + math.cos(lat1) * math.cos(lat2) * (math.sin(dlon/2))**2
-    c = 2 * math.atan2(np.sqrt(a), np.sqrt(1-a))
+    a = (np.sin(dlat/2))**2 + np.cos(lat1) * np.cos(lat2) * (np.sin(dlon/2))**2
+    c = 2 * np.arctan2(np.sqrt(a), np.sqrt(1-a))
     distance = R * c
 
     return distance
