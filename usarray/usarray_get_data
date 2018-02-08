@@ -78,6 +78,7 @@ def parse_commandline():
                       help="Run verbosely. (Default: False)")
 
     parser.add_option("--doDownload",  action="store_true", default=False)
+    parser.add_option("--doPlots",  action="store_true", default=False)
 
     opts, args = parser.parse_args()
 
@@ -113,6 +114,7 @@ def params_struct(opts):
     params["df"] = opts.df
 
     params["doDownload"] = opts.doDownload
+    params["doPlots"] = opts.doPlots
 
     return params
 
@@ -144,6 +146,8 @@ def get_timeseries(client, channel, starttime, endtime, sample_rate, calibration
     endtime_utc = obspy.core.UTCDateTime(endtime.utc.iso)
 
     channelSplit = channel.split(":")
+
+    print channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime_utc,endtime_utc
 
     st = client.get_waveforms(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime_utc,endtime_utc)
     data = np.array(st[0].data)
@@ -189,7 +193,7 @@ def plot_data(params,data,asd):
     label = params["channel"].replace(":","\_")
 
     plot = gwpy.plotter.Plot(figsize=[14,8])
-    plot.add_spectrum(asd,label=label)
+    plot.add_frequencyseries(asd,label=label)
     kwargs = {"linestyle":"-.","color":"k"}
     plot.add_line(fl, low, label="HNM/LNM", **kwargs)
     plot.add_line(fh, high, **kwargs)
@@ -249,10 +253,11 @@ def download_data(params):
   
     channel = params["channel"]
     calibration, latitude, longitude, samplef = get_response(client,channel,starttime, endtime) 
-    print channel, starttime, endtime, calibration, latitude, longitude, samplef
+    #print channel, starttime, endtime, calibration, latitude, longitude, samplef
     data = get_timeseries(client, channel, starttime, endtime, samplef, calibration)
     asd = get_asd(params,data)
-    #plot_data(params,data,asd)
+    if params["doPlots"]:
+        plot_data(params,data,asd)
     save_data(params,data,asd)
     
 def run_download():
