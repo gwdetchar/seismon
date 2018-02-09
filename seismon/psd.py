@@ -819,7 +819,7 @@ def spectra(params, channel, segment):
         label = channel.station.replace("_","\_")
 
         plot = gwpy.plotter.Plot(figsize=[14,8])
-        plot.add_spectrum(data["dataASD"],label=label)
+        plot.add_frequencyseries(data["dataASD"],label=label)
         kwargs = {"linestyle":"-.","color":"k"}
         plot.add_line(fl, low, label="HNM/LNM", **kwargs)
         plot.add_line(fh, high, **kwargs)
