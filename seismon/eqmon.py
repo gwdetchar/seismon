@@ -4,6 +4,7 @@ import os, sys, time, glob, math, matplotlib, random, string
 import csv
 import pickle
 import calendar
+import re
 
 matplotlib.use('Agg') 
 matplotlib.rcParams.update({'font.size': 18})
@@ -338,7 +339,15 @@ def run_earthquakes_info(params,segment):
             location = geolocator.reverse(locationstr, language='en')
             if not location.address == None:
                 locationstr = location.address.encode('utf-8')
+                locationstr = re.sub(r'[^\x00-\x7f]',r'',locationstr)
+                locationstr = ", ".join(filter(None,locationstr.split(", ")))
                 locationstr = locationstr.replace(", ",",").replace(" ","_")
+                if locationstr == "":
+                    distances = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],latitudes, longitudes)
+                    idx = np.argmin(distances)
+                    country = countries[idx]
+                    locationstr = "Offshore of %s"%country
+                    locationstr = locationstr.replace(", ",",").replace(" ","_")
             else:
                 distances = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],latitudes, longitudes)
                 idx = np.argmin(distances)
