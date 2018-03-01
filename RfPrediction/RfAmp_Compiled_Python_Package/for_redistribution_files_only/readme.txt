@@ -53,3 +53,5 @@ The robustLocklossPredictionPkg package is on your Python path. To import it int
     import robustLocklossPredictionPkg
 
 If a namespace must be specified for the package, modify the import statement accordingly.
+
+Refer example script makePredictions.py 
