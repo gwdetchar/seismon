@@ -13,7 +13,7 @@
 ##   python makePredictions.py -mag 7.5 -analyticPred 2.674237657088992e-07 -lat -6.2 -lon 130.6 -dist 10690548.79 -depth 126.5 -azi 42.9
 ##
 ## To embed the same functionality in another code as a function use the commented lines of code at the end
-##    Rfamp,LocklossTag = makePrediction(5.1,1.88191e-07,-18.2,-174.9,1.048178e+07,197.7,59.4)
+##    Rfamp,LocklossTag = makePredictions(5.1,1.88191e-07,-18.2,-174.9,1.048178e+07,197.7,59.4)
 ##
 ## Nikhil Mukund Menon (Last Edited : 26/3/2018)
 ## nikhil@iucaa.in, nikhil.mukund@LIGO.ORG
@@ -106,14 +106,14 @@ print(Rfamp,LocklossTag)
 # To call as a function use the code below
 #
 # Example:
-#  Rfamp,LocklossTag = makePrediction(5.1,1.88191e-07,-18.2,-174.9,1.048178e+07,197.7,59.4)
+#  Rfamp,LocklossTag = makePredictions(5.1,1.88191e-07,-18.2,-174.9,1.048178e+07,197.7,59.4)
 #
 import numpy as np
 import pandas as pd
 import robustLocklossPredictionPkg
 robust = robustLocklossPredictionPkg.initialize()
 
-def makePrediction(mag,analyticPred,lat,lon,dist,depth,azi):
+def makePredictions(mag,analyticPred,lat,lon,dist,depth,azi):
     trainFile = 'train.csv'
     testFile = 'test.csv'
     predictionFile = 'prediction.csv'
