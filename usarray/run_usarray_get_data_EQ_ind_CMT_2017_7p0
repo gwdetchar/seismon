@@ -245,5 +245,3 @@ for year in years:
             plt.savefig(pngFile)
             plt.close()
         
-            print plotDirectory 
-            print stop

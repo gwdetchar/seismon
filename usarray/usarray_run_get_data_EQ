@@ -1,10 +1,12 @@
 
-import os, sys, glob, optparse
+import os, sys, glob, optparse, time
 import numpy as np
 import astropy.time
 
 import obspy
 import obspy.iris
+
+from datetime import datetime
 
 import matplotlib
 from mpl_toolkits.basemap import Basemap
@@ -30,8 +32,10 @@ def parse_commandline():
 
     parser.add_option("-c", "--channel", help="channel name.",
                       default = None)
-    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1167264018,type=int)
-    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1198800018,type=int)
+    #parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=1167264018,type=int)
+    #parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=1198800018,type=int)
+    parser.add_option("-s", "--gpsStart", help="GPS Start Time.", default=0,type=int)
+    parser.add_option("-e", "--gpsEnd", help="GPS End Time.", default=2000000000,type=int)
     parser.add_option("-m", "--minMagnitude", help="Minimum earthquake magnitude.", default=6.0,type=float)
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
@@ -60,8 +64,11 @@ def parse_commandline():
 def get_events():
 
     if opts.doIRIS:
-        events = client.get_events(minmagnitude=opts.minMagnitude,starttime=starttime,endtime=endtime)
-        events = events.events
+        try:
+            events = client.get_events(minmagnitude=opts.minMagnitude,starttime=starttime,endtime=endtime)
+            events = events.events
+        except:
+            events = []
     elif opts.doCMT:
         events = []
         years = np.arange(2007,2018)
@@ -90,11 +97,27 @@ def get_events():
                     continue
                 for event in cat:
                     if event.magnitudes[0].mag < opts.minMagnitude: continue
+                  
+                    Time = str(event.origins[0].time)
+                    timeString = Time.replace("T"," ").replace("Z","")
+                    dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+                    tm = time.struct_time(dt.timetuple())
+
+                    td = dt - datetime(1970, 1, 1)
+                    thistime =  td.microseconds * 1e-6 + td.seconds + td.days * 24 * 3600
+                    GPS = astropy.time.Time(dt, format='datetime', scale='utc').gps
+                    if (GPS < opts.gpsStart) or (GPS > opts.gpsEnd): continue  
+
                     events.append(event)
     else:
         print "Must enable doIRIS or doCMT"
         exit(0)
     return events
+
+def get_latitude(latitude):
+    return np.min([np.max([latitude,-89]),89])
+def get_longitude(longitude):
+    return np.mod(longitude,360)
 
 def plot_maps():
 
@@ -122,7 +145,7 @@ def plot_maps():
     m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
     m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
     for eventName in data.iterkeys():
-        x, y = m(data[eventName]["latitude"],np.mod(data[eventName]["longitude"],360.0))
+        x, y = m(np.mod(data[eventName]["longitude"],360.0),data[eventName]["latitude"])
         cs = m.scatter(x,y,s=20,c=np.log10(data[eventName]["velocity"]),zorder=10,vmin=-6,vmax=-3)
     cbar = m.colorbar(cs,location='right',pad="5%")
     cbar.set_label('log10(Peak Amplitude) [m/s]')
@@ -140,7 +163,7 @@ def plot_maps():
     m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
     m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
     for eventName in data.iterkeys():
-        x, y = m(data[eventName]["latitude"],np.mod(data[eventName]["longitude"],360.0))
+        x, y = m(np.mod(data[eventName]["longitude"],360.0),data[eventName]["latitude"])
         cs = m.scatter(x,y,s=20,c=np.log10(data[eventName]["velocity_prediction"]),zorder=10,vmin=-6,vmax=-3)
     cbar = m.colorbar(cs,location='right',pad="5%")
     cbar.set_label('log10(Peak Amplitude) [m/s]')
@@ -155,7 +178,7 @@ def plot_maps():
     ax = fig.add_subplot(111)
     m = gen_basemap()
     for eventName in data.iterkeys():
-        x, y = m(data[eventName]["latitude"],np.mod(data[eventName]["longitude"],360.0))
+        x, y = m(np.mod(data[eventName]["longitude"],360.0),data[eventName]["latitude"])
         cs = m.scatter(x,y,s=20,c=data[eventName]["frac_error"],zorder=10,vmin=0,vmax=2)
     cbar = m.colorbar(cs,location='right',pad="20%")
     cbar.set_label('Fractional Error')
@@ -164,8 +187,9 @@ def plot_maps():
     axins = inset_axes(ax, width="30%", height=1., loc=3)
     axins.set_xlim(longitude-size, longitude+size)
     axins.set_ylim(latitude-size, latitude+size)
-    m2 = Basemap(llcrnrlon=longitude-size,llcrnrlat=latitude-size,urcrnrlon=longitude+size,urcrnrlat=latitude+size,
-    projection='lcc',lat_1=latitude,lat_2=latitude+10,lon_0=longitude,resolution ='l',area_thresh=1000.)
+
+    m2 = Basemap(llcrnrlon=get_longitude(longitude-size),llcrnrlat=get_latitude(latitude-size),urcrnrlon=get_longitude(longitude+size),urcrnrlat=get_latitude(latitude+size),
+    projection='lcc',lat_1=get_latitude(latitude),lat_2=get_latitude(latitude+10),lon_0=longitude,resolution ='l',area_thresh=1000.)
     m2.drawcoastlines(linewidth=1.25)
     m2.fillcontinents(color='0.8')
     m2.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
@@ -185,7 +209,7 @@ def plot_maps():
     m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
     m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
     for eventName in data.iterkeys():
-        x, y = m(data[eventName]["latitude"],np.mod(data[eventName]["longitude"],360.0))
+        x, y = m(np.mod(data[eventName]["longitude"],360.0),data[eventName]["latitude"])
         cs = m.scatter(x,y,s=20,c=data[eventName]["tt"],zorder=10,vmin=0,vmax=7200)
     cbar = m.colorbar(cs,location='right',pad="5%")
     cbar.set_label('Time Delay [s]')
@@ -196,19 +220,19 @@ def plot_maps():
     plt.close()
 
 def gen_basemap():
-    #m = Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
-    #m.drawcoastlines(linewidth=1.25)
-    #m.fillcontinents(color='0.8')
-    #m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
-    #m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
-
-    m = Basemap(llcrnrlon=-120.,llcrnrlat=0.0,urcrnrlon=-20.0,urcrnrlat=80.,
-            projection='lcc',lat_1=20.,lat_2=40.,lon_0=-60.,
-            resolution ='l',area_thresh=1000.)
+    m = Basemap(llcrnrlon=0,llcrnrlat=-80,urcrnrlon=360,urcrnrlat=80,projection='mill')
     m.drawcoastlines(linewidth=1.25)
     m.fillcontinents(color='0.8')
     m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
     m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
+
+    #m = Basemap(llcrnrlon=-120.,llcrnrlat=0.0,urcrnrlon=-20.0,urcrnrlat=80.,
+    #        projection='lcc',lat_1=20.,lat_2=40.,lon_0=-60.,
+    #        resolution ='l',area_thresh=1000.)
+    #m.drawcoastlines(linewidth=1.25)
+    #m.fillcontinents(color='0.8')
+    #m.drawparallels(np.arange(-80,81,20),labels=[1,1,0,0])
+    #m.drawmeridians(np.arange(0,360,60),labels=[0,0,0,1])
 
     return m
 
@@ -281,6 +305,8 @@ for line in lines:
 
     data = {}
 
+    if os.path.isfile(eqfile): continue 
+
     f = open(eqfile,'w')
     for event in events:
         if opts.doIRIS:
@@ -300,6 +326,8 @@ for line in lines:
         arrival = np.min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
         departure = np.max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
 
+        print arrival, departure
+ 
         arrival_floor = np.floor(arrival / 100.0) * 100.0
         departure_ceil = np.ceil(departure / 100.0) * 100.0
 
@@ -314,6 +342,7 @@ for line in lines:
         if not os.path.isfile(timefile): continue
 
         data_out = np.loadtxt(timefile)
+        if not data_out.shape: continue
         if data_out[0,1] == 0.0:
             system_command = "rm %s"%timefile
             os.system(system_command)

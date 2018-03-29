@@ -6,6 +6,9 @@ import astropy.time
 channellist = "input/channels.txt"
 lines = [line.rstrip('\n') for line in open(channellist)]
 
+GSNlist = "input/GSN.txt"
+GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
 for line in lines:
     lineSplit = line.split(" ")
     lineSplit = filter(None, lineSplit)
@@ -20,7 +23,16 @@ for line in lines:
 
     channelSplit = channel.split(":")
     array = channelSplit[0]
-    if not array in ["TA","US"]: continue
+
+    GSNcheck = False
+    for GSN in GSNs:
+        GSNsplit = filter(None,GSN.split("\t"))
+        GSNstation = GSNsplit[0]
+        GSNnetwork = GSNsplit[1]
+        if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
+            GSNcheck = True
+
+    if (not array in ["TA","US"]) and (not GSNcheck): continue       
 
     #print channel, samplef, latitude, longitude, starttime, endtime
 
@@ -44,6 +56,11 @@ for line in lines:
         timefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/Timeseries/%s/%d-%d.txt"%(channel.replace(":","_"),gpsStart,gpsEnd)
         if not os.path.isfile(timefile): continue
         data_out = np.loadtxt(timefile)
+
+        if data_out[0,1] == 0.0:
+            system_command = "rm %s"%timefile
+            os.system(system_command)
+            continue
 
         f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),float(event[15]),float(event[16]),float(event[17]),float(event[18]),float(event[19]),float(event[20]),float(event[21]),float(event[22]),float(event[23]),float(event[24]),event[25],data_out[1,0],data_out[1,1]))
     f.close()

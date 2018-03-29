@@ -170,7 +170,7 @@ def combine_data(params):
         dataASD = data_out[:,1]
         freq = data_out[:,0]
 
-        dataASD = gwpy.frequencyseries.Spectrum(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
+        dataASD = gwpy.frequencyseries.FrequencySeries(dataASD, f0=np.min(freq), df=(freq[1]-freq[0]))
         dataASD.override_unit('m/s/Hz^(1/2)')
 
         idx = np.where(~np.isfinite(dataASD))[0]

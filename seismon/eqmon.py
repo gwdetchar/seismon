@@ -14,6 +14,10 @@ import numpy as np
 from datetime import datetime
 from operator import itemgetter
 
+import pandas as pd
+import seismon.robustLocklossPredictionPkg
+robust = seismon.robustLocklossPredictionPkg.initialize()
+
 try:
     import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 except:
@@ -27,17 +31,6 @@ import astropy.time
 #import lal.gpstime
 
 import seismon.utils, seismon.eqmon_plot
-
-try:
-    #from sklearn import gaussian_process
-    #from sklearn.gaussian_process import GaussianProcessRegressor
-    #from sklearn.gaussian_process.kernels import Matern, RBF, WhiteKernel, ConstantKernel
-    #from sklearn import preprocessing
-    #from sklearn import svm
-    from sklearn.externals import joblib
-    from keras.models import Sequential, model_from_json
-except:
-    print("sklearn/keras import fails... no prediction possible.")
 
 try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries
@@ -54,6 +47,45 @@ try:
     from geopy.geocoders import Nominatim
 except:
     print("No geopy installed...")
+
+def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi):
+
+    try:
+        len(mag)
+        ifMultiple = True
+    except:
+        ifMultiple = False
+
+    dist             = np.log10(dist)
+    # Save to file
+    if ifMultiple:
+        # Log transform
+        analyticPred = -6.0*np.ones(dist.shape)
+        Rfamps, LocklossTags = [], []
+        for m, a, t, n, d, p, z in zip(mag,analyticPred,lat,lon,dist,depth,azi):
+            train_data = [[m, a, t, n, d, p, z]]
+            my_df = pd.DataFrame(train_data)
+            my_df.to_csv(testFile, index=False, header=False)
+            # Do prediction
+            robust.robustPrediction2(testFile,trainFile,predictionFile)
+            Result = pd.read_csv(predictionFile)
+            Rfamp  = 10**float(Result.keys()[0])
+            LocklossTag  = float(Result.keys()[1])       
+            Rfamps.append(Rfamp)
+            LocklossTags.append(LocklossTag)
+        return (np.array(Rfamps),np.array(LocklossTags))
+    else:
+        # Log transform
+        analyticPred = -6.0*np.ones(dist.shape)
+        train_data = [[mag,analyticPred,lat,lon,dist,depth,azi]]
+        my_df = pd.DataFrame(train_data)
+        my_df.to_csv(testFile, index=False, header=False)
+        # Do prediction
+        robust.robustPrediction2(testFile,trainFile,predictionFile)
+        Result = pd.read_csv(predictionFile)
+        Rfamp  = 10**float(Result.keys()[0])
+        LocklossTag  = float(Result.keys()[1])
+        return (Rfamp,LocklossTag)
 
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
@@ -372,28 +404,9 @@ def run_earthquakes_info(params,segment):
             arrival_floor = np.floor(arrival / 100.0) * 100.0
             departure_ceil = np.ceil(departure / 100.0) * 100.0
 
-            try:
-                if ifoShort == "L1":
-                    svmfile = os.path.join(scriptpath,'svm_llo.pickle')
-                else:
-                    svmfile = os.path.join(scriptpath,'svm_lho.pickle')
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],locationstr,attributeDic["SentGPS"],ifoShort))
 
-                with open(svmfile, 'rb') as fid:
-                    scaler,clf = pickle.load(fid)
-
-                X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"])/1000.0,attributeDic["Depth"],traveltimes["Azimuth"][0],np.log10(traveltimes["Rfamp"][0]))).T
-                X = scaler.transform(X)
-
-                lockloss_prediction = clf.predict(X)[0]
-                lockloss_prob = clf.predict_proba(X)
-                lockloss_probability = lockloss_prob[0,1]
-            except:
-                lockloss = -1
-                lockloss_probability = -1
-
-            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,attributeDic["SentGPS"],ifoShort))
-
-            print("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],lockloss_probability,locationstr,attributeDic["SentGPS"],ifoShort))
+            print("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],locationstr,attributeDic["SentGPS"],ifoShort))
 
             if params["doEPICs"]:
                 #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
@@ -2274,27 +2287,13 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     scriptpath = os.path.join(seismonpath,'input')
 
     if ifo == "LLO":
-        gpfile = os.path.join(scriptpath,'gp_llo.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
     elif ifo == "Virgo":
-        gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
     else:
-        gpfile = os.path.join(scriptpath,'gp_lho.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
-
-    json_file = open(jsonfile, 'r')
-    loaded_model_json = json_file.read()
-    json_file.close()
-    
-    loaded_model = model_from_json(loaded_model_json)
-    loaded_model.load_weights(h5file)
+        trainFile = os.path.join(scriptpath,'train.csv')
+    testFile = "/tmp/test.csv"
+    predictionFile = "/tmp/prediction.csv"
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
@@ -2314,16 +2313,12 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         h = depth*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        [x_scaler,y_scaler] = joblib.load(pklfile)
-        X = np.vstack((M,lat,lon,np.log10(distances),np.log10(h),az)).T
-        X = x_scaler.transform(X)
-
-        y_pred = loaded_model.predict(X)
-        y_pred = y_scaler.inverse_transform(y_pred)
-        pred = 10**y_pred
-
-        Rfamp = np.squeeze(np.array(pred).T)
-
+        try:
+            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            Lockloss = Lockloss - 1
+        except:
+            Rfamp = -1*np.ones(distances.shape)
+            Lockloss = -1*np.ones(distances.shape)
     else:
         distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
@@ -2334,16 +2329,12 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         else:
             depth = 2.0
 
-        loaded_model = model_from_json(loaded_model_json)
-        loaded_model.load_weights(h5file)
-        [x_scaler,y_scaler] = joblib.load(pklfile)
-
-        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(depth),fwd)).T
-        X = x_scaler.transform(X)
-        y_pred = loaded_model.predict(X)
-        y_pred = y_scaler.inverse_transform(y_pred)
-        pred = 10**y_pred
-        Rfamp = pred[0][0]
+        try:
+            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            Lockloss = Lockloss - 1
+        except:
+            Rfamp = -1*np.ones(distances.shape)
+            Lockloss = -1*np.ones(distances.shape)
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2403,11 +2394,12 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
 
     if ifo == "Arbitrary":
         traveltimes["Rfamp"] = Rfamp
+        traveltimes["Lockloss"] = Lockloss
     else:
         traveltimes["Rfamp"] = [Rfamp]
+        traveltimes["Lockloss"] = [Lockloss]
     traveltimes["Pamp"] = [Pamp]
     traveltimes["Samp"] = [Samp]
-
     attributeDic["traveltimes"][ifo] = traveltimes
 
     return attributeDic
@@ -2501,29 +2493,13 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         return attributeDic
 
     if ifo == "LLO":
-        gpfile = os.path.join(scriptpath,'gp_llo.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
     elif ifo == "Virgo":
-        gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
     else:
-        gpfile = os.path.join(scriptpath,'gp_lho.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
-
-    #with open(gpfile, 'rb') as fid:
-    #    scaler,gp = pickle.load(fid)
-
-    json_file = open(jsonfile, 'r')
-    loaded_model_json = json_file.read()
-    json_file.close()
-    loaded_model = model_from_json(loaded_model_json)
-    loaded_model.load_weights(h5file)
+        trainFile = os.path.join(scriptpath,'train.csv')
+    testFile = "/tmp/test.csv"
+    predictionFile = "/tmp/prediction.csv"
 
     if ifo == "Arbitrary":
         degrees = np.linspace(1,180,180)
@@ -2537,12 +2513,12 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         h = attributeDic["Depth"]*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
-        X = x_scaler.transform(X)
-        y_pred = loaded_model.predict(X)
-        y_pred = y_scaler.inverse_transform(y_pred)
-        pred = 10**y_pred
-        Rfamp = pred[0]
+        try:
+            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            Lockloss = Lockloss - 1
+        except:
+            Rfamp = -1*np.ones(distances.shape)
+            Lockloss = -1*np.ones(distances.shape)
 
     else:
         distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
@@ -2555,12 +2531,12 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         h = attributeDic["Depth"]*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
-        X = x_scaler.transform(X)
-        y_pred = loaded_model.predict(X)
-        y_pred = y_scaler.inverse_transform(y_pred)
-        pred = 10**y_pred
-        Rfamp = pred[0][0]
+        try:
+            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            Lockloss = Lockloss - 1
+        except:
+            Rfamp = -1*np.ones(distances.shape)
+            Lockloss = -1*np.ones(distances.shape)
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2709,41 +2685,22 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
 
     if ifo == "LLO":
-        gpfile = os.path.join(scriptpath,'gp_llo.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
     elif ifo == "Virgo":
-        gpfile = os.path.join(scriptpath,'gp_virgo.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
     else:
-        gpfile = os.path.join(scriptpath,'gp_lho.pickle')
-        h5file = os.path.join(scriptpath,'model_llo.h5')
-        jsonfile = os.path.join(scriptpath,'model_llo.json')
-        pklfile = os.path.join(scriptpath,'model_llo.pkl')
+        trainFile = os.path.join(scriptpath,'train.csv')
+    testFile = "/tmp/test.csv"
+    predictionFile = "/tmp/prediction.csv"
 
-    #with open(gpfile, 'rb') as fid:
-    #    scaler,gp = pickle.load(fid)
-
-    json_file = open(jsonfile, 'r')
-    loaded_model_json = json_file.read()
-    json_file.close()
+    (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
 
     try:
-        loaded_model = model_from_json(loaded_model_json)
-        loaded_model.load_weights(h5file)
-        [x_scaler,y_scaler] = joblib.load(pklfile) 
-
-        X = np.vstack((attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],np.log10(distance),np.log10(attributeDic["Depth"]),fwd)).T
-        X = x_scaler.transform(X)
-        y_pred = loaded_model.predict(X)
-        y_pred = y_scaler.inverse_transform(y_pred)
-        pred = 10**y_pred
-        Rfamp = pred[0][0]
+        (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
+        Lockloss = Lockloss - 1
     except:
         Rfamp = -1
+        Lockloss = -1
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
@@ -2758,6 +2715,7 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     traveltimes["RthreePointFivetimes"] = [rthreePointFivetime_interp]
     traveltimes["Rfivetimes"] = [rfivetime_interp]
     traveltimes["Rfamp"] = [Rfamp]
+    traveltimes["Lockloss"] = [Lockloss]
     traveltimes["Pamp"] = [attributeDic["traveltimes"]["Arbitrary"]["Pamp"][0]]
     traveltimes["Samp"] = [attributeDic["traveltimes"]["Arbitrary"]["Samp"][0]]
     attributeDic["traveltimes"][ifo] = traveltimes

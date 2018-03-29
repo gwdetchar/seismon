@@ -122,7 +122,6 @@ def get_response(client,channel,starttime, endtime):
     endtime_utc = obspy.core.UTCDateTime(endtime.utc.iso)
 
     channelSplit = channel.split(":")
-    print client
     response = client.get_stations(network=channelSplit[0], station = channelSplit[1], location = channelSplit[2], channel = channelSplit[3],starttime=starttime_utc,endtime=endtime_utc,level="resp")
 
     channel_response = response.get_response(channel.replace(":",".").replace("--",""),starttime_utc)
@@ -250,7 +249,7 @@ def download_data(params):
   
     channel = params["channel"]
     calibration, latitude, longitude, samplef = get_response(client,channel,starttime, endtime) 
-    print channel, starttime, endtime, calibration, latitude, longitude, samplef
+    #print channel, starttime, endtime, calibration, latitude, longitude, samplef
     data = get_timeseries(client, channel, starttime, endtime, samplef, calibration)
     asd = get_asd(params,data)
     #plot_data(params,data,asd)

@@ -147,8 +147,6 @@ def get_timeseries(client, channel, starttime, endtime, sample_rate, calibration
 
     channelSplit = channel.split(":")
 
-    print channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime_utc,endtime_utc
-
     st = client.get_waveforms(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime_utc,endtime_utc)
     data = np.array(st[0].data)
     data = data.astype(float)

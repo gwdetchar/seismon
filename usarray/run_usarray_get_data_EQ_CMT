@@ -46,15 +46,8 @@ for line in lines:
         if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
             GSNcheck = True
 
-    print channelSplit, GSNcheck
     if (not array in ["TA","US"]) and (not GSNcheck): continue
-
-    print channel, samplef, latitude, longitude, starttime, endtime
-
-    #if starttime < starttime_min:
-    #    starttime = obspy.UTCDateTime(2016, 1, 1, 0, 0, 0, 0)
-    #if endtime > endtime_max:
-    #    endtime = obspy.UTCDateTime(2016, 1, 1, 12, 0, 0, 0)
+    #print channel, samplef, latitude, longitude, starttime, endtime
 
     starttime = astropy.time.Time(starttime, format='isot', scale='utc')
     endtime = astropy.time.Time(endtime, format='isot', scale='utc')

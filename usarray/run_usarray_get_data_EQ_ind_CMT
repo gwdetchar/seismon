@@ -35,7 +35,6 @@ for year in years:
         try:
             catfile = "http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY/%d/%s%d.ndk"%(year,month,np.mod(year,100))
             cat = obspy.readEvents(catfile)
-            print catfile
         except:
             continue
 
@@ -63,8 +62,6 @@ for year in years:
                 starttime = obspy.UTCDateTime(lineSplit[5])
                 endtime = obspy.UTCDateTime(lineSplit[6])
          
-                print starttime, endtime, eqtime
-
                 if starttime > eqtime: continue
                 if endtime < eqtime: continue
 
@@ -79,11 +76,7 @@ for year in years:
                     if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):          
                         GSNcheck = True
     
-                print channelSplit, GSNcheck
                 if (not array in ["TA","US"]) and (not GSNcheck): continue          
- 
-                print channel, samplef, latitude, longitude, starttime, endtime, eqtime
-            
                 ifo = "%s,%.5f,%.5f"%(channel, latitude, longitude)
              
                 attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo)
@@ -108,9 +101,14 @@ for year in years:
         
                 data_out = np.loadtxt(timefile)
                 if not data_out.size: continue       
+                if data_out[0,1] == 0.0:
+                    system_command = "rm %s"%timefile
+                    os.system(system_command)
+                    continue
  
                 data[channel] = {}                
                 data[channel]["tt"] = data_out[1,0] - attributeDic["GPS"]
+                
                 data[channel]["velocity"] = data_out[1,1]
                 data[channel]["latitude"] = latitude
                 data[channel]["longitude"] = longitude
