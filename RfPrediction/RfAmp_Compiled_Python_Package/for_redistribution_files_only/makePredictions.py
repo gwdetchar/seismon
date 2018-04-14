@@ -131,4 +131,3 @@ def makePredictions(mag,analyticPred,lat,lon,dist,depth,azi):
     LocklossTag  = float(Result.keys()[1])
     return (Rfamp,LocklossTag)
 '''
-                                                                                                                                                                                         1,1           Top
