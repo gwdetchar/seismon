@@ -53,3 +53,25 @@ The robustLocklossPredictionPkg3 package is on your Python path. To import it in
     import robustLocklossPredictionPkg3
 
 If a namespace must be specified for the package, modify the import statement accordingly.
+
+
+######################################################################
+## SEISMON RfAmp Prediction  Code
+## 
+##
+## Uses PYTHON package robustLocklossPredictionPkg3 & MATLAB 2016b shared libraries,
+## Make sure to run the script set_shared_library_paths.sh prior to running this script. 
+## To re-install the package go through readme.txt 
+##
+## Input Parameters : ifo, earthquake mag, latitude,longitude,distance, depth, azimuth
+## Output file : predicted amplitude, lockloss_prediction(value btw 1&2 --> no lockloss to lockloss)
+##
+##Example:
+##   python makePredictions.py -ifo 'H1' -mag 7.5 -lat -6.2 -lon 130.6 -dist 10690548.79 -depth 126.5 -azi 42.9
+##
+## To embed the same functionality in another code as a function use the commented lines of code at the end
+##    Rfamp,LocklossTag = makePredictions('H1',5.1,-18.2,-174.9,1.048178e+07,197.7,59.4)
+##
+## Nikhil Mukund Menon (Last Edited : 14/4/2018)
+## nikhil@iucaa.in, nikhil.mukund@LIGO.ORG
+######################################################
