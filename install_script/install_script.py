@@ -56,7 +56,7 @@ opts = parse_commandline()
 outputDir = opts.outputDir
 mkdir(outputDir)
 
-productclient = "http://ehppdl1.cr.usgs.gov/ProductClient.zip"
+productclient = "https://github.com/usgs/pdl/releases/download/v1.14.0/ProductClient.zip"
 productclient_zip = "%s/ProductClient.zip"%outputDir
 productclient_output = "%s/ProductClient"%outputDir
 
