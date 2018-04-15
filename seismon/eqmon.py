@@ -60,7 +60,7 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
     # Save to file
     if ifMultiple:
         # Log transform
-        Rfamps, LocklossTags, Rfamps_sigma, LocklossTag_sigmas = [], [], [], []
+        Rfamps, LocklossTags, Rfamps_sigma, LocklossTags_sigma = [], [], [], []
         for m, t, n, d, p, z in zip(mag,lat,lon,dist,depth,azi):
             train_data = [[m, t, n, d, p, z]]
             my_df = pd.DataFrame(train_data)
@@ -2281,12 +2281,14 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         h = depth*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
+        (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+
         try:
             (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
             Lockloss = Lockloss - 1
         except:
             Rfamp = -1*np.ones(distances.shape)
-            Lockloss_sigma = -1*np.ones(distances.shape)
+            Lockloss = -1*np.ones(distances.shape)
             Rfamp_sigma = -1*np.ones(distances.shape)
             Lockloss_sigma = -1*np.ones(distances.shape)
     else:
