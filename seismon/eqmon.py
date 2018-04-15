@@ -51,41 +51,45 @@ except:
 def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi):
 
     try:
-        len(mag)
+        len(dist)
         ifMultiple = True
     except:
         ifMultiple = False
 
-    dist             = np.log10(dist)
+    dist = np.log10(dist)
     # Save to file
     if ifMultiple:
         # Log transform
-        analyticPred = -6.0*np.ones(dist.shape)
-        Rfamps, LocklossTags = [], []
-        for m, a, t, n, d, p, z in zip(mag,analyticPred,lat,lon,dist,depth,azi):
-            train_data = [[m, a, t, n, d, p, z]]
+        Rfamps, LocklossTags, Rfamps_sigma, LocklossTag_sigmas = [], [], [], []
+        for m, t, n, d, p, z in zip(mag,lat,lon,dist,depth,azi):
+            train_data = [[m, t, n, d, p, z]]
             my_df = pd.DataFrame(train_data)
             my_df.to_csv(testFile, index=False, header=False)
             # Do prediction
-            robust.robustPrediction2(testFile,trainFile,predictionFile)
+            robust.robustPrediction3(testFile,trainFile,predictionFile)
             Result = pd.read_csv(predictionFile)
-            Rfamp  = 10**float(Result.keys()[0])
+            Rfamp  = float(Result.keys()[0])
             LocklossTag  = float(Result.keys()[1])       
+            Rfamp_sigma  = float(Result.keys()[2])
+            LocklossTag_sigma  = float(Result.keys()[3])
             Rfamps.append(Rfamp)
             LocklossTags.append(LocklossTag)
-        return (np.array(Rfamps),np.array(LocklossTags))
+            Rfamps_sigma.append(Rfamp_sigma)
+            LocklossTags_sigma.append(LocklossTag_sigma)
+        return (np.array(Rfamps),np.array(LocklossTags),np.array(Rfamps_sigma),np.array(LocklossTags_sigma))
     else:
         # Log transform
-        analyticPred = -6.0*np.ones(dist.shape)
-        train_data = [[mag,analyticPred,lat,lon,dist,depth,azi]]
+        train_data = [[mag,lat,lon,dist,depth,azi]]
         my_df = pd.DataFrame(train_data)
         my_df.to_csv(testFile, index=False, header=False)
         # Do prediction
-        robust.robustPrediction2(testFile,trainFile,predictionFile)
+        robust.robustPrediction3(testFile,trainFile,predictionFile)
         Result = pd.read_csv(predictionFile)
-        Rfamp  = 10**float(Result.keys()[0])
+        Rfamp  = float(Result.keys()[0])
         LocklossTag  = float(Result.keys()[1])
-        return (Rfamp,LocklossTag)
+        Rfamp_sigma  = float(Result.keys()[2])
+        LocklossTag_sigma  = float(Result.keys()[3])
+        return (Rfamp,LocklossTag,Rfamp_sigma,LocklossTag_sigma)
 
 def run_earthquakes(params,segment):
     """@run earthquakes prediction.
@@ -194,14 +198,14 @@ def run_earthquakes(params,segment):
 
                 if "nodalPlane1_strike" in attributeDic:     
 
-                    f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"]))
+                    f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],traveltimes["Rfamp_sigma"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"],traveltimes["Lockloss"][0],traveltimes["Lockloss_sigma"][0]))
 
-                    print("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"]))
+                    print("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],traveltimes["Rfamp_sigma"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],attributeDic["nodalPlane1_strike"],attributeDic["nodalPlane1_rake"],attributeDic["nodalPlane1_dip"],attributeDic["momentTensor_Mrt"],attributeDic["momentTensor_Mtp"],attributeDic["momentTensor_Mrp"],attributeDic["momentTensor_Mtt"],attributeDic["momentTensor_Mrr"],attributeDic["momentTensor_Mpp"],traveltimes["Lockloss"][0],traveltimes["Lockloss_sigma"][0]))
 
                 else:
-                    f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
+                    f.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.5e %d %d %.1f %.1f %e %.1f %.1f -1 -1 -1 -1 -1 -1 -1 -1 -1 %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],traveltimes["Rfamp_sigma"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],traveltimes["Lockloss_sigma"][0]))
 
-                    print("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0]))
+                    print("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.5e %d %d %.1f %.1f %e %.1f %.1f -1 -1 -1 -1 -1 -1 -1 -1 -1 %.5f %.5f\n"%(attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],traveltimes["Rfamp_sigma"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],traveltimes["Lockloss_sigma"][0]))
 
                 g.write("%.1f %.1f %.5e\n"%(arrival,departure-arrival,traveltimes["Rfamp"][0]))
                 h.write("%.0f %.0f\n"%(arrival_floor,departure_ceil))
@@ -360,11 +364,13 @@ def run_earthquakes_info(params,segment):
         earthquakesXMLFile = os.path.join(earthquakesDirectory,"earthquakes.xml")
         seismon.utils.mkdir(earthquakesDirectory)
 
-        try:
-            geolocator = Nominatim()
-            geoLocation = True
-        except:
-            geoLocation = False
+        #try:
+        #    geolocator = Nominatim()
+        #    geoLocation = True
+        #except:
+        #    geoLocation = False
+
+        geoLocation = False
 
         if geoLocation:
             locationstr = "%.6f, %.6f"%(attributeDic["Latitude"],attributeDic["Longitude"])
@@ -404,47 +410,9 @@ def run_earthquakes_info(params,segment):
             arrival_floor = np.floor(arrival / 100.0) * 100.0
             departure_ceil = np.ceil(departure / 100.0) * 100.0
 
-            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],locationstr,attributeDic["SentGPS"],ifoShort))
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],traveltimes["Rfamp_sigma"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],traveltimes["Lockloss_sigma"][0],locationstr,attributeDic["SentGPS"],ifoShort))
 
-            print("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.3f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],locationstr,attributeDic["SentGPS"],ifoShort))
-
-            if params["doEPICs"]:
-                #indexes = np.intersect1d(np.where(arrival <= tt)[0],np.where(departure >= tt)[0])
-                #eqs = np.zeros(tt.shape)
-                #eqs[indexes] = 1
-
-                eta = arrival - gpsEnd
-                if eta < 0:
-                    continue 
-
-                epics_dicts[ifoShort]["eta"] = arrival - gpsEnd
-                epics_dicts[ifoShort]["amp"] = traveltimes["Rfamp"][0]
-                if len(attributeDics) > 1:
-                    epics_dicts[ifoShort]["mult"] = 1
-                else:
-                    epics_dicts[ifoShort]["mult"] = 0
-                if epics_dicts[ifoShort]["amp"] < 1e-6:
-                    epics_dicts[ifoShort]["prob"] = 1
-                elif epics_dicts[ifoShort]["amp"] < 5e-6:
-                    epics_dicts[ifoShort]["prob"] = 2
-                else:
-                    epics_dicts[ifoShort]["prob"] = 3     
-
-                #tstart = (max(traveltimes["Rfivetimes"]) + max(traveltimes["RthreePointFivetimes"]))/2.0
-                #tend = max(traveltimes["Rtwotimes"]) 
-                #x = np.arange(tstart,tend,1)
-                #x = tt
-                #y = (x - np.min(x))/600.0
-                #lamb = 1 + y[-1]/5.0
-                #vals = scipy.stats.gamma.pdf(y, lamb)
-                #vals = np.absolute(vals)
-                #vals = vals / np.max(vals)
-                #vals = vals * traveltimes["Rfamp"][0]
-                #amps = np.interp(tt,x,vals,left=0,right=0)
-
-                #epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps*traveltimes["Rfamp"][0]
-                #epics_dicts[ifoShort]["amp"] = epics_dicts[ifoShort]["amp"] + amps
-                #epics_dicts[ifoShort]["eq"] = epics_dicts[ifoShort]["eq"] + eqs
+            print("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %s %.1f %s\n"%(attributeDic["eventID"],attributeDic["GPS"],attributeDic["Magnitude"],max(traveltimes["Ptimes"]),max(traveltimes["Stimes"]),max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),traveltimes["Rfamp"][0],traveltimes["Rfamp_sigma"][0],arrival_floor,departure_ceil,attributeDic["Latitude"],attributeDic["Longitude"],max(traveltimes["Distances"]),attributeDic["Depth"],traveltimes["Azimuth"][0],traveltimes["Lockloss"][0],traveltimes["Lockloss_sigma"][0],locationstr,attributeDic["SentGPS"],ifoShort))
 
         f.close()
         write_info(earthquakesXMLFile,[attributeDic])
@@ -2287,11 +2255,11 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     scriptpath = os.path.join(seismonpath,'input')
 
     if ifo == "LLO":
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'L1O1O2_GPR_earthquakes.txt')
     elif ifo == "Virgo":
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
     else:
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
     testFile = "/tmp/test.csv"
     predictionFile = "/tmp/prediction.csv"
 
@@ -2314,11 +2282,13 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         az = fwd*np.ones(distances.shape)
 
         try:
-            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
             Lockloss = Lockloss - 1
         except:
             Rfamp = -1*np.ones(distances.shape)
-            Lockloss = -1*np.ones(distances.shape)
+            Lockloss_sigma = -1*np.ones(distances.shape)
+            Rfamp_sigma = -1*np.ones(distances.shape)
+            Lockloss_sigma = -1*np.ones(distances.shape)
     else:
         distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
@@ -2330,11 +2300,13 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
             depth = 2.0
 
         try:
-            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
             Lockloss = Lockloss - 1
         except:
             Rfamp = -1*np.ones(distances.shape)
             Lockloss = -1*np.ones(distances.shape)
+            Rfamp_sigma = -1*np.ones(distances.shape)
+            Lockloss_sigma = -1*np.ones(distances.shape)
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2395,9 +2367,13 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     if ifo == "Arbitrary":
         traveltimes["Rfamp"] = Rfamp
         traveltimes["Lockloss"] = Lockloss
+        traveltimes["Rfamp_sigma"] = Rfamp_sigma
+        traveltimes["Lockloss_sigma"] = Lockloss_sigma
     else:
         traveltimes["Rfamp"] = [Rfamp]
         traveltimes["Lockloss"] = [Lockloss]
+        traveltimes["Rfamp_sigma"] = [Rfamp_sigma]
+        traveltimes["Lockloss_sigma"] = [Lockloss_sigma]
     traveltimes["Pamp"] = [Pamp]
     traveltimes["Samp"] = [Samp]
     attributeDic["traveltimes"][ifo] = traveltimes
@@ -2493,11 +2469,11 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         return attributeDic
 
     if ifo == "LLO":
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'L1O1O2_GPR_earthquakes.txt')
     elif ifo == "Virgo":
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
     else:
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
     testFile = "/tmp/test.csv"
     predictionFile = "/tmp/prediction.csv"
 
@@ -2514,11 +2490,13 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         az = fwd*np.ones(distances.shape)
 
         try:
-            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            (Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
             Lockloss = Lockloss - 1
         except:
             Rfamp = -1*np.ones(distances.shape)
             Lockloss = -1*np.ones(distances.shape)
+            Rfamp_sigma = -1*np.ones(distances.shape)
+            Lockloss_sigma = -1*np.ones(distances.shape)
 
     else:
         distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
@@ -2532,11 +2510,13 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         az = fwd*np.ones(distances.shape)
 
         try:
-            (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+            (Rfamp, Lockloss,Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
             Lockloss = Lockloss - 1
         except:
             Rfamp = -1*np.ones(distances.shape)
             Lockloss = -1*np.ones(distances.shape)
+            Rfamp_sigma = -1*np.ones(distances.shape)
+            Lockloss_sigma = -1*np.ones(distances.shape)
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2685,22 +2665,22 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
         attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
 
     if ifo == "LLO":
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'L1O1O2_GPR_earthquakes.txt')
     elif ifo == "Virgo":
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
     else:
-        trainFile = os.path.join(scriptpath,'train.csv')
+        trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
     testFile = "/tmp/test.csv"
     predictionFile = "/tmp/prediction.csv"
 
-    (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
-
     try:
-        (Rfamp, Lockloss) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
+        (Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
         Lockloss = Lockloss - 1
     except:
         Rfamp = -1
         Lockloss = -1
+        Rfamp_sigma = -1
+        Lockloss_sigma = -1
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
@@ -2716,6 +2696,8 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     traveltimes["Rfivetimes"] = [rfivetime_interp]
     traveltimes["Rfamp"] = [Rfamp]
     traveltimes["Lockloss"] = [Lockloss]
+    traveltimes["Rfamp_sigma"] = [Rfamp_sigma]
+    traveltimes["Lockloss_sigma"] = [Lockloss_sigma]
     traveltimes["Pamp"] = [attributeDic["traveltimes"]["Arbitrary"]["Pamp"][0]]
     traveltimes["Samp"] = [attributeDic["traveltimes"]["Arbitrary"]["Samp"][0]]
     attributeDic["traveltimes"][ifo] = traveltimes
