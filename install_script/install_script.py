@@ -18,6 +18,9 @@ def parse_commandline():
     parser.add_option("-v", "--verbose", action="store_true", default=False,
                       help="Run verbosely. (Default: False)")
 
+    parser.add_option("-p", "--productClient", help = "USGS PDL download link.",
+                      default = "https://github.com/usgs/pdl/releases/download/v1.14.0/ProductClient.zip")
+
     opts, args = parser.parse_args()
 
     # show parameters
@@ -54,9 +57,10 @@ warnings.filterwarnings("ignore")
 opts = parse_commandline()
 
 outputDir = opts.outputDir
-mkdir(outputDir)
+if not os.path.isdir(outputDir):
+    mkdir(outputDir)
 
-productclient = "https://github.com/usgs/pdl/releases/download/v1.14.0/ProductClient.zip"
+productclient = opts.productClient
 productclient_zip = "%s/ProductClient.zip"%outputDir
 productclient_output = "%s/ProductClient"%outputDir
 
@@ -74,9 +78,9 @@ zip_ref.close()
 
 if not os.path.isdir(seismon_output):
     os.system("cd %s; git clone %s"%(outputDir,seismon))
-    os.system("cd %s; python setup.py install --user"%seismon_output)
+    os.system("cd %s; /usr/bin/env python setup.py install --user"%seismon_output)
 
-configexample = "%s/input/config.ini"%seismon_output
+configexample = "%s/seismon/input/config.ini"%seismon_output
 configini = "%s/config.ini"%productclient_output
 
 file = open(configexample)
@@ -92,7 +96,7 @@ os.system("chmod +rwx %s"%initfile)
 
 mkdir(eventfiles_output)
 
-traveltimesexample = "%s/input/seismon_params_traveltimes.txt"%seismon_output
+traveltimesexample = "%s/seismon/input/seismon_params_traveltimes.txt"%seismon_output
 traveltimesini = "%s/seismon_params_traveltimes.txt"%eventfiles_output
 
 file = open(traveltimesexample)
