@@ -14,8 +14,9 @@ ii. Download the Linux 64-bit version of the MATLAB Runtime for R2016b from:
 ##################################################################################
 # Instructions to install the MATLAB Compiler Runtime
 #
-# Create folder for MATLAB Runtime     
+# Create a folder for MATLAB Runtime (modify the default folder name )
 MATLAB_RUNTIME_R2016B="/home/nikhil.mukund/MATLAB_RUNTIME"
+
 mkdir $MATLAB_RUNTIME_R2016B
 cd $MATLAB_RUNTIME_R2016B
 
