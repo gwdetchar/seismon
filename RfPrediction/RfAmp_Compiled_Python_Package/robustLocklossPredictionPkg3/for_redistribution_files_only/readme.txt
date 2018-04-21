@@ -10,7 +10,32 @@ i. Run the package installer, which will also install the MATLAB Runtime.
 ii. Download the Linux 64-bit version of the MATLAB Runtime for R2016b from:
 
     http://www.mathworks.com/products/compiler/mcr/index.html
-   
+    
+##################################################################################
+# Instructions to install the MATLAB Compiler Runtime
+#
+# Create folder for MATLAB Runtime     
+MATLAB_RUNTIME_R2016B="/home/nikhil.mukund/MATLAB_RUNTIME"
+mkdir $MATLAB_RUNTIME_R2016B
+cd $MATLAB_RUNTIME_R2016B
+
+# Get the MATLAB Compiler Runtime from mathworks.com (No license required)
+wget http://ssd.mathworks.com/supportfiles/downloads/R2016b/deployment_files/R2016b/installers/glnxa64/MCR_R2016b_glnxa64_installer.zip
+
+# Unzip 
+unzip MCR_R2016b_glnxa64_installer.zip 
+
+# Install the compiler
+./install -mode silent -agreeToLicense yes -destinationFolder $MATLAB_RUNTIME_R2016B
+
+# Add LD_LIBRARY_PATH
+echo 'export LD_LIBRARY_PATH='$MATLAB_RUNTIME_R2016B/v91/runtime/glnxa64:$MATLAB_RUNTIME_R2016B/v91/bin/glnxa64:$MATLAB_RUNTIME_R2016B/v91/sys/os/glnxa64:' ' >> ~/.bashrc
+
+source ~/.bashrc
+##################################################################################    
+
+
+
 iii. Run the MATLAB Runtime installer provided with MATLAB.
 
 B. Verify that a Linux 64-bit version of Python 2.7, 3.3, and/or 3.4 is installed.
