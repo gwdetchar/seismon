@@ -119,3 +119,14 @@ for line in lines:
         for eventfilesType in eventfilesTypes:
             eventfilepath = "%s/%s"%(varpath,eventfilesType)
             mkdir(eventfilepath)
+
+notice = """
+         NOTE: A new dependency is MATLAB Runtime version 9.1 (R2016b).
+         Instructions for installing Runtime only are available here:
+         RfPrediction/RfAmp_Compiled_Python_Package/robustLocklossPredictionPkg3/for_redistribution_files_only/readme.txt
+         Otherwise, with MATLAB 2016b installed, paths can be set as:
+         MATLAB_PATH='/ldcg/matlab_r2016b'
+         export LD_LIBRARY_PATH="$MATLAB_PATH/sys/os/glnxa64:$MATLAB_PATH/bin/glnxa64:$MATLAB_PATH/extern/lib/glnxa64:$MATLAB_PATH/runtime/glnxa64:$MATLAB_PATH/sys/java/jre/glnxa64/jre/lib/amd64/native_threads:$MATLAB_PATH/sys/java/jre/glnxa64/jre/lib/amd64/server"
+         """
+
+print(notice) 
