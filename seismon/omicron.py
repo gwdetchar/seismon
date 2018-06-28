@@ -12,7 +12,7 @@ try:
     import gwpy.plotter, gwpy.table
     from gwpy.table.lsctables import SnglBurstTable
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 
 #import laldetchar.triggers
