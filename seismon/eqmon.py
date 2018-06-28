@@ -626,7 +626,7 @@ def run_earthquakes_analysis(params,segment):
             if np.absolute(gpsDiff) < minDiff:
                 coincident.append(j)
     coincident = list(set(coincident))
-    print "%d coincident earthquakes"%len(coincident)
+    print("%d coincident earthquakes"%len(coincident))
     indexes = list(set(range(len(attributeDics))) - set(coincident))
     attributeDicsKeep = []
     for index in indexes:
@@ -668,7 +668,7 @@ def run_earthquakes_analysis(params,segment):
 
     if params["doPlots"]:
 
-        print "Creating plots..."
+        print("Creating plots...")
 
         plotName = os.path.join(earthquakesDirectory,"earthquakes_timedelay.png")
         seismon.eqmon_plot.timedelay_plot(params,data,plotName)
@@ -1141,7 +1141,7 @@ def loadChannelEarthquakes(params,channel,attributeDics):
     Rtwotimes = []
     Rfivetimes = []
  
-    print "Large residuals"
+    print("Large residuals")
     for attributeDic in attributeDics:
 
         if not "Arbitrary" in attributeDic["traveltimes"]:
@@ -1203,7 +1203,7 @@ def loadChannelEarthquakes(params,channel,attributeDics):
             RlookuptimeResidual.append(thisRlookuptimeResidual)
 
         if thisResidual > 100:
-            print "%.0f %.0f %.0f %e"%(attributeDic["GPS"],arrival_floor,departure_ceil,thisResidual)
+            print("%.0f %.0f %.0f %e"%(attributeDic["GPS"],arrival_floor,departure_ceil,thisResidual))
 
     ttMax = np.array(ttMax)
     ttDiff = np.array(ttDiff)
@@ -2248,7 +2248,7 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         from obspy.geodetics.base import gps2dist_azimuth
         from obspy.taup import TauPyModel
     except:
-        print "Enable ObsPy if traveltimes information desired...\n"
+        print("Enable ObsPy if traveltimes information desired...\n")
         return attributeDic
 
     seismonpath = os.path.dirname(seismon.__file__)
@@ -2398,7 +2398,7 @@ def ifotraveltimes_velocitymap(attributeDic,ifo,ifolat,ifolon):
     try:
         from obspy.core.util.geodetics import gps2DistAzimuth
     except:
-        print "Enable ObsPy if traveltimes information desired...\n"
+        print("Enable ObsPy if traveltimes information desired...\n")
         return attributeDic
 
     distance,fwd,back = gps2DistAzimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
@@ -2467,7 +2467,7 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         from obspy.core.util.geodetics import gps2DistAzimuth
         from obspy.taup import TauPyModel
     except:
-        print "Enable ObsPy if traveltimes information desired...\n"
+        print("Enable ObsPy if traveltimes information desired...\n")
         return attributeDic
 
     if ifo == "LLO":
@@ -2636,11 +2636,11 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     try:
         from obspy.geodetics.base import gps2dist_azimuth
     except:
-        print "Enable ObsPy if traveltimes information desired...\n"
+        print("Enable ObsPy if traveltimes information desired...\n")
         return attributeDic
 
     if not "traveltimes" in attributeDic:
-        print "This analysis missing traveltimes... returning.\n"
+        print("This analysis missing traveltimes... returning.\n")
         return attributeDic
 
     seismonpath = os.path.dirname(seismon.__file__)

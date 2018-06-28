@@ -497,7 +497,7 @@ def spectra(params, channel, segment):
 
     # make timeseries
     dataFull = seismon.utils.retrieve_timeseries(params, channel, segment)
-    print "data read in..."
+    print("data read in...")
     if dataFull == []:
         return 
 
@@ -509,18 +509,18 @@ def spectra(params, channel, segment):
     dataFull -= np.median(dataFull)
 
     if np.mean(dataFull.value) == 0.0:
-        print "data only zeroes... continuing\n"
+        print("data only zeroes... continuing\n")
         return
     if len(dataFull.value) < 2*channel.samplef:
-        print "timeseries too short for analysis... continuing\n"
+        print("timeseries too short for analysis... continuing\n")
         return
 
     if channel.station == "H1:ISI-GND_BRS_ETMX_RY_OUT_DQ":
         dataFull *= 9.81
 
-    print "calculating spectra..."
+    print("calculating spectra...")
     data = calculate_spectra(params,channel,dataFull)
-    print "calculating calibration..."
+    print("calculating calibration...")
     data = apply_calibration(params,channel,data)
     data = calculate_picks(params,channel,data)
 
@@ -982,8 +982,6 @@ def freq_analysis(params,channel,tt,freq,spectra):
         ttCoh = np.absolute(ttCov[ttIndexes[index_min]])
         ttCoh_vals.append(ttCoh)
 
-        print freq[i], ttCoh, len(ttIndexes)
-
         if len(ttIndexes) == 0:
             continue
 
@@ -1081,11 +1079,11 @@ def analysis(params, channel):
             spectraNow = spectra_out
 
     if not 'spectraNow' in locals():
-        print "no data at requested time... continuing\n"
+        print("no data at requested time... continuing\n")
         return
 
     if np.mean(spectraNow.value) == 0.0:
-        print "data only zeroes... continuing\n"
+        print("data only zeroes... continuing\n")
         return
 
     dt = tts[1] - tts[0]
