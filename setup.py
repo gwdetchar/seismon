@@ -1,74 +1,115 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
-
-# Copyright (C) Michael Coughlin (2013)
+# Copyright (C) Duncan Macleod (2016)
 #
-# This file is part of SeisMon
+# This file is part of seismon.
 #
-# SeisMon is free software: you can redistribute it and/or modify
+# seismon is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 #
-# SeisMon is distributed in the hope that it will be useful,
+# seismon is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with SeisMon.  If not, see <http://www.gnu.org/licenses/>
+# along with seismon.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Setup script for SeisMon
+"""Setup the seismon package
 """
 
-import glob
-import os.path
-from setuptools import (find_packages, setup)
-import tokenize
+# ignore all invalid names (pylint isn't good at looking at executables)
+# pylint: disable=invalid-name
 
-from utils import version
+from __future__ import print_function
 
-PACKAGENAME = 'seismon'
+import os, sys
+from distutils.version import LooseVersion
 
-VERSION_PY = os.path.join(PACKAGENAME, 'version.py')
+from setuptools import (setup, find_packages,
+                        __version__ as setuptools_version)
 
-# set version information
-vcinfo = version.GitStatus()
-vcinfo(VERSION_PY)
+def get_scripts(scripts_dir='bin'):
+    """Get relative file paths for all files under the ``scripts_dir``
+    """ 
+    scripts = []
+    for (dirname, _, filenames) in os.walk(scripts_dir):
+        scripts.extend([os.path.join(dirname, fn) for fn in filenames])
+    return scripts
 
-DESCRIPTION = 'LIGO Seismic activity monitor'
-LONG_DESCRIPTION = ''
-AUTHOR = 'Michael Coughlin'
-AUTHOR_EMAIL = 'michael.coughlin@ligo.org'
-LICENSE = 'GPLv3'
+import versioneer
+#from setup_utils import (CMDCLASS, get_setup_requires, get_scripts)
+__version__ = versioneer.get_version()
+CMDCLASS=versioneer.get_cmdclass()
 
-# VERSION should be PEP386 compatible (http://www.python.org/dev/peps/pep-0386)
-VERSION = vcinfo.version
+# -- dependencies -------------------------------------------------------------
 
-# Indicates if this version is a release version
-RELEASE = vcinfo.version != vcinfo.id and 'dev' not in VERSION
+# build dependencies
+#setup_requires = get_setup_requires()
 
-# Use the find_packages tool to locate all packages and modules
-packagenames = find_packages(exclude=['utils'])
+# package dependencies
+install_requires = [
+    'numpy>=1.7.1',
+    'scipy>=0.12.1',
+    'matplotlib>=2.2.0',
+    'obspy',
+    'gwpy'
+]
 
-# find all scripts
-#scripts = glob.glob('bin/*') + glob.glob('input/*') 
-scripts = glob.glob('bin/*')
+# test dependencies
+tests_require = [
+    'pytest>=3.1',
+    'freezegun',
+    'sqlparse',
+    'bs4',
+]
+if sys.version < '3':
+    tests_require.append('mock')
 
-setup(name=PACKAGENAME,
-      version=VERSION,
-      description=DESCRIPTION,
-      scripts=scripts,
-      packages=packagenames,
-      package_data={'seismon': ['input/*','robustLocklossPredictionPkg/*']},
-      include_package_data=True,
-      ext_modules=[],
-      requires=['gwpy', 'obspy'],
-      provides=[PACKAGENAME],
-      author=AUTHOR,
-      author_email=AUTHOR_EMAIL,
-      license=LICENSE,
-      long_description=LONG_DESCRIPTION,
-      zip_safe=False,
-      use_2to3=True
-      )
+# -- run setup ----------------------------------------------------------------
+
+setup(
+    # metadata
+    name='seismon',
+    provides=['seismon'],
+    version=__version__,
+    description="A python package for GW-EM Followup Optimization",
+    long_description=("seismon is a python package for GW-EM Followup Optimization "),
+    author='Michael Coughlin',
+    author_email='michael.coughlin@ligo.org',
+    license='GPLv3',
+    url='https://github.com/ligovirgo/seismon/',
+
+    # package content
+    packages=find_packages(),
+    scripts=get_scripts(),
+    include_package_data=True,
+
+    # dependencies
+    cmdclass=CMDCLASS,
+    install_requires=install_requires,
+    tests_require=tests_require,
+
+    # classifiers
+    classifiers=[
+        'Development Status :: 4 - Beta',
+        'Programming Language :: Python',
+        'Programming Language :: Python :: 2.7',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Intended Audience :: Science/Research',
+        'Intended Audience :: End Users/Desktop',
+        'Intended Audience :: Developers',
+        'Natural Language :: English',
+        'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Astronomy',
+        'Topic :: Scientific/Engineering :: Physics',
+        'Operating System :: POSIX',
+        'Operating System :: Unix',
+        'Operating System :: MacOS',
+        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+    ],
+)
