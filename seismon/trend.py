@@ -13,7 +13,7 @@ try:
     import gwpy.frequencyseries, gwpy.spectrogram
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -66,8 +66,6 @@ def trend(params, channel, segment):
 
     sample_rate = 1.0/(t[1]-t[0])
 
-    print sample_rate
-
     dataFull = gwpy.timeseries.TimeSeries(data, times=None, epoch=t[0], channel=channel.station, unit=None,sample_rate=sample_rate, name=channel.station)
 
     # make timeseries
@@ -83,10 +81,10 @@ def trend(params, channel, segment):
     dataFull -= np.mean(dataFull.data)
 
     if np.mean(dataFull.data) == 0.0:
-        print "data only zeroes... continuing\n"
+        print("data only zeroes... continuing\n")
         return
     if len(dataFull.data) < 2*channel.samplef:
-        print "timeseries too short for analysis... continuing\n"
+        print("timeseries too short for analysis... continuing\n")
         return
 
     if params["doEarthquakes"]:

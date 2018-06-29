@@ -59,10 +59,10 @@ def coherence(params, channel1, channel2, segment):
     dataFull1 -= np.mean(dataFull1.data)
 
     if np.mean(dataFull1.data) == 0.0:
-        print "data only zeroes... continuing\n"
+        print("data only zeroes... continuing\n")
         return
     if len(dataFull1.data) < 2*channel1.samplef:
-        print "timeseries too short for analysis... continuing\n"
+        print("timeseries too short for analysis... continuing\n")
         return
 
     dataFull2 = seismon.utils.retrieve_timeseries(params, channel2, segment)
@@ -77,18 +77,16 @@ def coherence(params, channel1, channel2, segment):
     dataFull2 -= np.mean(dataFull2.data)
 
     if np.mean(dataFull2.data) == 0.0:
-        print "data only zeroes... continuing\n"
+        print("data only zeroes... continuing\n")
         return
     if len(dataFull2.data) < 2*channel2.samplef:
-        print "timeseries too short for analysis... continuing\n"
+        print("timeseries too short for analysis... continuing\n")
         return
 
     gpss = np.arange(gpsStart,gpsEnd,params["fftDuration"])
     fft1 = []
     fft2 = []
     for i in xrange(len(gpss)-1):
-
-        print i, len(gpss)
 
         tt1 = np.array(dataFull1.times)
         indexes = np.intersect1d(np.where(tt1 >= gpss[i])[0],np.where(tt1 <= gpss[i+1])[0])

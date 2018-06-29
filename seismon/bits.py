@@ -12,7 +12,7 @@ try:
     import gwpy.frequencyseries, gwpy.spectrogram
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -77,14 +77,6 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
     f.write("%.10f %e\n"%(tt[np.argmin(data["dataLowpass"].data)],np.min(data["dataLowpass"].data)))
     f.write("%.10f %e\n"%(tt[np.argmax(data["dataLowpass"].data)],np.max(data["dataLowpass"].data)))
     f.close()
-
-    #timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
-    #f = open(timeseriesFile,"wb")
-    #for i in xrange(len(tt)):
-    #    f.write("%.10f %e\n"%(tt[i],data["dataLowpass"].data[i]))
-    #f.close()
-
-    #print timeseriesFile
 
     for attributeDic in attributeDics:
 
@@ -247,8 +239,6 @@ def freq_analysis(params,channel,tt,freq,spectra):
         ttCoh = np.absolute(ttCov[ttIndexes[index_min]])
         ttCoh_vals.append(ttCoh)
 
-        print freq[i], ttCoh, len(ttIndexes)
-
         if len(ttIndexes) == 0:
             continue
 
@@ -346,11 +336,11 @@ def analysis(params, channel):
             spectraNow = spectra_out
 
     if not 'spectraNow' in locals():
-        print "no data at requested time... continuing\n"
+        print("no data at requested time... continuing\n")
         return
 
     if np.mean(spectraNow.data) == 0.0:
-        print "data only zeroes... continuing\n"
+        print("data only zeroes... continuing\n")
         return
 
     dt = tts[1] - tts[0]

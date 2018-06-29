@@ -65,10 +65,10 @@ def wiener(params, target_channel, segment):
         dataFull -= np.mean(dataFull.data)
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
         if len(dataFull.data) < 2*channel.samplef:
-            print "timeseries too short for analysis... continuing\n"
+            print("timeseries too short for analysis... continuing\n")
             continue
 
         if params["wienerFilterSampleRate"] > 0:
@@ -105,7 +105,7 @@ def wiener(params, target_channel, segment):
                     continue
 
     if len(y) == 0:
-        print "No data for target channel... continuing"
+        print("No data for target channel... continuing")
         return
 
     originalASD = []
@@ -133,10 +133,10 @@ def wiener(params, target_channel, segment):
             XCut = X[:,indexMin:indexMax]
             XCut = XCut.T
         if create_filter:
-            print "Generating filter"
+            print("Generating filter")
             W,R,P = miso_firwiener(N,XCut,yCut)
             create_filter = False
-            print "finished generating filter"
+            print("finished generating filter")
             continue
             
         residual, FF = subtractFF(W,XCut,yCut,samplef)
@@ -289,10 +289,10 @@ def wiener_hilbert(params, segment):
         dataFull -= np.mean(dataFull.data)
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
         if len(dataFull.data) < 2*channel.samplef:
-            print "timeseries too short for analysis... continuing\n"
+            print("timeseries too short for analysis... continuing\n")
             continue
 
         if params["wienerFilterSampleRate"] > 0:
@@ -351,7 +351,7 @@ def wiener_hilbert(params, segment):
     angleMax = angles[np.argmax(xcorrs)]
     rot = np.array([[np.cos(angleMax), -np.sin(angleMax)],[np.sin(angleMax),np.cos(angleMax)]])
 
-    print "Using angle: %f"%(angleMax)
+    print("Using angle: %f"%(angleMax))
 
     #angle = 0
     #rot = np.array([[np.cos(angle), -np.sin(angle)],[np.sin(angle),np.cos(angle)]])
@@ -406,7 +406,7 @@ def wiener_hilbert(params, segment):
     X = np.vstack([tszhilbert,tsz])
 
     if len(y) == 0:
-        print "No data for target channel... continuing"
+        print("No data for target channel... continuing")
         return
 
     originalASD = []
@@ -431,10 +431,10 @@ def wiener_hilbert(params, segment):
 
         XCut = XCut.T
         if create_filter:
-            print "Generating filter"
+            print("Generating filter")
             W,R,P = miso_firwiener(N,XCut,yCut)
             create_filter = False
-            print "finished generating filter"
+            print("finished generating filter")
             continue
 
         residual, FF = subtractFF(W,XCut,yCut,samplef)

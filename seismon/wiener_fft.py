@@ -11,7 +11,7 @@ try:
     import gwpy.frequencyseries, gwpy.spectrogram
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -64,10 +64,10 @@ def wiener(params, target_channel, segment):
         dataFull -= np.mean(dataFull.data)
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
         if len(dataFull.data) < 2*channel.samplef:
-            print "timeseries too short for analysis... continuing\n"
+            print("timeseries too short for analysis... continuing\n")
             continue
 
         if params["wienerFilterSampleRate"] > 0:
@@ -99,7 +99,7 @@ def wiener(params, target_channel, segment):
             X.append(x)
 
     if len(y) == 0:
-        print "No data for target channel... continuing"
+        print("No data for target channel... continuing")
         return
 
     gpss = y.times
@@ -124,10 +124,10 @@ def wiener(params, target_channel, segment):
             XCut.append(x[indexes])
 
         if create_filter:
-            print "Generating filter"
+            print("Generating filter")
             W,R,P = miso_firwiener_fft(N,XCut,yCut)
             create_filter = False
-            print "finished generating filter"
+            print("finished generating filter")
             continue
 
         residual, FF = subtractFF(W,XCut,yCut,samplef)

@@ -87,7 +87,8 @@ setup(
     packages=find_packages(),
     scripts=get_scripts(),
     include_package_data=True,
-
+    package_data={'seismon': ['input/*','robustLocklossPredictionPkg/*']},
+ 
     # dependencies
     cmdclass=CMDCLASS,
     install_requires=install_requires,

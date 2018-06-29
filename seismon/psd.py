@@ -14,7 +14,7 @@ try:
     import gwpy.frequencyseries, gwpy.spectrogram
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -181,9 +181,6 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
                     f.close()
 
     for attributeDic in attributeDics:
-
-        #for key in attributeDic["traveltimes"].iterkeys():
-        #    print key
 
         if not "Arbitrary" in attributeDic["traveltimes"]:
             continue  

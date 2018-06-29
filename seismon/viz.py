@@ -176,6 +176,6 @@ def channel_page(params, channel):
     sess = earthquakes_plot(params,channel,sess)
     sess = psd_plot(params,channel,sess)
     sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-    print "Wrote", outputFile
+    print("Wrote", outputFile)
 
 

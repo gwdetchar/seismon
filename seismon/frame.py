@@ -14,18 +14,18 @@ import seismon.utils
 try:
     import pylal.Fr
 except:
-    print "No pylal installed..."
+    print("No pylal installed...")
 
 try:
     import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
 except:
-    print "No glue installed..."
+    print("No glue installed...")
 
 try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
     import gwpy.segments
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -144,7 +144,7 @@ def make_frames(params, segment):
             dataFull[index] = meanSamples
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
 
         samplef = channel.samplef
@@ -258,7 +258,7 @@ def make_frames_calibrated(params, segment):
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel_station, start=gpsStart, end=gpsEnd)
         except:
-            print "data read from frames failed... continuing\n"
+            print("data read from frames failed... continuing\n")
             continue
 
         points_list = np.dstack([channel.latitude, channel.longitude])
@@ -287,7 +287,7 @@ def make_frames_calibrated(params, segment):
         #elif params["ifo"] == "SR":
         #    strain_calibration = 1
 
-        print "%s, cR: %.3f, alpha: %.3f, beta: %.3f, calib: %.3e"%(channel.station,cR,alpha,beta,strain_calibration)
+        print("%s, cR: %.3f, alpha: %.3f, beta: %.3f, calib: %.3e"%(channel.station,cR,alpha,beta,strain_calibration))
         dataFull = dataFull * strain_calibration
 
         indexes = np.where(np.isnan(dataFull.data))[0]
@@ -296,7 +296,7 @@ def make_frames_calibrated(params, segment):
             dataFull[index] = meanSamples
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
 
         if params["framesSampleRate"] > 0:

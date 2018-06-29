@@ -11,7 +11,7 @@ try:
     import gwpy.frequencyseries, gwpy.spectrogram
     import gwpy.plotter
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
 __date__ = "2012/8/26"
@@ -45,7 +45,7 @@ def hilbert(params, segment):
     duration = np.ceil(gpsEnd-gpsStart)
 
     dataAll = []
-    print "Loading data..."
+    print("Loading data...")
 
     for channel in params["channels"]:
         # make timeseries
@@ -61,10 +61,10 @@ def hilbert(params, segment):
         dataFull -= np.mean(dataFull.data)
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
         if len(dataFull.data) < 2*channel.samplef:
-            print "timeseries too short for analysis... continuing\n"
+            print("timeseries too short for analysis... continuing\n")
             continue
 
         #cutoff = 0.01
@@ -73,7 +73,7 @@ def hilbert(params, segment):
         dataAll.append(dataFull)
 
     if len(dataAll) == 0:
-        print "No data... returning"
+        print("No data... returning")
         return
 
     if params["doEarthquakes"]:
@@ -84,7 +84,7 @@ def hilbert(params, segment):
     else:
         attributeDics = []
 
-    print "Performing Hilbert transform"
+    print("Performing Hilbert transform")
     for attributeDic in attributeDics:
 
         if params["ifo"] == "IRIS":
@@ -105,7 +105,6 @@ def hilbert(params, segment):
                 tttilt = np.array(dataFull.times)
                 tstilt = dataFull.data
                 doTilt = 1
-            print dataFull.sample_rate
 
         tt = np.array(dataAll[0].times)
         fs = 1.0/(tt[1]-tt[0])     

@@ -48,13 +48,8 @@ def plot_triggers(params,channel,segment):
     table = []
     for ii in xrange(len(omicronXMLs)):
         tabletmp = SnglBurstTable.read(omicronXMLs[0])
-        #print tabletmp
         for jj in xrange(len(tabletmp)):
             table.append(tabletmp[jj])
-        #print table
-        #print stop
-    #table = laldetchar.triggers.from_files(omicronXMLs, "omicron")
-
     if table == []:
        return
    
@@ -91,11 +86,6 @@ def plot_triggers(params,channel,segment):
         plot.axes[0].set_yscale("log")
         plot.save(pngFile)
         plot.close()
-
-        print pngFile
-        print peak_times
-        print gpsStart, gpsEnd
-        print stop
 
 def generate_triggers(params):
     """@generate omicron triggers.

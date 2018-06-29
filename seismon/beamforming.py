@@ -8,7 +8,7 @@ try:
     import gwpy.time, gwpy.timeseries, gwpy.frequencyseries, gwpy.plotter
     import gwpy.segments
 except:
-    print "gwpy import fails... no plotting possible."
+    print("gwpy import fails... no plotting possible.")
 
 import obspy.core, obspy.signal.array_analysis
 import matplotlib.pyplot as plt
@@ -77,13 +77,10 @@ def beamforming(params, segment):
             'longitude': channel.longitude,
             'elevation': 0.0})
 
-        print channel.station, len(dataFull.data)
-
         if (trace.stats.endtime < tend) or (trace.stats.starttime > tstart):
             continue
  
         st += trace
-    print stop
 
     # Execute sonic
     kwargs = dict(
@@ -100,9 +97,9 @@ def beamforming(params, segment):
         coordsys = 'lonlat', method = 0
     )
 
-    print "Array processing...\n"
+    print("Array processing...\n")
     out = obspy.signal.array_analysis.array_processing(st, **kwargs)
-    print "Finished array processing...\n"
+    print("Finished array processing...\n")
 
     if params["doPlots"]:
 
@@ -145,9 +142,6 @@ def beamforming(params, segment):
                 bins=[abins, sbins], weights=rel_power)
 
         max_i,max_j = np.unravel_index(hist.argmax(), hist.shape)
-        print hist[max_i,max_j]
-        print baz_edges[max_i]
-        print sl_edges[max_j]
 
         # transform to gradient
         baz_edges = baz_edges / 180 * np.pi
@@ -214,10 +208,10 @@ def strainz(params, segment):
         dataFull -= np.mean(dataFull.data)
 
         if np.mean(dataFull.data) == 0.0:
-            print "data only zeroes... continuing\n"
+            print("data only zeroes... continuing\n")
             continue
         if len(dataFull.data) < 2*channel.samplef:
-            print "timeseries too short for analysis... continuing\n"
+            print("timeseries too short for analysis... continuing\n")
             continue
 
         cutoff = 0.3
