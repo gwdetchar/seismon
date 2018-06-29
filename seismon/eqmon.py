@@ -67,11 +67,15 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
             my_df.to_csv(testFile, index=False, header=False)
             # Do prediction
             robust.robustPrediction3(testFile,trainFile,predictionFile)
-            Result = pd.read_csv(predictionFile,dtype=np.float64,header=None)
-            Rfamp  = Result[0][0]
-            LocklossTag  = Result[1][0]       
-            Rfamp_sigma  = Result[2][0]
-            LocklossTag_sigma  = Result[3][0]
+            try:
+                Result = pd.read_csv(predictionFile,dtype=np.float64,header=None)
+	    
+                Rfamp  = Result[0][0]
+                LocklossTag  = Result[1][0]       
+                Rfamp_sigma  = Result[2][0]
+                LocklossTag_sigma  = Result[3][0]
+            except:
+                Rfamp, LocklossTag, Rfamp_sigma, LocklossTag_sigma = -1,-1,-1,-1
             Rfamps.append(Rfamp)
             LocklossTags.append(LocklossTag)
             Rfamps_sigma.append(Rfamp_sigma)
@@ -84,11 +88,14 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
         my_df.to_csv(testFile, index=False, header=False)
         # Do prediction
         robust.robustPrediction3(testFile,trainFile,predictionFile)
-        Result = pd.read_csv(predictionFile,dtype=np.float64,header=None)
-        Rfamp  = Result[0][0]
-        LocklossTag  = Result[1][0]           
-        Rfamp_sigma  = Result[2][0]
-        LocklossTag_sigma  = Result[3][0]
+        try:
+            Result = pd.read_csv(predictionFile,dtype=np.float64,header=None)
+            Rfamp  = Result[0][0]
+            LocklossTag  = Result[1][0]           
+            Rfamp_sigma  = Result[2][0]
+            LocklossTag_sigma  = Result[3][0]
+        except:
+            Rfamp, LocklossTag, Rfamp_sigma, LocklossTag_sigma = -1,-1,-1,-1
         return (Rfamp,LocklossTag,Rfamp_sigma,LocklossTag_sigma)
 
 def run_earthquakes(params,segment):

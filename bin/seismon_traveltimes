@@ -439,7 +439,7 @@ def moment_events(params):
 
     folders = glob.glob(os.path.join(params["momentDataLocation"],"*"))
     #folders = []
-    for numFolder in xrange(len(folders)):
+    for numFolder in range(len(folders)):
 
         folder = folders[numFolder]
 
@@ -480,7 +480,7 @@ def private_events(params):
 
     folders = glob.glob(os.path.join(params["dataLocation"],"*"))
     #folders = []
-    for numFolder in xrange(len(folders)):
+    for numFolder in range(len(folders)):
 
         folder = folders[numFolder]
 
@@ -502,7 +502,7 @@ def private_events(params):
                 numEventsAdded = numEventsAdded + 1
 
     folders = glob.glob(os.path.join(params["internalDataLocation"],"*"))
-    for numFolder in xrange(len(folders)):
+    for numFolder in range(len(folders)):
 
         folder = folders[numFolder]
 
@@ -650,7 +650,7 @@ def fake_events(params):
     numEventsAdded = 0
     folders = glob.glob(os.path.join(params["eventfilesLocation"],"fakepdl/*"))
     #folders = []
-    for numFolder in xrange(len(folders)):
+    for numFolder in range(len(folders)):
 
         folder = folders[numFolder]
 
