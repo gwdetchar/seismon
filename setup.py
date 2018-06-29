@@ -55,7 +55,8 @@ install_requires = [
     'scipy>=0.12.1',
     'matplotlib>=2.2.0',
     'obspy',
-    'gwpy'
+    'gwpy',
+    'lxml'
 ]
 
 # test dependencies
