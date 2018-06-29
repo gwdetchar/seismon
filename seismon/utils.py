@@ -746,7 +746,7 @@ def readParamsFromFile(file):
             for line in f:
                 line_without_return = line.split("\n")
                 line_split = line_without_return[0].split(" ")
-                line_split = filter(None, line_split)
+                line_split = list(filter(None, line_split))
                 if line_split:
                     params[line_split[0]] = line_split[1]
     return params
