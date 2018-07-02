@@ -114,7 +114,7 @@ def wiener(params, target_channel, segment):
 
     gpss = np.arange(gpsStart,gpsEnd,params["fftDuration"])
     create_filter = True
-    for i in xrange(len(gpss)-1):
+    for i in range(len(gpss)-1):
         tt = np.array(dataFull.times)
         indexes = np.intersect1d(np.where(tt >= gpss[i])[0],np.where(tt <= gpss[i+1]+N)[0])
 
@@ -202,7 +202,7 @@ def wiener(params, target_channel, segment):
 
     psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(psdFile,"wb")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e\n"%(freq[i],residual_spectral_variation_50per[i]))
     f.close()
 
@@ -415,7 +415,7 @@ def wiener_hilbert(params, segment):
 
     gpss = np.arange(gpsStart,gpsEnd,params["fftDuration"])
     create_filter = True
-    for i in xrange(len(gpss)-2):
+    for i in range(len(gpss)-2):
         tt = np.array(dataFull.times)
         indexes = np.intersect1d(np.where(tt >= gpss[i])[0],np.where(tt <= gpss[i+1]+params["fftDuration"])[0])
 
@@ -500,7 +500,7 @@ def wiener_hilbert(params, segment):
 
     psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(psdFile,"wb")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e\n"%(freq[i],residual_spectral_variation_50per[i]))
     f.close()
 
@@ -553,8 +553,8 @@ def miso_firwiener(N,X,y):
 
     # Input covariance matrix.
     R = np.zeros([M*(N+1),M*(N+1)])
-    for m in xrange(M):
-        for i in xrange(m,M):
+    for m in range(M):
+        for i in range(m,M):
             rmi,lags = seismon.utils.xcorr(X[:,m]-np.mean(X[:,m]),X[:,i]-np.mean(X[:,i]),maxlags=N,normed=False)
             Rmi = scipy.linalg.toeplitz(np.flipud(rmi[range(N+1)]),r=rmi[range(N,2*N+1)])
             top = m*(N+1)
@@ -563,21 +563,21 @@ def miso_firwiener(N,X,y):
             right = (i+1)*(N+1)
             #R[range(top,bottom),range(left,right)] = Rmi
 
-            for j in xrange(top,bottom):
-                for k in xrange(left,right):
+            for j in range(top,bottom):
+                for k in range(left,right):
                     R[j,k] = Rmi[j-top,k-left]
          
             if not i == m:
                 #R[range(left,right),range(top,bottom)] = Rmi  # Take advantage of hermiticity.
 
                 RmiT = Rmi.T
-                for j in xrange(left,right):
-                    for k in xrange(top,bottom):
+                for j in range(left,right):
+                    for k in range(top,bottom):
                         R[j,k] = RmiT[j-left,k-top]
 
     # Crosscorrelation vector.
     P = np.zeros([M*(N+1),])
-    for i in xrange(M):
+    for i in range(M):
         top = i*(N+1)
         bottom = (i+1)*(N+1)
 
@@ -607,7 +607,7 @@ def subtractFF(W,SS,S,samplef):
 
     FF = np.zeros([ns-N,])
 
-    for k in xrange(N,ns):
+    for k in range(N,ns):
         tmp = SS[k-N:k+1,:] * W
         FF[k-N] = np.sum(tmp)
 

@@ -143,9 +143,9 @@ def psd_plot(params,channel,sess):
 
         freqAmps = []
 
-        for i in xrange(len(ff_ave)-1):
+        for i in range(len(ff_ave)-1):
             newSpectraNow = []
-            for j in xrange(len(thisFreq)):
+            for j in range(len(thisFreq)):
                 if ff_ave[i] <= thisFreq[j] and thisFreq[j] <= ff_ave[i+1]:
                     newSpectraNow.append(thisSpectra[j])
             freqAmps.append(np.mean(newSpectraNow))

@@ -86,7 +86,7 @@ def coherence(params, channel1, channel2, segment):
     gpss = np.arange(gpsStart,gpsEnd,params["fftDuration"])
     fft1 = []
     fft2 = []
-    for i in xrange(len(gpss)-1):
+    for i in range(len(gpss)-1):
 
         tt1 = np.array(dataFull1.times)
         indexes = np.intersect1d(np.where(tt1 >= gpss[i])[0],np.where(tt1 <= gpss[i+1])[0])
@@ -125,7 +125,7 @@ def coherence(params, channel1, channel2, segment):
     freq = np.array(specgram1.frequencies)
     coherence = []
     coherence_phase = []
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         a1 = specgram1.data[:,i]
         psd1 = np.mean(a1 * np.conjugate(a1)).real
         a2 = specgram2.data[:,i]
@@ -143,7 +143,7 @@ def coherence(params, channel1, channel2, segment):
 
     psdFile = os.path.join(coherenceDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(psdFile,"wb")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e\n"%(freq[i],coherence[i]))
     f.close()
 

@@ -246,7 +246,7 @@ def spectral_histogram(specgram,bins=None,lowBin=None,highBin=None,nbins=None):
     rows, columns = data.shape
 
     # Loop over frequencies
-    for i in xrange(columns):
+    for i in range(columns):
         # calculate histogram for this frequency bin
         this_spectral_variation, bin_edges = np.histogram(data[:,i],bins)
         this_spectral_variation = np.array(this_spectral_variation)
@@ -279,7 +279,7 @@ def spectral_percentiles(specvar,bins,percentile):
     rows, columns = specvar.shape
 
     # Loop over frequencies
-    for i in xrange(columns):
+    for i in range(columns):
         # Calculate cumulative sum for array
         cumsumvals = np.cumsum(data[:,i])
 
@@ -307,7 +307,7 @@ def html_bgcolor(snr,data):
     N = 256
 
     colormap = []
-    for i in xrange(N):
+    for i in range(N):
         r,g,b,a = matplotlib.pyplot.cm.jet(i)
         r = int(round((r * 255),0))
         g = int(round((g * 255),0))
@@ -345,7 +345,7 @@ def html_hexcolor(snr,data):
     N = 256
 
     colormap = []
-    for i in xrange(N):
+    for i in range(N):
         r,g,b,a = matplotlib.pyplot.cm.jet(i)
         r = int(round((r * 255),0))
         g = int(round((g * 255),0))
@@ -1412,7 +1412,7 @@ def retrieve_bits(params,channel,segment):
 def RunningMedian(data, M, factor):
 
     m = np.round(M/2)
-    for i in xrange(len(data)):
+    for i in range(len(data)):
         indexMin = np.max([1,i-m])
         indexMax = np.min([i+m,len(data)])
         data_slice_median = np.median(data[indexMin:indexMax])

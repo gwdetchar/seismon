@@ -119,7 +119,7 @@ def timedelay_plot(params,data,plotName):
 
         channel_data = data["channels"][key]["earthquakes"]
 
-        for i in xrange(len(channel_data["RthreePointFivetimes"])):
+        for i in range(len(channel_data["RthreePointFivetimes"])):
 
             RthreePointFivetime = channel_data["RthreePointFivetimes"][i]
             Ptime = channel_data["Ptimes"][i]
@@ -178,7 +178,7 @@ def timedelay_distance_plot(params,data,plotName):
 
         channel_data = data["channels"][key]["earthquakes"]
 
-        for i in xrange(len(channel_data["RthreePointFivetimes"])):
+        for i in range(len(channel_data["RthreePointFivetimes"])):
 
             RthreePointFivetime = channel_data["RthreePointFivetimes"][i]
             Ptime = channel_data["Ptimes"][i]
@@ -236,7 +236,7 @@ def powerlaw_timedelay_plot(params,data,plotName):
 
         channel_data = data["channels"][key]["powerlaw"]
 
-        for i in xrange(len(channel_data["index"])):
+        for i in range(len(channel_data["index"])):
             index.append(channel_data["index"][i])
             amp.append(channel_data["amp"][i])
             distance.append(channel_data["distance"][i])
@@ -304,7 +304,7 @@ def powerlaw_plot(params,data,plotName):
 
         channel_data = data["channels"][key]["powerlaw"]
 
-        for i in xrange(len(channel_data["index"])):
+        for i in range(len(channel_data["index"])):
             index.append(channel_data["index"][i])
             amp.append(channel_data["amp"][i]) 
             distance.append(channel_data["distance"][i])
@@ -620,7 +620,7 @@ def prediction(data,plotName):
 
     plot = gwpy.plotter.Plot(figsize=[14,8])
     plot.add_scatter(prediction_ttStart, prediction_amp, marker='o', zorder=1000, color='b',label='predicted')
-    #for i in xrange(len(prediction_ttStart)):
+    #for i in range(len(prediction_ttStart)):
     #    plot.add_line([prediction_ttStart[i],prediction_ttEnd[i]],[prediction_amp[i],prediction_amp[i]],color='b',label='predicted')
 
     colors = cm.rainbow(np.linspace(0, 1, len(data["channels"])))
@@ -1245,7 +1245,7 @@ def worldmap_velocitymap(params,plotName):
     lons_unique = np.unique(lons)
     velocity_matrix = np.zeros((len(lats_unique),len(lons_unique)))
 
-    for k in xrange(len(lats)):
+    for k in range(len(lats)):
         index1 = np.where(lats[k] == lats_unique)
         index2 = np.where(lons[k] == lons_unique)
         velocity_matrix[index1[0],index2[0]] = velocity[k]

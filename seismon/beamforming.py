@@ -253,7 +253,7 @@ def strainz(params, segment):
     array_coords = np.array([[0,0,0],[4000,0,0],[0,4000,0]])
 
     sigmau = np.zeros((Na,3))
-    for i in xrange(Na):
+    for i in range(Na):
         sigmau[i,0] = np.std(ts1[i,:60*channel.samplef])
         sigmau[i,1] = np.std(ts2[i,:60*channel.samplef])
         sigmau[i,2] = np.std(ts3[i,:60*channel.samplef])

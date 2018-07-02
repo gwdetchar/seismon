@@ -109,7 +109,7 @@ def wiener(params, target_channel, segment):
     FFASD = []
 
     create_filter = True
-    for i in xrange(len(gpss)):
+    for i in range(len(gpss)):
 
         if create_filter:
             indexes = np.arange(i,i+N)
@@ -197,7 +197,7 @@ def wiener(params, target_channel, segment):
 
     psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(psdFile,"wb")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e\n"%(freq[i],residual_spectral_variation_50per[i]))
     f.close()
 
@@ -252,14 +252,14 @@ def miso_firwiener_fft(N,X,y):
     P = np.zeros([M,len(freqs)])
     W = np.zeros([M,len(freqs)])
 
-    for i in xrange(len(freqs)):
+    for i in range(len(freqs)):
         yCut = y.data[:,i]
         XCut = []
         for x in X:
             XCut.append(x.data[:,i])
 
-        for j in xrange(M):
-            for k in xrange(M):
+        for j in range(M):
+            for k in range(M):
 
                 a1 = XCut[j]
                 psd1 = np.mean(a1 * np.conjugate(a1)).real
@@ -279,7 +279,7 @@ def miso_firwiener_fft(N,X,y):
 
             P[j,i] = csd12
   
-    for i in xrange(len(freqs)):
+    for i in range(len(freqs)):
         Rinv = scipy.linalg.inv(R[1:,1:,i])
         c = P[1:,i]
 
@@ -301,7 +301,7 @@ def subtractFF(W,SS,S,samplef):
     residual = []
     FF = []
 
-    for i in xrange(len(freqs)):
+    for i in range(len(freqs)):
         Wtemp = W[:,i]
         Xtemp = []
         for x in SS:

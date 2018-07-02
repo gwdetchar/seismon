@@ -59,7 +59,7 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
 
     psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(psdFile,"wb")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e\n"%(freq[i],data["dataASD"][i]))
     f.close()
 
@@ -67,7 +67,7 @@ def save_data(params,channel,gpsStart,gpsEnd,data,attributeDics):
 
     fftFile = os.path.join(fftDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
     f = open(fftFile,"wb")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e %e\n"%(freq[i],data["dataFFT"].data[i].real,data["dataFFT"].data[i].imag))
     f.close()
 
@@ -186,7 +186,7 @@ def freq_analysis(params,channel,tt,freq,spectra):
     deltaT = tt[1] - tt[0]
 
     n_dist = []
-    for j in xrange(1000):
+    for j in range(1000):
         n_dist.append(scipy.stats.chi2.rvs(2))
 
     p_chi2_vals = []
@@ -370,7 +370,7 @@ def analysis(params, channel):
     seismon.utils.mkdir(textDirectory)
 
     f = open(os.path.join(textDirectory,"spectra.txt"),"w")
-    for i in xrange(len(freq)):
+    for i in range(len(freq)):
         f.write("%e %e %e %e %e %e %e\n"%(freq[i],spectral_variation_1per[i],spectral_variation_10per[i],spectral_variation_50per[i],spectral_variation_90per[i],spectral_variation_99per[i],spectraNow[i]))
     f.close()
 
@@ -379,12 +379,12 @@ def analysis(params, channel):
     ff_ave = [1/float(128), 1/float(64),  0.1, 1, 3, 5, 10]
 
     f = open(os.path.join(textDirectory,"sig.txt"),"w")
-    for i in xrange(len(ff_ave)-1):
+    for i in range(len(ff_ave)-1):
         newSpectra = []
         newSpectraNow = []
         newFreq = []
 
-        for j in xrange(len(freq)):
+        for j in range(len(freq)):
             if ff_ave[i] <= freq[j] and freq[j] <= ff_ave[i+1]:
                 newFreq.append(freq[j])
                 newSpectraNow.append(spectraNow.data[j])

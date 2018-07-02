@@ -46,9 +46,9 @@ def plot_triggers(params,channel,segment):
     omicronXMLs = glob.glob(os.path.join(omicronPath,"*.xml"))
 
     table = []
-    for ii in xrange(len(omicronXMLs)):
+    for ii in range(len(omicronXMLs)):
         tabletmp = SnglBurstTable.read(omicronXMLs[0])
-        for jj in xrange(len(tabletmp)):
+        for jj in range(len(tabletmp)):
             table.append(tabletmp[jj])
     if table == []:
        return

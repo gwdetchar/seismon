@@ -623,9 +623,9 @@ def run_earthquakes_analysis(params,segment):
 
     minDiff = 10*60
     coincident = []
-    for i in xrange(len(attributeDics)):
+    for i in range(len(attributeDics)):
         attributeDic1 = attributeDics[i]
-        for j in xrange(len(attributeDics)):
+        for j in range(len(attributeDics)):
             if j <= i:
                 continue
             attributeDic2 = attributeDics[j]
@@ -1312,9 +1312,9 @@ def loadChannelPSD(params,channel,segment):
         thisFreq_out = data_out[:,0]
 
         freqAmps = []
-        for i in xrange(len(ff_ave)-1):
+        for i in range(len(ff_ave)-1):
             newSpectraNow = []
-            for j in xrange(len(thisFreq_out)):
+            for j in range(len(thisFreq_out)):
                 if ff_ave[i] <= thisFreq_out[j] and thisFreq_out[j] <= ff_ave[i+1]:
                     newSpectraNow.append(thisSpectra_out[j])
                     freqAmps.append(np.mean(newSpectraNow))
@@ -2727,7 +2727,7 @@ def eventDiff(attributeDics, magnitudeDiff, latitudeDiff, longitudeDiff):
     """
 
     if len(attributeDics) > 1:
-        for i in xrange(len(attributeDics)-1):
+        for i in range(len(attributeDics)-1):
             if "Magnitude" in attributeDics[i] and "Magnitude" in attributeDics[i+1] and \
                 "Latitude" in attributeDics[i] and "Latitude" in attributeDics[i+1] and\
                 "Longitude" in attributeDics[i] and "Longitude" in attributeDics[i+1]:
@@ -2775,7 +2775,7 @@ def retrieve_earthquakes(params,gpsStart,gpsEnd):
         eventfilesLocation = os.path.join(params["eventfilesLocation"],eventfilesType)
         files = glob.glob(os.path.join(eventfilesLocation,"*.xml"))
 
-        for numFile in xrange(len(files)):
+        for numFile in range(len(files)):
 
             file = files[numFile]
 

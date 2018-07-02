@@ -39,17 +39,17 @@ def NLNM(unit):
 
     lownoise = []
     highnoise = []
-    for i in xrange(len(PL)):
+    for i in range(len(PL)):
         lownoise.append(10**((AL[i] + BL[i]*math.log10(PL[i]))/20))
-    for i in xrange(len(PH)):
+    for i in range(len(PH)):
         highnoise.append(10**((AH[i] + BH[i]*math.log10(PH[i]))/20))
 
-    for i in xrange(len(PL)):
+    for i in range(len(PL)):
         if unit == 1:
             lownoise[i] = lownoise[i] * (PL[i]/(2*math.pi))**2
         elif unit==2:
             lownoise[i] = lownoise[i] * (PL[i]/(2*math.pi))
-    for i in xrange(len(PH)):
+    for i in range(len(PH)):
         if unit == 1:
             highnoise[i] = highnoise[i] * (PH[i]/(2*math.pi))**2
         elif unit==2:
