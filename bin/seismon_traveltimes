@@ -163,7 +163,7 @@ def write_info(file,attributeDic):
                 subsubelement = etree.SubElement(subelement,category)
                 subsubelement.text = write_array(value[category])
 
-    tree = etree.tostring(root, pretty_print=True)
+    tree = etree.tostring(root, pretty_print=True).decode()
     write_file(file,tree)
     #tree = etree.ElementTree(root)
     #tree.write(file, pretty_print=True, xml_declaration=True)
