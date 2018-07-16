@@ -400,7 +400,11 @@ def run_earthquakes_info(params,segment):
                 locationstr = "Offshore of %s"%country
                 locationstr = locationstr.replace(", ",",").replace(" ","_")
         else:
-            locationstr = "Unknown"
+            distances = distance_latlon(attributeDic["Latitude"],attributeDic["Longitude"],latitudes, longitudes)
+            idx = np.argmin(distances)
+            country = countries[idx]
+            locationstr = "%s"%country
+            locationstr = locationstr.replace(", ",",").replace(" ","_")
 
         f = open(earthquakesFile,"w+")
         for ifo in ifos:
