@@ -2162,7 +2162,7 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
 
     if ifo == "Arbitrary":
         #degrees = np.linspace(1,180,180)
-	degrees = np.linspace(1,180,18)
+        degrees = np.linspace(1,180,18)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
@@ -2379,7 +2379,7 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
 
     if ifo == "Arbitrary":
         #degrees = np.linspace(1,180,180)
-	degrees = np.linspace(1,180,18)
+        degrees = np.linspace(1,180,18)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
