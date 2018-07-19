@@ -56,6 +56,8 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
     except:
         ifMultiple = False
 
+    print(ifMultiple)
+
     dist = np.log10(dist)
     # Save to file
     if ifMultiple:
@@ -80,6 +82,7 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
             LocklossTags.append(LocklossTag)
             Rfamps_sigma.append(Rfamp_sigma)
             LocklossTags_sigma.append(LocklossTag_sigma)
+            print(m, t, n, d, p, z,Rfamp,Rfamp_sigma)
         return (np.array(Rfamps),np.array(LocklossTags),np.array(Rfamps_sigma),np.array(LocklossTags_sigma))
     else:
         # Log transform
@@ -2158,7 +2161,8 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
     predictionFile = "/tmp/prediction.csv"
 
     if ifo == "Arbitrary":
-        degrees = np.linspace(1,180,180)
+        #degrees = np.linspace(1,180,180)
+	degrees = np.linspace(1,180,18)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
@@ -2374,7 +2378,8 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
     predictionFile = "/tmp/prediction.csv"
 
     if ifo == "Arbitrary":
-        degrees = np.linspace(1,180,180)
+        #degrees = np.linspace(1,180,180)
+	degrees = np.linspace(1,180,18)
         distances = degrees*(np.pi/180)*6370000
         fwd = 0
         back = 0
