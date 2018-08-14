@@ -1381,7 +1381,7 @@ def parse_xml(element):
 
     return dic
 
-def cmtread(event):
+def cmtread(event, pred=True):
     """@read cmt event.
 
     @param event
@@ -1437,7 +1437,7 @@ def cmtread(event):
     attributeDic['SentUTC'] = time.time()
     attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
 
-    attributeDic = calculate_traveltimes(attributeDic)
+    attributeDic = calculate_traveltimes(attributeDic,pred=pred)
     tm = time.struct_time(time.gmtime())
     dt = datetime.utcfromtimestamp(calendar.timegm(tm))
 
@@ -1808,7 +1808,7 @@ def jsonread(event):
 
     return attributeDic
 
-def irisread(event):
+def irisread(event,pred=True):
     """@read iris event.
 
     @param event
@@ -1864,7 +1864,7 @@ def irisread(event):
     attributeDic['SentUTC'] = time.time()
     attributeDic['Sent'] = time.strftime("%Y-%m-%dT%H:%M:%S.000Z", SentTime)
 
-    attributeDic = calculate_traveltimes(attributeDic)
+    attributeDic = calculate_traveltimes(attributeDic,pred=pred)
     tm = time.struct_time(time.gmtime())
     dt = datetime.utcfromtimestamp(calendar.timegm(tm))
 
@@ -2024,7 +2024,7 @@ def calculate_traveltimes_velocitymap(attributeDic):
 
     return attributeDic
 
-def calculate_traveltimes(attributeDic): 
+def calculate_traveltimes(attributeDic,pred=True): 
     """@calculate travel times of earthquake
 
     @param attributeDic
@@ -2037,7 +2037,7 @@ def calculate_traveltimes(attributeDic):
     if not "Latitude" in attributeDic and not "Longitude" in attributeDic:
         return attributeDic
 
-    attributeDic = ifotraveltimes_lookup(attributeDic, "Arbitrary", 0.0, 0.0)
+    attributeDic = ifotraveltimes_lookup(attributeDic, "Arbitrary", 0.0, 0.0, pred=pred)
     #attributeDic = ifotraveltimes(attributeDic, "Arbitrary", 0.0, 0.0)
     #attributeDic = ifotraveltimes(attributeDic, "LHO", 46.6475, -119.5986)
     #attributeDic = ifotraveltimes(attributeDic, "LLO", 30.4986, -90.7483)
@@ -2048,7 +2048,7 @@ def calculate_traveltimes(attributeDic):
 
     return attributeDic
 
-def eqmon_loc(attributeDic,ifo):
+def eqmon_loc(attributeDic,ifo,pred=True):
     """@calculate travel times of earthquake
 
     @param attributeDic
@@ -2064,27 +2064,27 @@ def eqmon_loc(attributeDic,ifo):
     #attributeDic = ifotraveltimes(attributeDic, "Arbitrary", 0.0, 0.0)
 
     if ifo == "LHO":
-        attributeDic = ifotraveltimes_loc(attributeDic, "LHO", 46.6475, -119.5986)
+        attributeDic = ifotraveltimes_loc(attributeDic, "LHO", 46.6475, -119.5986, pred=pred)
     elif ifo == "LLO":
-        attributeDic = ifotraveltimes_loc(attributeDic, "LLO", 30.4986, -90.7483)
+        attributeDic = ifotraveltimes_loc(attributeDic, "LLO", 30.4986, -90.7483, pred=pred)
     elif ifo == "GEO":
-        attributeDic = ifotraveltimes_loc(attributeDic, "GEO", 52.246944, 9.808333)
+        attributeDic = ifotraveltimes_loc(attributeDic, "GEO", 52.246944, 9.808333, pred=pred)
     elif ifo == "VIRGO":
-        attributeDic = ifotraveltimes_loc(attributeDic, "VIRGO", 43.631389, 10.505)
+        attributeDic = ifotraveltimes_loc(attributeDic, "VIRGO", 43.631389, 10.505, pred=pred)
     elif ifo == "FortyMeter":
-        attributeDic = ifotraveltimes_loc(attributeDic, "FortyMeter", 34.1391, -118.1238)
+        attributeDic = ifotraveltimes_loc(attributeDic, "FortyMeter", 34.1391, -118.1238, pred=pred)
     elif ifo == "Homestake":
-        attributeDic = ifotraveltimes_loc(attributeDic, "Homestake", 44.3465, -103.7574)
+        attributeDic = ifotraveltimes_loc(attributeDic, "Homestake", 44.3465, -103.7574, pred=pred)
     elif ifo == "LSST":
-        attributeDic = ifotraveltimes_loc(attributeDic, "LSST", -30.2446, -70.7494)
+        attributeDic = ifotraveltimes_loc(attributeDic, "LSST", -30.2446, -70.7494, pred=pred)
     elif ifo == "MIT":
-        attributeDic = ifotraveltimes_loc(attributeDic, "MIT", 42.3598, -71.0921)
+        attributeDic = ifotraveltimes_loc(attributeDic, "MIT", 42.3598, -71.0921, pred=pred)
     else:
         ifoSplit = ifo.split(",")
         site = ifoSplit[0]
         latitude = float(ifoSplit[1])
         longitude = float(ifoSplit[2])
-        attributeDic = ifotraveltimes_loc(attributeDic, site, latitude, longitude)
+        attributeDic = ifotraveltimes_loc(attributeDic, site, latitude, longitude, pred=pred)
 
     return attributeDic
 
@@ -2128,7 +2128,7 @@ def ampRf(M,r,h,Rf0,Rfs,cd,rs):
 
     return Rf
 
-def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
+def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
     """@calculate travel times of earthquake
 
     @param attributeDic
@@ -2179,16 +2179,13 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         h = depth*np.ones(distances.shape)
         az = fwd*np.ones(distances.shape)
 
-        (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
-
-        try:
-            (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
-            Lockloss = Lockloss - 1
-        except:
-            Rfamp = -1*np.ones(distances.shape)
-            Lockloss = -1*np.ones(distances.shape)
-            Rfamp_sigma = -1*np.ones(distances.shape)
-            Lockloss_sigma = -1*np.ones(distances.shape)
+        Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape)
+        if pred:
+            try:
+                (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+                Lockloss = Lockloss - 1
+            except:
+                pass
     else:
         distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
@@ -2199,14 +2196,13 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon):
         else:
             depth = 2.0
 
-        try:
-            (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
-            Lockloss = Lockloss - 1
-        except:
-            Rfamp = -1*np.ones(distances.shape)
-            Lockloss = -1*np.ones(distances.shape)
-            Rfamp_sigma = -1*np.ones(distances.shape)
-            Lockloss_sigma = -1*np.ones(distances.shape)
+        Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape)
+        if pred:
+            try:
+                (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+                Lockloss = Lockloss - 1
+            except:
+                pass
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2519,7 +2515,7 @@ def distance_latlon(lat1,lon1,lat2,lon2):
 
     return distance
 
-def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
+def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon,pred=True):
     """@calculate travel times of earthquake
 
     @param attributeDic
@@ -2574,14 +2570,14 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon):
     testFile = "/tmp/test.csv"
     predictionFile = "/tmp/prediction.csv"
 
-    try:
-        (Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
-        Lockloss = Lockloss - 1
-    except:
-        Rfamp = -1
-        Lockloss = -1
-        Rfamp_sigma = -1
-        Lockloss_sigma = -1
+    Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1, -1, -1, -1
+
+    if pred:
+        try:
+            (Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
+            Lockloss = Lockloss - 1
+        except:
+            pass
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
