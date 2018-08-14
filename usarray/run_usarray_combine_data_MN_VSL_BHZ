@@ -1,0 +1,18 @@
+
+import os, sys, glob
+import numpy as np
+import astropy.time
+
+channel = "MN:VSL::BHZ"
+samplef = 20
+calibration = 1.261330e9
+
+startGPS = 1167264018
+endGPS = 1198800018
+
+startGPS = 1104105616
+endGPS = 1135641617
+
+system_command = "python usarray_combine_data -c %s -s %d -e %d --doCombine"%(channel,startGPS,endGPS)
+os.system(system_command)
+ 

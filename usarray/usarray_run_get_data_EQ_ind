@@ -4,17 +4,17 @@ import numpy as np
 import astropy.time
 
 import matplotlib
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 matplotlib.use("AGG")
 matplotlib.rcParams.update({'font.size': 18})
 from matplotlib import pyplot as plt
 from matplotlib import cm
 
-from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-from mpl_toolkits.axes_grid1.inset_locator import mark_inset
+#from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+#from mpl_toolkits.axes_grid1.inset_locator import mark_inset
 
 import obspy
-import obspy.iris
+import obspy.clients.fdsn
 
 import seismon
 from seismon import eqmon
@@ -206,13 +206,16 @@ def gen_basemap():
 # Parse command line
 opts = parse_commandline()
 
-client = obspy.fdsn.client.Client("IRIS")
+client = obspy.clients.fdsn.Client("IRIS")
 
 channellist = "input/channels.txt"
 lines = [line.rstrip('\n') for line in open(channellist)]
 
 GSNlist = "input/GSN.txt"
 GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
+MissingList = "input/MissingStations.txt"
+Missings = [line.rstrip('\n') for line in open(MissingList)]
 
 starttime_min = astropy.time.Time(opts.gpsStart, format='gps')
 endtime_max = astropy.time.Time(opts.gpsEnd, format='gps')
@@ -240,7 +243,6 @@ elif opts.doCMT:
             end_max = obspy.core.UTCDateTime(tend.utc.iso)
 
             if (start_min > endtime_max) or (end_max < starttime_min): continue
-            print year,month
 
             try:
                 catfile = "http://www.ldeo.columbia.edu/~gcmt/projects/CMT/catalog/NEW_MONTHLY/%d/%s%d.ndk"%(year,month,np.mod(year,100))
@@ -251,18 +253,17 @@ elif opts.doCMT:
                 if event.magnitudes[0].mag < opts.minMagnitude: continue
                 events.append(event)
 else:
-    print "Must enable doIRIS or doCMT"
+    print("Must enable doIRIS or doCMT")
     exit(0)
 
 for event in events:
     if opts.doIRIS:
-        attributeDic = eqmon.irisread(event)
+        attributeDic = eqmon.irisread(event,pred=False)
     elif opts.doCMT:
-        attributeDic = eqmon.cmtread(event)
+        attributeDic = eqmon.cmtread(event,pred=False)
 
     eqtime = astropy.time.Time(attributeDic["GPS"], format='gps', scale='utc')
     eqtime = obspy.UTCDateTime(eqtime.isot)
-    #print attributeDic["eventName"], attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"]
 
     data = {}
 
@@ -283,7 +284,7 @@ for event in events:
 
     for line in lines:
         lineSplit = line.split(" ")
-        lineSplit = filter(None, lineSplit)
+        lineSplit = list(filter(None, lineSplit))
     
         channel = lineSplit[0]
         samplef = float(lineSplit[1])
@@ -298,25 +299,34 @@ for event in events:
 
         channelSplit = channel.split(":")
         array = channelSplit[0]
-    
+   
+        if not array in ["TA"]:
+            continue
+ 
         GSNcheck = False
         for GSN in GSNs:
-            GSNsplit = filter(None,GSN.split("\t"))
+            GSNsplit = list(filter(None,GSN.split("\t")))
             GSNstation = GSNsplit[0]
             GSNnetwork = GSNsplit[1]
             if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
                 GSNcheck = True
-    
-        if (not array in ["TA","US"]) and (not GSNcheck): continue
-   
-        #print channel, samplef, latitude, longitude, starttime, endtime, eqtime
-    
+                break  
+ 
+        #Missingcheck = False
+        #if channel in Missings:
+        #    Missingcheck = True
+        Missingcheck = True
+
+        if (not array in ["TA","US"]) and (not GSNcheck) and (not Missingcheck):
+            continue
+  
+        if not Missingcheck:
+            continue
+ 
         ifo = "%s,%.5f,%.5f"%(channel, latitude, longitude)
      
-        attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo)
+        attributeDicTemp = eqmon.eqmon_loc(attributeDic,ifo,pred=False)
         traveltimes = attributeDicTemp["traveltimes"][channel]
-    
-        #print attributeDic["eventName"], attributeDic["GPS"], attributeDic["Magnitude"], attributeDic["Latitude"],attributeDic["Longitude"], traveltimes["Distances"][0], traveltimes["Ptimes"][0], traveltimes["Stimes"][0], traveltimes["Rtwotimes"][0], traveltimes["RthreePointFivetimes"][0], traveltimes["Rfivetimes"][0], traveltimes["Rfamp"][0]
     
         arrival = np.min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
         departure = np.max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
@@ -336,7 +346,6 @@ for event in events:
 
         data_out = np.loadtxt(timefile)
         if not data_out.shape: continue
-        print timefile, data_out.shape
         if data_out[0,1] == 0.0:
             system_command = "rm %s"%timefile
             os.system(system_command)

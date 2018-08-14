@@ -1,0 +1,122 @@
+
+import os, sys, glob, optparse, time
+import pickle
+import numpy as np
+import astropy.time
+
+import matplotlib
+matplotlib.use("AGG")
+matplotlib.rcParams.update({'font.size': 18})
+from matplotlib import pyplot as plt
+from matplotlib import cm
+
+__author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
+__version__ = 1.0
+__date__    = "9/22/2013"
+
+def parse_commandline():
+    """@parse the options given on the command-line.
+    """
+    parser = optparse.OptionParser(usage=__doc__,version=__version__)
+
+    parser.add_option("--doIRIS",  action="store_true", default=False)
+    parser.add_option("--doCMT",  action="store_true", default=False)
+
+    parser.add_option("-v", "--verbose", action="store_true", default=False,
+                      help="Run verbosely. (Default: False)")
+
+    opts, args = parser.parse_args()
+
+    # show parameters
+    if opts.verbose:
+        print >> sys.stderr, ""
+        print >> sys.stderr, "running network_eqmon..."
+        print >> sys.stderr, "version: %s"%__version__
+        print >> sys.stderr, ""
+        print >> sys.stderr, "***************** PARAMETERS ********************"
+        for o in opts.__dict__.items():
+          print >> sys.stderr, o[0]+":"
+          print >> sys.stderr, o[1]
+        print >> sys.stderr, ""
+
+    return opts
+
+# Parse command line
+opts = parse_commandline()
+
+channellist = "input/channels.txt"
+lines = [line.rstrip('\n') for line in open(channellist)]
+
+GSNlist = "input/GSN.txt"
+GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
+outputDirectory = "/home/mcoughlin/Seismon/USArray/EQCombineAll"
+if opts.doIRIS:
+    eqcombinefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/IRIS.txt"
+elif opts.doCMT:
+    eqcombinefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/CMT.txt"
+else:
+    print("Enable --doIRIS or --doCMT")
+    exit(0)
+
+print "Loading data..."    
+f = open(eqcombinefile,'w')
+    
+for line in lines:
+    lineSplit = line.split(" ")
+    lineSplit = filter(None, lineSplit)
+
+    channel = lineSplit[0]
+    samplef = float(lineSplit[1])
+    calibration = float(lineSplit[2])
+    latitude = float(lineSplit[3])
+    longitude = float(lineSplit[4])
+    starttime = lineSplit[5]
+    endtime = lineSplit[6]
+   
+    channelSplit = channel.split(":")
+    array = channelSplit[0]
+
+    GSNcheck = False
+    for GSN in GSNs:
+        GSNsplit = filter(None,GSN.split("\t"))
+        GSNstation = GSNsplit[0]
+        GSNnetwork = GSNsplit[1]
+        if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
+            GSNcheck = True
+    if (not array in ["TA","US"]) and (not GSNcheck): continue
+
+    if opts.doIRIS: 
+        eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/IRIS/%s.txt"%(channel.replace(":","_"))
+    elif opts.doCMT:
+        eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/CMT/%s.txt"%(channel.replace(":","_"))
+
+    if not os.path.isfile(eqfile): continue
+    events = [line.rstrip('\n') for line in open(eqfile)]
+    if len(events) == 0: 
+        os.system("rm %s"%eqfile)
+        continue
+
+    for event in events:
+        event = event.split(" ")
+
+        if opts.doIRIS:
+            if not len(event) == 19:
+                print(event,eqfile)
+                continue 
+
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),float(event[15]),event[16],float(event[17]),float(event[18])))
+
+        elif opts.doCMT:
+
+            if not len(event) == 28:
+                print(event,eqfile)
+                continue 
+
+            f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %.5f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),float(event[15]),float(event[16]),float(event[17]),float(event[18]),float(event[19]),float(event[20]),float(event[21]),float(event[22]),float(event[23]),float(event[24]),event[25],float(event[26]),float(event[27])))
+
+f.close()
+
+print "Finished loading data."
+
+

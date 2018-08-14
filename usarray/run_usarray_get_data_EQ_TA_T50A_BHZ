@@ -59,6 +59,9 @@ for event in events.events:
         lineSplit = filter(None, lineSplit)
     
         channel = lineSplit[0]
+
+        if not channel == "TA:T50A::BHZ": continue
+
         samplef = float(lineSplit[1])
         calibration = float(lineSplit[2])
         latitude = float(lineSplit[3])

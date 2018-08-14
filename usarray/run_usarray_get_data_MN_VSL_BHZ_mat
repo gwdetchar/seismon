@@ -1,0 +1,41 @@
+
+import os, sys, glob
+import numpy as np
+import astropy.time
+
+import obspy
+import obspy.iris
+
+import scipy.io as io
+
+channel = "MN:VSL::BHZ"
+samplef = 20
+calibration = 1.261330e9
+channelSplit = channel.split(":")
+
+startGPS = 1167264018
+endGPS = 1198800018
+
+startGPS = 1104105616
+endGPS = 1135641617
+#endGPS = startGPS + 128
+
+starttime = astropy.time.Time(startGPS, format='gps')
+endtime = astropy.time.Time(endGPS, format='gps')
+
+starttime_utc = obspy.core.UTCDateTime(starttime.utc.iso)
+endtime_utc = obspy.core.UTCDateTime(endtime.utc.iso)
+
+client = obspy.fdsn.client.Client("IRIS")
+
+st = client.get_waveforms(channelSplit[0], channelSplit[1], channelSplit[2], channelSplit[3],starttime_utc,endtime_utc)
+data = np.array(st[0].data)
+tt = np.arange(len(data))/float(samplef) + float(startGPS)
+
+matfile = 'MN_VSL__BHZ.mat'
+matdata = {}
+matdata['data'] = data
+matdata['tt'] = tt
+matdata['calibration'] = calibration
+
+io.savemat(matfile, matdata)

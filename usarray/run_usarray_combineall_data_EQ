@@ -19,6 +19,9 @@ from sklearn import svm
 channellist = "input/channels.txt"
 lines = [line.rstrip('\n') for line in open(channellist)]
 
+GSNlist = "input/GSN.txt"
+GSNs = [line.rstrip('\n') for line in open(GSNlist)]
+
 outputDirectory = "/home/mcoughlin/Seismon/USArray/EQCombineAll"
 
 eqcombinefile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombineAll/EQ.txt"
@@ -44,7 +47,15 @@ if loadData:
    
         channelSplit = channel.split(":")
         array = channelSplit[0]
-        if not array in ["TA","US"]: continue
+
+        GSNcheck = False
+        for GSN in GSNs:
+            GSNsplit = filter(None,GSN.split("\t"))
+            GSNstation = GSNsplit[0]
+            GSNnetwork = GSNsplit[1]
+            if (GSNstation == channelSplit[1]) or (GSNnetwork == channelSplit[0]):
+                GSNcheck = True
+        if (not array in ["TA","US"]) and (not GSNcheck): continue
  
         eqfile = "/home/mcoughlin/Seismon/USArray/Text_Files_EQ/EQCombine/%s.txt"%(channel.replace(":","_"))
         if not os.path.isfile(eqfile): continue
@@ -53,11 +64,13 @@ if loadData:
     
         for event in events:
             event = event.split(" ")
-    
+   
             f.write("%s %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %s %.1f %.5e\n"%(event[0],float(event[1]),float(event[2]),float(event[3]),float(event[4]),float(event[5]),float(event[6]),float(event[7]),float(event[8]),float(event[9]),float(event[10]),float(event[11]),float(event[12]),float(event[13]),float(event[14]),float(event[15]),event[16],float(event[17]),float(event[18])))
     f.close()
 
     print "Finished loading data."
+
+print(stop)
 
 events = np.genfromtxt(eqcombinefile)
 idx = np.where(~np.isnan(events[0,:]))[0]

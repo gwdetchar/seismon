@@ -37,13 +37,13 @@ import subprocess
 from subprocess import Popen
 from lxml import etree
 
-import obspy.fdsn, obspy.core
+import obspy.clients.fdsn, obspy.core
 
 #import lal.gpstime
 import astropy.time
 from astropy import units
 
-import seismon.NLNM, seismon.utils
+import seismon.NLNM
 
 import gwpy.time, gwpy.timeseries, gwpy.plotter
 import gwpy.frequencyseries
@@ -94,6 +94,22 @@ def parse_commandline():
         print >> sys.stderr, ""
 
     return opts
+
+def mkdir(path):
+    """@create path (if it does not already exist).
+
+    @param path
+        directory path to create
+    """
+
+    pathSplit = path.split("/")
+    pathAppend = "/"
+    for piece in pathSplit:
+        if piece == "":
+            continue
+        pathAppend = os.path.join(pathAppend,piece)
+        if not os.path.isdir(pathAppend):
+            os.mkdir(pathAppend)
 
 def params_struct(opts):
     """@create params structure
@@ -154,6 +170,8 @@ def get_timeseries(client, channel, starttime, endtime, sample_rate, calibration
     #sample_rate = sample_rate * units.Hz
 
     dataFull = gwpy.timeseries.TimeSeries(data, epoch=gpsStart, channel=channelSplit[0], name=channelSplit[1], sample_rate = sample_rate, unit = units.m/units.s)
+    cutoff_low = 0.1
+    dataFull = dataFull.lowpass(cutoff_low)
 
     return dataFull
 
@@ -183,7 +201,7 @@ def plot_data(params,data,asd):
     fl, low, fh, high = seismon.NLNM.NLNM(2)
 
     plotDirectory = os.path.join(params["outputDir"],params["channel"].replace(":","_"))
-    seismon.utils.mkdir(plotDirectory)
+    mkdir(plotDirectory)
 
     pngFile = os.path.join(plotDirectory,"psd.png")
     label = params["channel"].replace(":","\_")
@@ -210,21 +228,21 @@ def save_data(params,data,asd):
     gpsStart, gpsEnd = params["gpsStart"], params["gpsEnd"]
 
     psdDirectory = os.path.join(params["outputDir"],"Text_Files_EQ","PSD",params["channel"].replace(":","_"))
-    seismon.utils.mkdir(psdDirectory)
+    mkdir(psdDirectory)
 
     freq = np.array(asd.frequencies)
     psdFile = os.path.join(psdDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
-    f = open(psdFile,"wb")
-    for i in xrange(len(freq)):
+    f = open(psdFile,"w")
+    for i in range(len(freq)):
         f.write("%e %e\n"%(freq[i],asd[i].value))
     f.close()
 
     timeseriesDirectory = os.path.join(params["outputDir"],"Text_Files_EQ","Timeseries",params["channel"].replace(":","_"))
-    seismon.utils.mkdir(timeseriesDirectory)
+    mkdir(timeseriesDirectory)
 
     tt = np.array(data.times)
     timeseriesFile = os.path.join(timeseriesDirectory,"%d-%d.txt"%(gpsStart,gpsEnd))
-    f = open(timeseriesFile,"wb")
+    f = open(timeseriesFile,"w")
     f.write("%.10f %e\n"%(tt[np.argmin(data.value)],np.min(data.value)))
     f.write("%.10f %e\n"%(tt[np.argmax(data.value)],np.max(data.value)))
     f.close()
@@ -244,7 +262,7 @@ def download_data(params):
     starttime = astropy.time.Time(params["gpsStart"], format='gps')
     endtime = astropy.time.Time(params["gpsEnd"], format='gps')
 
-    client = obspy.fdsn.client.Client("IRIS")
+    client = obspy.clients.fdsn.Client("IRIS")
     ##client = obspy.fdsn.client.Client("http://earthquake.usgs.gov")
   
     channel = params["channel"]
@@ -267,7 +285,7 @@ def run_download():
     params = params_struct(opts)
 
     if params["doDownload"]:
-        print "Downloading data..."
+        print("Downloading data...")
         download_data(params)
 
 # =============================================================================
