@@ -2,7 +2,7 @@
 ## SEISMON RfAmp Prediction  Code
 ## 
 ##
-## Uses PYTHON package robustLocklossPredictionPkg3 & MATLAB 2016b shared libraries,
+## Uses PYTHON package robustLocklossPredictionPkg4 & MATLAB 2016b shared libraries,
 ## Make sure to run the script set_shared_library_paths.sh prior to running this script. 
 ## To re-install the package go through readme.txt 
 ##
@@ -15,7 +15,9 @@
 ## To embed the same functionality in another code as a function use the commented lines of code at the end
 ##    Rfamp,LocklossTag = makePredictions('H1',5.1,-18.2,-174.9,1.048178e+07,197.7,59.4)
 ##
-## Nikhil Mukund Menon (Last Edited : 14/4/2018)
+## Notes: This version handles out-of-bound cases more accurately. 
+##
+## Nikhil Mukund Menon (Last Edited : 15/8/2018)
 ## nikhil@iucaa.in, nikhil.mukund@LIGO.ORG
 ######################################################
 
