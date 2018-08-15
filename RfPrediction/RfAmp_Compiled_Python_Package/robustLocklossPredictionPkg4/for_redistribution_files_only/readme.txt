@@ -1,4 +1,4 @@
-Packaging and Deploying robustLocklossPredictionPkg3
+Packaging and Deploying robustLocklossPredictionPkg4
 
 1. Prerequisites for Deployment 
 
@@ -15,10 +15,10 @@ iii. Run the MATLAB Runtime installer provided with MATLAB.
 
 B. Verify that a Linux 64-bit version of Python 2.7, 3.3, and/or 3.4 is installed.
 
-2. Installing the robustLocklossPredictionPkg3 Package
+2. Installing the robustLocklossPredictionPkg4 Package
 
 A. Go to the directory that contains the file setup.py and the subdirectory 
-   robustLocklossPredictionPkg3. If you do not have write permissions, copy all its 
+   robustLocklossPredictionPkg4. If you do not have write permissions, copy all its 
    contents to a temporary location and go there.
 
 B. Execute the command:
@@ -45,11 +45,11 @@ Make the following changes:
 
 Finally, execute the commands or add them to your shell initialization file.
 
-3. Using the robustLocklossPredictionPkg3 Package
+3. Using the robustLocklossPredictionPkg4 Package
 
-The robustLocklossPredictionPkg3 package is on your Python path. To import it into a 
+The robustLocklossPredictionPkg4 package is on your Python path. To import it into a 
    Python script or session, execute:
 
-    import robustLocklossPredictionPkg3
+    import robustLocklossPredictionPkg4
 
 If a namespace must be specified for the package, modify the import statement accordingly.
