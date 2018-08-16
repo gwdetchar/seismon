@@ -14,9 +14,9 @@ import numpy as np
 from datetime import datetime
 from operator import itemgetter
 
+#import seismon.robustLocklossPredictionPkg
+#robust = seismon.robustLocklossPredictionPkg.initialize()
 import pandas as pd
-import seismon.robustLocklossPredictionPkg
-robust = seismon.robustLocklossPredictionPkg.initialize()
 
 try:
     import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
@@ -26,6 +26,9 @@ except:
 from lxml import etree
 import scipy.spatial
 import smtplib, email.mime.text
+
+from scipy.spatial.distance import cdist
+from scipy.special import  erf
 
 import astropy.time
 #import lal.gpstime
@@ -56,7 +59,183 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
     except:
         ifMultiple = False
 
-    print(ifMultiple)
+    # Create & Save Test file
+    if ifMultiple:
+        train_data = [mag,lat,lon,dist,depth,azi]
+        nloops = len(dist)
+    else:
+        train_data = [[mag,lat,lon,dist,depth,azi]]
+        nloops = 1
+    my_df = pd.DataFrame(train_data)
+    my_df.to_csv(testFile, index=False, header=False)
+
+    # Analtic Formula for Rf amp
+    def ampRfnew(M,r,h,Rf0,Rfs,cd,rs):
+        fc = 10**(2.3 - M/2)
+        Af = Rf0/fc**Rfs
+        Rf = M*Af*np.exp(-2*np.pi*h*fc/cd)/r**rs*1e-3
+        return Rf
+
+    Debug = 0
+
+    # Load Past EQ Dara
+    trainData = pd.read_csv(trainFile,delimiter=' ',header=None,usecols=[1,10,11,12,13,14,29,31])
+
+    # Boost trainData to better fit newer observations
+    tempData = trainData
+    noise_level = 1e-3
+    copy_num = 4
+
+    for i in range(copy_num):
+        tempData = np.vstack([tempData, tempData + np.dot(tempData,noise_level)])
+
+        # Convert back to dataframe
+        trainData = pd.DataFrame(tempData)
+
+    #  Take log tranform for Distance & Measured Rf Amplitude
+    trainData.iloc[:,[3,-2]] = np.log10(np.abs(trainData.iloc[:,[3,-2]]))
+
+    # Remove unlocked states for Lockloss Prediction Part
+    trainData_2 = trainData;
+    idx2 = trainData_2.iloc[:,-1]==0
+    trainData_2 = trainData_2.loc[~idx2]
+
+    if trainData_2.empty:
+        trainData_2 = trainData
+
+    # Read Test Data
+    testingData = pd.read_csv(testFile,delimiter=',',header=None)
+
+    # Predefine
+    robust_Rfamp_prediction =          np.zeros((nloops,))
+    robust_lockloss_prediction =       np.zeros((nloops,))
+    robust_Rfamp_prediction_sigma =    np.zeros((nloops,))
+    robust_lockloss_prediction_sigma = np.zeros((nloops,)) 
+    outlier_FLAG_1  =                  np.zeros((nloops,))
+    outlier_FLAG_2  =                  np.zeros((nloops,))
+    Orig =                             np.zeros((nloops,))
+    Orig2 =                            np.zeros((nloops,))
+
+    for IDX in range(nloops):
+        # Rayleigh Amplitude Prediction
+
+        # Get Mahalanobis Dist of test point from the training points
+        if ifMultiple:
+            P = cdist(trainData.loc[:,0:5],np.expand_dims(np.array(testingData.loc[:,IDX]),axis=1).T,'mahalanobis')
+        else:
+            P = cdist(trainData.loc[:,0:5],np.array(testingData),'mahalanobis')
+
+        # Sort as per minimum distance
+        Val = np.sort(P,axis=0)
+        ID  = np.argsort(P,axis=0)
+	        
+        # Select events within a threshold
+        Val_thresh = 0.2
+        Val_idx = np.where(Val <= Val_thresh)[0]
+
+        if (len(Val_idx)  != 0):
+            Num  = len(Val_idx)
+            trainSimilarOrig = np.zeros([Num,1])
+            count = 0
+            # Get predictions from nearby training points
+            KEY = list(ID[Val_idx][:].flatten())
+            for ijk in range(Num):
+                trainSimilarOrig[ijk] = 10.**trainData.iloc[KEY[ijk],-2]
+
+            if (Num > 1):
+                invScoreNorm = np.true_divide((1./Val[Val_idx]) - min(1./Val[Val_idx]), (max(1./Val[Val_idx]) - min(1./Val[Val_idx]) ) );
+            else:
+                invScoreNorm = (1./Val[Val_idx[0]])
+
+            invScoreNorm = erf(invScoreNorm)
+            Orig[IDX]   = np.sum(trainSimilarOrig*invScoreNorm)
+            robust_Rfamp_prediction[IDX] = np.log10(Orig[IDX])
+            robust_Rfamp_prediction_sigma[IDX] = np.std(trainSimilarOrig)
+
+        else:
+            outlier_FLAG_1[IDX] = 1 
+
+            # If no nearby point found, then use a scaled version of old analytic formula                                   
+            Rf0 = 0.16                              
+            Rfs = 1.31                                      
+            cd  = 4672.83                                           
+            rs  = 0.82
+
+            if ifMultiple:
+                Mag  = testingData.iloc[0,IDX]                                  
+                Dist = testingData.iloc[3,IDX]
+                Depth = testingData.iloc[4,IDX]
+            else:
+                Mag, Dist, Depth = testingData[0], testingData[3], testingData[4]
+
+            Rf = ampRfnew(Mag,Dist,Depth,Rf0,Rfs,cd,rs)
+
+            # Calculate Rfamp for the closest match
+            Mag = trainData.loc[ID[0],0].values
+            Dist = 10**trainData.loc[ID[0],3].values
+            Depth = trainData.loc[ID[0],4].values
+            Rf_ref = ampRfnew(Mag,Dist,Depth,Rf0,Rfs,cd,rs)
+            Measured_Rf = 10**trainData.loc[ID[0],6].values
+
+            Scale_fac = Rf/Rf_ref
+
+            Scaled_Rf = Scale_fac*Measured_Rf
+
+            robust_Rfamp_prediction[IDX] = np.log10(Scaled_Rf[0]);
+            robust_Rfamp_prediction_sigma[IDX] = 0 # Needs to be changed
+
+        # LOCKLOSS Prediction
+        # Get Mahalanobis Dist of test point from the training points
+        if ifMultiple:
+            P = cdist(trainData.loc[:,0:5],np.expand_dims(np.array(testingData.loc[:,IDX]),axis=1).T,'mahalanobis')
+        else:
+            P = cdist(trainData.loc[:,0:5],np.array(testingData),'mahalanobis')
+
+        # Sort as per minimum distance
+        Val = np.sort(P,axis=0)
+        ID  = np.argsort(P,axis=0)
+    
+        # Select events within a threshold
+        Val_thresh = 0.2
+        Val_idx = np.where(Val <= Val_thresh)[0]
+    
+        if (len(Val_idx)  != 0):
+            Num  = len(Val_idx)
+            trainSimilarOrig = np.zeros([Num,1])
+            count = 0
+            # Get predictions from nearby training points
+            KEY = list(ID[Val_idx][:].flatten())
+            for ijk in range(Num):
+                trainSimilarOrig[ijk] = 10.**trainData.iloc[KEY[ijk],-2]
+    
+            if (Num > 1):
+                   invScoreNorm = np.true_divide((1./Val[Val_idx]) - min(1./Val[Val_idx]), (max(1./Val[Val_idx]) - min(1./Val[Val_idx]) ) );
+            else:
+                   invScoreNorm = (1./Val[Val_idx[0]])
+    
+            invScoreNorm = erf(invScoreNorm)
+            Orig2[IDX]   = np.sum(trainSimilarOrig*invScoreNorm)
+            robust_lockloss_prediction[IDX] = Orig2[IDX]
+            robust_lockloss_prediction_sigma[IDX] = np.std(trainSimilarOrig)
+    
+        else:
+            outlier_FLAG_2[IDX] = 1
+            Rf_limit = 50*1e-6
+            if (10**(robust_Rfamp_prediction[IDX]) > Rf_limit):
+                robust_lockloss_prediction[IDX] = 2
+            else:
+                robust_lockloss_prediction[IDX] = 1
+            robust_lockloss_prediction_sigma[IDX] = 0
+
+    return 10**robust_Rfamp_prediction, robust_lockloss_prediction, robust_Rfamp_prediction_sigma, robust_lockloss_prediction_sigma
+
+def makePredictionsMATLAB(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi):
+
+    try:
+        len(dist)
+        ifMultiple = True
+    except:
+        ifMultiple = False
 
     dist = np.log10(dist)
     # Save to file
@@ -2180,6 +2359,8 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
         az = fwd*np.ones(distances.shape)
 
         Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape)
+        (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+ 
         if pred:
             try:
                 (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
@@ -2197,6 +2378,8 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
             depth = 2.0
 
         Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape)
+        (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
+
         if pred:
             try:
                 (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
@@ -2571,7 +2754,6 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon,pred=True):
     predictionFile = "/tmp/prediction.csv"
 
     Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1, -1, -1, -1
-
     if pred:
         try:
             (Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
