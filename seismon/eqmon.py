@@ -2336,8 +2336,11 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
         trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
     else:
         trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
-    testFile = "/tmp/test.csv"
-    predictionFile = "/tmp/prediction.csv"
+
+    N = 10
+    randstr = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+    testFile = "/tmp/test_%s.csv"%randstr
+    predictionFile = "/tmp/prediction_%s.csv"%randstr
 
     if ifo == "Arbitrary":
         #degrees = np.linspace(1,180,180)
@@ -2386,6 +2389,11 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
                 Lockloss = Lockloss - 1
             except:
                 pass
+
+    if os.path.isfile(testFile):
+        os.remove(testFile)
+    if os.path.isfile(predictionFile):
+        os.remove(predictionFile)
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2553,8 +2561,11 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
         trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
     else:
         trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
-    testFile = "/tmp/test.csv"
-    predictionFile = "/tmp/prediction.csv"
+
+    N = 10
+    randstr = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+    testFile = "/tmp/test_%s.csv"%randstr
+    predictionFile = "/tmp/prediction_%s.csv"%randstr
 
     if ifo == "Arbitrary":
         #degrees = np.linspace(1,180,180)
@@ -2597,6 +2608,11 @@ def ifotraveltimes(attributeDic,ifo,ifolat,ifolon):
             Lockloss = -1*np.ones(distances.shape)
             Rfamp_sigma = -1*np.ones(distances.shape)
             Lockloss_sigma = -1*np.ones(distances.shape)
+
+    if os.path.isfile(testFile):
+        os.remove(testFile)
+    if os.path.isfile(predictionFile):
+        os.remove(predictionFile)
 
     Pamp = 1e-6
     Samp = 1e-5
@@ -2750,8 +2766,11 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon,pred=True):
         trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
     else:
         trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
-    testFile = "/tmp/test.csv"
-    predictionFile = "/tmp/prediction.csv"
+
+    N = 10
+    randstr = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
+    testFile = "/tmp/test_%s.csv"%randstr
+    predictionFile = "/tmp/prediction_%s.csv"%randstr
 
     Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1, -1, -1, -1
     if pred:
@@ -2760,6 +2779,11 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon,pred=True):
             Lockloss = Lockloss - 1
         except:
             pass
+
+    if os.path.isfile(testFile):
+        os.remove(testFile)
+    if os.path.isfile(predictionFile):
+        os.remove(predictionFile)
 
     traveltimes = {}
     traveltimes["Latitudes"] = ifolat
