@@ -6,7 +6,7 @@
 ## Output file : predicted amplitude (m/s), lockloss_prediction(value btw 1&2 --> no lockloss to lockloss), uncertainity in both the predictions
 ##
 ## Example:
-##   python makePredictions.py -ifo 'H1' -mag 7.5 -lat -6.2 -lon 130.6 -dist 10690548.79 -depth 126.5 -azi 42.9
+##   python makePredictions.py -ifo 'H1' -mag 6.5 -lat -6.2 -lon 130.6 -dist 10690548.79 -depth 126.5 -azi 42.9
 ##
 ##
 ## Nikhil Mukund Menon (Last Edited : 16/8/2018)
@@ -56,6 +56,8 @@ parser.add_argument('-depth','--depth' , type=float, default=30, help='Depth of 
 
 parser.add_argument('-azi','--azi' , type=float, default=30,help='Azimuth of the earthquake ')
 
+parser.add_argument('-v','--verbose' , type=int, default=1,help='Verbose')
+
 
 # Get parameters into global namespace
 args   = parser.parse_args()
@@ -67,6 +69,7 @@ lon              = args.lon
 dist             = args.dist
 depth            = args.depth
 azi              = args.azi
+verbose          = args.verbose
 #filename         = args.filename
 
 # Log transform
@@ -106,20 +109,27 @@ trainData = pd.read_csv(trainFile,delimiter=' ',header=None,usecols=[1,10,11,12,
 
 # Boost trainData to better fit newer observations
 tempData = trainData
-noise_level = 1e-3
-copy_num = 4
+noise_level = 1e-1
+copy_num = 1
 
-for i in range(copy_num):
-    tempData = np.vstack([tempData, tempData + np.dot(tempData,noise_level)])
-    
+
+
+"""for i in range(copy_num):
+    tempData = np.vstack([tempData, tempData])
+
+tempData = tempData +  tempData*np.random.randn(*tempData.shape)*noise_level    
+  
 # Convert back to dataframe
-trainData = pd.DataFrame(tempData)
+trainData = pd.DataFrame(tempData)"""
+
 
 #  Take log tranform for Distance & Measured Rf Amplitude
 trainData.iloc[:,[3,-2]] = np.log10(np.abs(trainData.iloc[:,[3,-2]]))
 
+
+
 # Remove unlocked states for Lockloss Prediction Part
-trainData_2 = trainData;
+trainData_2 = trainData
 idx2 = trainData_2.iloc[:,-1]==0
 trainData_2 = trainData_2.loc[~idx2]
 
@@ -146,37 +156,67 @@ for IDX in range(testingData.shape[0]):
     # Rayleigh Amplitude Prediction
 
     # Get Mahalanobis Dist of test point from the training points
-    P = cdist(trainData.loc[:,0:5],testingData,'mahalanobis')
+    P = cdist(trainData.iloc[:,[1,2]],testingData.iloc[:,[1,2]],'mahalanobis')
 
     # Sort as per minimum distance
     Val = np.sort(P,axis=0)
     ID  = np.argsort(P,axis=0)
 
-    # Select events within a threshold
-    Val_thresh = 0.2
+    # Select events within a threshold [LOCATION]
+    Val_thresh = 0.05
     Val_idx = np.where(Val <= Val_thresh)[0]
 
-    if (len(Val_idx)  != 0):
-        Num  = len(Val_idx)
+    TD   = trainData.iloc[pd.DataFrame(ID[Val_idx])[0]]
+
+    # Select events within a threshold [EQ Magnitude]
+    Ldist = cdist(TD.iloc[:,[0]],testingData.iloc[:,[0]].values.reshape(1,-1))
+
+
+    # Sort as per minimum distance
+    CVal = np.sort(Ldist,axis=0); 
+    CID  = np.argsort(Ldist,axis=0)
+   
+    NearbyEvents = pd.DataFrame()
+
+    # Select events within a threshold [EQ MAGNITUDE]
+    Val_thresh_2 = 1
+    Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]
+    CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]
+
+
+    if (len(Val_idx_2)  == 0):
+        # Incerease the threshold and try again
+        print('Increasing the threshold...')
+        Val_thresh_2 = 2
+        Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]
+        CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]
+
+   
+    
+
+    if (len(Val_idx_2)  != 0):
+   
+        Num  = len(Val_idx_2)
         trainSimilarOrig = np.zeros([Num,1])
         count = 0
         # Get predictions from nearby training points
-        KEY = list(ID[Val_idx][:].flatten())
+        KEY = list(CID[Val_idx_2][:].flatten())
+        NearbyEvents = TD.iloc[KEY]
+      
         for ijk in range(Num):
-            trainSimilarOrig[ijk] = 10.**trainData.iloc[KEY[ijk],-2]
+            trainSimilarOrig[ijk] = TD.iloc[KEY[ijk],-2]
 
-        if (Num > 1):
-               invScoreNorm = np.true_divide((1./Val[Val_idx]) - min(1./Val[Val_idx]), (max(1./Val[Val_idx]) - min(1./Val[Val_idx]) ) );
-        else:
-               invScoreNorm = (1./Val[Val_idx[0]])
 
-        invScoreNorm = erf(invScoreNorm)   
-        Orig[IDX]   = np.sum(trainSimilarOrig*invScoreNorm)
+        Orig[IDX]   = 10**(np.median(trainSimilarOrig))
+
+
         robust_Rfamp_prediction[IDX] = np.log10(Orig[IDX])
-        robust_Rfamp_prediction_sigma[IDX] = np.std(trainSimilarOrig)
+        
+        robust_Rfamp_prediction_sigma[IDX] = np.std(10**(trainSimilarOrig))
 
     else :
         outlier_FLAG_1[IDX] = 1
+        
 
         # If no nearby point found, then use a scaled version of old analytic formula
         Rf0 = 0.16
@@ -189,49 +229,77 @@ for IDX in range(testingData.shape[0]):
         Rf = ampRfnew(Mag,Dist,Depth,Rf0,Rfs,cd,rs)
 
         # Calculate Rfamp for the closest match
-        Mag = trainData.loc[ID[0],0].values
-        Dist = 10**trainData.loc[ID[0],3].values
-        Depth = trainData.loc[ID[0],4].values    
+        Mag = trainData.iloc[ID[0],0].values
+        Dist = 10**trainData.iloc[ID[0],3].values
+        Depth = trainData.iloc[ID[0],4].values    
         Rf_ref = ampRfnew(Mag,Dist,Depth,Rf0,Rfs,cd,rs)
-        Measured_Rf = 10**trainData.loc[ID[0],6].values
+        Measured_Rf = 10**trainData.iloc[ID[0],6].values
 
-        Scale_fac = Rf/Rf_ref
+        Scale_fac = Rf/Rf_ref 
 
         Scaled_Rf = Scale_fac*Measured_Rf
 
-        robust_Rfamp_prediction[IDX] = np.log10(Scaled_Rf);
+        robust_Rfamp_prediction[IDX] = np.log10(Scaled_Rf)
         robust_Rfamp_prediction_sigma[IDX] = 0 # Needs to be changed
 
     # LOCKLOSS Prediction    
     # Get Mahalanobis Dist of test point from the training points    
-    P2 = cdist(trainData_2.loc[:,0:5],testingData,'mahalanobis')
+    P2 = cdist(trainData_2.iloc[:,[1,2]],testingData.iloc[:,[1,2]],'mahalanobis')
 
     # Sort as per minimum distance
-    Val = np.sort(P,axis=0)
-    ID  = np.argsort(P,axis=0)
+    Val = np.sort(P2,axis=0)
+    ID  = np.argsort(P2,axis=0)
 
     # Select events within a threshold
-    Val_thresh = 0.2
+    Val_thresh = 0.08
     Val_idx = np.where(Val <= Val_thresh)[0]
 
-    if (len(Val_idx)  != 0):
-        Num  = len(Val_idx)
+    TD   = trainData_2.iloc[pd.DataFrame(ID[Val_idx])[0]]
+
+    Ldist = cdist(TD.iloc[:,[0]],testingData.iloc[:,[0]].values.reshape(1,-1))
+
+    # Sort as per minimum distance
+    CVal = np.sort(Ldist,axis=0)
+    CID  = np.argsort(Ldist,axis=0)
+
+    # Select events within a threshold [EQ PARAMETERS]
+    Val_thresh_2 = 1
+    Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]    
+    CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]
+    if (len(Val_idx_2)  == 0):
+        # Incerease the threshold and try again        
+        Val_thresh_2 = 2
+        Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]
+        CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]    
+
+
+       
+    if (len(Val_idx_2)  != 0):
+        Num  = len(Val_idx_2)
         trainSimilarOrig = np.zeros([Num,1])
         count = 0
         # Get predictions from nearby training points
-        KEY = list(ID[Val_idx][:].flatten())
+        KEY = list(CID[Val_idx_2][:].flatten())
+      
+
+
+
         for ijk in range(Num):
-            trainSimilarOrig[ijk] = 10.**trainData.iloc[KEY[ijk],-2]
-
+            trainSimilarOrig[ijk] = TD.iloc[KEY[ijk],-1]
+         
+        """
         if (Num > 1):
-               invScoreNorm = np.true_divide((1./Val[Val_idx]) - min(1./Val[Val_idx]), (max(1./Val[Val_idx]) - min(1./Val[Val_idx]) ) );
+               invScoreNorm = np.true_divide((1./CVal[Val_idx_2]) - min(1./CVal[Val_idx_2]), (max(1./CVal[Val_idx_2]) - min(1./CVal[Val_idx_2]) ) )
         else:
-               invScoreNorm = (1./Val[Val_idx[0]])
-
+               invScoreNorm = 1               
         invScoreNorm = erf(invScoreNorm)   
-        Orig2[IDX]   = np.sum(trainSimilarOrig*invScoreNorm)
+        Orig2[IDX]   = np.round(np.sum(trainSimilarOrig*invScoreNorm))
+        """
+
+        Orig2[IDX]   = np.round(np.median(trainSimilarOrig))
+
         robust_lockloss_prediction[IDX] = Orig2[IDX]
-        robust_lockloss_prediction_sigma[IDX] = np.std(trainSimilarOrig)
+        robust_lockloss_prediction_sigma[IDX] = np.std(trainSimilarOrig) 
 
     else:
         outlier_FLAG_2[IDX] = 1
@@ -256,13 +324,21 @@ LocklossTag       = robust_lockloss_prediction.values[0][0]
 Rfamp_sigma       = robust_Rfamp_prediction_sigma.values[0][0]
 LocklossTag_sigma = robust_lockloss_prediction_sigma.values[0][0]
 
-
-print("###############################################")
-print("Rayleigh Ground Motion (m/s): {}".format(Rfamp) )
-print("LocklossTag (1-No Lockloss / 2-Lockloss): {}".format(LocklossTag))
-print("Rfamp_sigma: {}".format(Rfamp_sigma))
-print("LocklossTag_sigma: {}".format(LocklossTag_sigma))
-print("###############################################")
+if (verbose != 0):
+    print("#################################################")
+    print("#############  SEISMON Results ##################")
+    print("Input EQ Parameters (Mag, Lat, Lon, Dist, Depth, Azi)")
+    print(testingData)
+    print("")
+    print('Nearby events picked up from the database...')
+    print(NearbyEvents)  
+    print('-----------------------------------------------')
+    print('-----------------------------------------------')    
+    print("Rayleigh Ground Motion (m/s): {}".format(Rfamp) )
+    print("LocklossTag (1-No Lockloss / 2-Lockloss): {}".format(LocklossTag))
+    print("Rfamp_sigma: {}".format(Rfamp_sigma))
+    print("LocklossTag_sigma: {}".format(LocklossTag_sigma))
+    print("###############################################")
 
             
 
