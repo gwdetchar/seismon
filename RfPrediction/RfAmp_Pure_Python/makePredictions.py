@@ -6,7 +6,7 @@
 ## Output file : predicted amplitude (m/s), lockloss_prediction(value btw 1&2 --> no lockloss to lockloss), uncertainity in both the predictions
 ##
 ## Example:
-##   python makePredictions.py -ifo 'H1' -mag 6.5 -lat -6.2 -lon 130.6 -dist 10690548.79 -depth 126.5 -azi 42.9
+##   python makePredictions.py -ifo 'H1' -mag 5.5 -lat -6.2 -lon 130.6 -dist 10690548.79 -depth 126.5 -azi 42.9
 ##
 ##
 ## Nikhil Mukund Menon (Last Edited : 16/8/2018)
@@ -179,7 +179,7 @@ for IDX in range(testingData.shape[0]):
     NearbyEvents = pd.DataFrame()
 
     # Select events within a threshold [EQ MAGNITUDE]
-    Val_thresh_2 = 1
+    Val_thresh_2 = 0.5
     Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]
     CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]
 
@@ -187,7 +187,7 @@ for IDX in range(testingData.shape[0]):
     if (len(Val_idx_2)  == 0):
         # Incerease the threshold and try again
         print('Increasing the threshold...')
-        Val_thresh_2 = 2
+        Val_thresh_2 = 1
         Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]
         CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]
 
@@ -263,12 +263,12 @@ for IDX in range(testingData.shape[0]):
     CID  = np.argsort(Ldist,axis=0)
 
     # Select events within a threshold [EQ PARAMETERS]
-    Val_thresh_2 = 1
+    Val_thresh_2 = 0.5
     Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]    
     CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]
     if (len(Val_idx_2)  == 0):
         # Incerease the threshold and try again        
-        Val_thresh_2 = 2
+        Val_thresh_2 = 1
         Val_idx_2 = np.where(CVal <= Val_thresh_2)[0]
         CTD   = TD.iloc[pd.DataFrame(CID[Val_idx_2])[0]]    
 
