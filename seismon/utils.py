@@ -443,7 +443,7 @@ def frame_struct(params):
 
             #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
             datacache.append(frame)
-        datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+        #datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
 
     elif params["ifo"] == "LUNAR":
         frameDir = "/home/mcoughlin/Lunar/data/"
@@ -511,7 +511,7 @@ def frame_struct(params):
 
             #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
             datacache.append(frame)
-        datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+        #datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
 
     elif params["ifo"] == "V1":
         fflFile = "/virgoData/ffl/rds.ffl"
@@ -542,7 +542,7 @@ def frame_struct(params):
 
             #cacheFile = glue.lal.CacheEntry("%s %s %d %d %s"%("XG","Homestake",gps,dur,frame))
             datacache.append(frame)
-        datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
+        #datacache = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, datacache))
 
     elif params["ifo"] == "IRIS":
         datacache = "IRIS"
@@ -558,10 +558,13 @@ def frame_struct(params):
 
         else:
             connection = glue.datafind.GWDataFindHTTPConnection()
-            datacache = connection.find_frame_urls(params["ifo"][0], params["frameType"],
+            frames = connection.find_frame_urls(params["ifo"][0], params["frameType"],
                                                    gpsStart, gpsEnd,
                                                    urltype="file",
                                                    on_gaps="warn")
+            datacache = []
+            for frame in frames:
+                datacache.append(frame.url.replace("file://localhost",""))
             connection.close()
 
     params["frame"] = datacache
@@ -1354,7 +1357,9 @@ def retrieve_timeseries(params,channel,segment):
                 continue
             frames.append(frame.url)
         frames = sorted(frames)
-        frames = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, frames))
+        #frames = glue.lal.Cache(map(glue.lal.CacheEntry.from_T050017, frames))
+
+        dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
 
         try:
             #dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd)
@@ -1374,6 +1379,8 @@ def retrieve_timeseries(params,channel,segment):
 
         # make timeseries
         #dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
+
+        dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
 
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)

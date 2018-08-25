@@ -503,7 +503,8 @@ def spectra(params, channel, segment):
     meanSamples = np.median(np.ma.masked_array(dataFull.value,np.isnan(dataFull.value)))
     for index in indexes:
         dataFull[index] = meanSamples
-    dataFull -= np.median(dataFull)
+    meanSamples = np.median(np.ma.masked_array(dataFull.value,np.isnan(dataFull.value)))
+    dataFull -= meanSamples * dataFull.unit
 
     if np.mean(dataFull.value) == 0.0:
         print("data only zeroes... continuing\n")
