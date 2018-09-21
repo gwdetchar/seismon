@@ -15,8 +15,11 @@ This program runs seismon_run.py.
 #
 # =============================================================================
 
-
 import os, time
+
+
+#stupid astropy cludge here
+os.system("mv /ligo/home/controls/.astropy/config/astropy.cfg /ligo/home/controls/.astropy/config/astropy.cfg.old")
 
 __author__ = "Michael Coughlin <coughlim@carleton.edu>"
 __date__ = "2012/2/7"
@@ -25,14 +28,17 @@ __version__ = "0.1"
 gpsEnd = int(os.popen("tconvert now").readline())
 
 while 1:
+   
+   #stupid astropy cludge here
+   os.system("mv /ligo/home/controls/.astropy/config/astropy.cfg /ligo/home/controls/.astropy/config/astropy.cfg.old")
 
-   paramsFile = "/Seismon/Seismon/seismon/input/seismon_params_earthquakesInfo.txt"
-
-   gpsStart = int(os.popen("tconvert now").readline()) - 3600
-   gpsEnd = gpsStart + 3600
+   paramsFile = "/usr/local/seismon/seismon/seismon/input/seismon_params_H1.txt"
+   timewindow = 10*3600
+   gpsStart = int(os.popen("tconvert now").readline()) - timewindow
+   gpsEnd = gpsStart + timewindow
 
    start_time = time.time()
-   os.system("/usr/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs --doPurge"%(paramsFile,gpsStart,gpsEnd))
+   os.system("/usr/local/seismon/ve/bin/python seismon_info -p %s -s %d -e %d --eventfilesType private --doEarthquakes --doEPICs --doPurge"%(paramsFile,gpsStart,gpsEnd))
    end_time = time.time()
    elapsed_time = end_time - start_time
    print "Elapsed time for Seismon: %f"%(elapsed_time)

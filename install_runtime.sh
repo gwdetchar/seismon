@@ -3,7 +3,7 @@
 # Instructions to install the MATLAB Compiler Runtime
 #
 # Create a folder for MATLAB Runtime (modify the default folder name )
-MATLAB_RUNTIME_R2016B="/home/mcoughlin/MATLAB_RUNTIME"
+MATLAB_RUNTIME_R2016B="/usr/local/seismon/MATLAB_RUNTIME"
 
 mkdir $MATLAB_RUNTIME_R2016B
 cd $MATLAB_RUNTIME_R2016B

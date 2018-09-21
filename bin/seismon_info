@@ -33,7 +33,6 @@ if not os.getenv("DISPLAY", None):
     matplotlib.use("agg", warn=False)
 
 #import lal.gpstime
-
 import seismon.eqmon
 
 __author__ = "Michael Coughlin <michael.coughlin@ligo.org>"
@@ -129,12 +128,12 @@ params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/"
 params["currentpath"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/" + "current"
 
 if params["doEarthquakes"]:
-    print params["path"]
+    print(params["path"])
     segmentlist = seismon.eqmon.run_earthquakes_info(params,[params["gpsStart"],params["gpsEnd"]])
 
 if params["doPurge"]:
     params["path"] = params["dirPath"] + "/" + "all" + "/" + params["runName"] + "/"
     #sys_command = "find %s/* -type d -mtime +1 -exec rm -rf {} \;"%params["path"]
-    sys_command = "find %s/* -type d -mmin +60 -exec rm -rf {} \;"%params["path"]
+    sys_command = "find %s* -type d -mmin +60 -exec rm -rf {} \;"%params["path"]
     os.system(sys_command)
 

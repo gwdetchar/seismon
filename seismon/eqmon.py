@@ -312,9 +312,10 @@ def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi
                 robust_lockloss_prediction[IDX] = 1
             robust_lockloss_prediction_sigma[IDX] = 0
 
-
-    return 10**robust_Rfamp_prediction, robust_lockloss_prediction, robust_Rfamp_prediction_sigma, robust_lockloss_prediction_sigma
-
+    if ifMultiple:
+        return 10**robust_Rfamp_prediction, robust_lockloss_prediction, robust_Rfamp_prediction_sigma, robust_lockloss_prediction_sigma
+    else:
+        return 10**robust_Rfamp_prediction[0], robust_lockloss_prediction[0], robust_Rfamp_prediction_sigma[0], robust_lockloss_prediction_sigma[0]
 
 def makePredictionsMATLAB(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi):
 
