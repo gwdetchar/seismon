@@ -174,7 +174,11 @@ def write_array(array):
     @param array
         write array of value
     """
-    text = ' '.join([str(x) for x in array])
+    if len(array) == 1:
+        array = np.array(array).flatten()
+        text = str(array[0])
+    else:
+        text = ' '.join([str(x) for x in array])
     return text
 
 def write_context(path):
