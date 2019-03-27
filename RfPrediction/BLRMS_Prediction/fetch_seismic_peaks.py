@@ -37,6 +37,9 @@ import os
 import argparse
 import configparser
 
+import numpy as np
+from scipy.fftpack import rfft, irfft, fftfreq
+
 matplotlib.use('agg')
 
 
@@ -56,7 +59,7 @@ parser = helpfulParser()
 parser.add_argument('-IFO','--IFO', type=str,  default='LLO', help='GW Observatory: LLO,LHO...')
 parser.add_argument('-ID','--ID', type=int,  default=0, help='Event ID: 0,1,...')
 parser.add_argument('-blrmsBand','--blrmsBand', type=str,  default='30M_100M', help='BLRMS Frequency Band: 30M_100M,100M_300M,300M_1,1_3,3_10,10_30')
-
+parser.add_argument('-eqBandpass','--eqBandpass', type=int,  default=0, help='EQ Bandpass: 0 or 1')
 parser.add_argument('-saveImage','--saveImage', type=int,  default=0, help='Save Image: 0 or 1')
 parser.add_argument('-saveData','--saveData', type=int,  default=0, help='Save data: 0 or 1')
 parser.add_argument('-saveResult','--saveResult', type=int,  default=0, help='Save results: 0 or 1')
@@ -69,6 +72,7 @@ blrms_band = args.blrmsBand
 saveImage = args.saveImage
 saveData  = args.saveData
 saveResult = args.saveResult
+eqBandpass = args.eqBandpass
 
 ###################  DEFINE FUNCTIONS #############################
 
@@ -305,9 +309,17 @@ dataX  = np.array(np.zeros([len(channels), LEN] ))
 
 count = 0
 for i in DATA:
-    dataX[count] = DATA[i].value
+    if eqBandpass:
+        W = fftfreq(DATA[i].value.size, d=np.array(DATA[i].dt.value))
+        f_signal = rfft(np.array(DATA[i].value))
+        cut_f_signal = f_signal.copy()
+        cut_f_signal[(W<20.0e-3)] = 0
+        cut_f_signal[(W>100.0e-3)] = 0
+        cut_signal = irfft(cut_f_signal)
+        dataX[count] = cut_signal
+    else:
+        dataX[count] = DATA[i].value
     count = count+1
-
 
 ##################### DETECT PEAKS #########################
 x = np.sum(np.log10(dataX),0)/dataX.shape[0]
