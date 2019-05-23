@@ -9,4 +9,4 @@
 *.swp
 /.idea
 .DS_store
-/seismon/RfPrediction/BLRMS_Prediction/Results
+/seismon/RfPrediction/BLRMS_Prediction/Results/Results_Condor
