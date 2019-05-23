@@ -9,3 +9,4 @@
 *.swp
 /.idea
 .DS_store
+/seismon/RfPrediction/BLRMS_Prediction/Results
