@@ -5,6 +5,7 @@ import csv
 import pickle
 import calendar
 import re
+import json
 
 matplotlib.use('Agg') 
 matplotlib.rcParams.update({'font.size': 18})
@@ -18,10 +19,7 @@ from operator import itemgetter
 #robust = seismon.robustLocklossPredictionPkg.initialize()
 import pandas as pd
 
-try:
-    import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
-except:
-    print("Glue import fails... no datafind possible.")
+from obspy.geodetics import degrees2kilometers, locations2degrees
 
 from lxml import etree
 import scipy.spatial
@@ -68,7 +66,9 @@ def makePredictionsV3(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,a
 
 def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
     #Get Mahalanobis Dist of test point from the training points (Ref: N. Mukund et al. DOI: 10.1088/1361-6382/ab0d2c)
-    P = cdist(trainData[['latitude','longitude']].values,[[lat,lon]],'mahalanobis').ravel()    
+
+    P = cdist(trainData[['latitude','longitude']].values,
+              [[lat,lon]],'mahalanobis').ravel()    
     # Sort as per minimum distance
     Val = np.sort(P,axis=0)
     ID  = np.argsort(P,axis=0)
@@ -94,22 +94,24 @@ def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor
     TD.loc[:,'scaleFac'] = scalingFac    
     predicted_peak_amplitude = np.sum (  (1.0/TD['cdist']) * TD[predictor] * TD['scaleFac'] ) / np.sum (  (1.0/TD['cdist'])) 
 
+    if np.isnan(predicted_peak_amplitude):
+        predicted_peak_amplitude = 0.0
 
     # Results (compatible with seismon client)
     Rfamp        =  predicted_peak_amplitude*1e-6
     if Rfamp     > locklossMotionThresh :
-        LocklossTag    =  2
+        LocklossTag    =  1
     else :
-        LocklossTag    = 1 
+        LocklossTag    = 0
     # Set standard deviations (currently set to 0)
     Rfamp_sigma       = 0
     LocklossTag_sigma = 0
     # Combine Rfamp & Lockloss results        
     robust_prediction = {'robust_Rfamp_prediction':Rfamp,'robust_lockloss_prediction':LocklossTag ,'robust_Rfamp_prediction_sigma':Rfamp_sigma ,'robust_lockloss_prediction_sigma':LocklossTag_sigma}
     # Save Results
-    if os.path.isdir('RESULTS')==False:
-        os.mkdir('RESULTS')
-    np.save("./RESULTS/robust_prediction",robust_prediction)
+    #if os.path.isdir('RESULTS')==False:
+    #    os.mkdir('RESULTS')
+    #np.save("./RESULTS/robust_prediction",robust_prediction)
 
     # Return results
     return(predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD)
@@ -421,7 +423,6 @@ def makePredictionsMATLAB(trainFile,testFile,predictionFile,mag,lat,lon,dist,dep
             LocklossTags.append(LocklossTag)
             Rfamps_sigma.append(Rfamp_sigma)
             LocklossTags_sigma.append(LocklossTag_sigma)
-            print(m, t, n, d, p, z,Rfamp,Rfamp_sigma)
         return (np.array(Rfamps),np.array(LocklossTags),np.array(Rfamps_sigma),np.array(LocklossTags_sigma))
     else:
         # Log transform
@@ -2061,22 +2062,8 @@ def read_eqmon(params,file):
     """
 
     attributeDic = {}
-    tree = etree.parse(file)
-    root = tree.getroot()       # get the document root
-    for element in root.iterchildren(): # now iter through it and print the text
-        if element.tag == "traveltimes":
-            attributeDic[element.tag] = {}
-            for subelement in element.iterchildren():
-                attributeDic[element.tag][subelement.tag] = {}
-                for subsubelement in subelement.iterchildren():
-                    textlist = subsubelement.text.replace("\n","").split(" ")
-                    floatlist = [float(x) for x in textlist]
-                    attributeDic[element.tag][subelement.tag][subsubelement.tag] = floatlist
-        else:
-            try:
-                attributeDic[element.tag] = float(element.text)
-            except:
-                attributeDic[element.tag] = element.text
+    with open(file) as json_file:
+        attributeDic = json.load(json_file)
 
     magThreshold = 0
     if not "Magnitude" in attributeDic or attributeDic["Magnitude"] < magThreshold:
@@ -2086,10 +2073,8 @@ def read_eqmon(params,file):
 
     attributeDic["doPlots"] = 0
     for ifoName, traveltimes in attributeDic["traveltimes"].items():
-        #arrivalMin = min([max(traveltimes["Rtimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
-        #arrivalMax = max([max(traveltimes["Rtimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
-        arrivalMin = min([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
-        arrivalMax = max([max(traveltimes["Rtwotimes"]),max(traveltimes["RthreePointFivetimes"]),max(traveltimes["Rfivetimes"]),max(traveltimes["Stimes"]),max(traveltimes["Ptimes"])])
+        arrivalMin = np.min([np.max(traveltimes["Rtwotimes"]),np.max(traveltimes["RthreePointFivetimes"]),np.max(traveltimes["Rfivetimes"]),np.max(traveltimes["Stimes"]),np.max(traveltimes["Ptimes"])])
+        arrivalMax = np.max([np.max(traveltimes["Rtwotimes"]),np.max(traveltimes["RthreePointFivetimes"]),np.max(traveltimes["Rfivetimes"]),np.max(traveltimes["Stimes"]),np.max(traveltimes["Ptimes"])])
 
         attributeDic["traveltimes"][ifoName]["arrivalMin"] = arrivalMin
         attributeDic["traveltimes"][ifoName]["arrivalMax"] = arrivalMax
@@ -2491,11 +2476,11 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
     scriptpath = os.path.join(seismonpath,'input')
 
     if ifo == "LLO":
-        trainFile = os.path.join(scriptpath,'L1O1O2_GPR_earthquakes.txt')
+        trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
     elif ifo == "Virgo":
-        trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
+        trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
     else:
-        trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
+        trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
 
     N = 10
     randstr = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -2522,14 +2507,17 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
         az = fwd*np.ones(distances.shape)
 
         Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape)
-        (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
- 
-        if pred:
-            try:
-                (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
-                Lockloss = Lockloss - 1
-            except:
-                pass
+
+        for ii in range(len(distances)):
+            (Rfamp[ii], Lockloss[ii],Rfamp_sigma[ii],Lockloss_sigma[ii]) = makePredictionsV3(
+                trainFile,testFile,predictionFile, 
+                attributeDic["Magnitude"],
+                attributeDic["Latitude"],attributeDic["Longitude"],
+                distances[ii],depth,az[ii],
+                siteLat=ifolat, siteLon=ifolon,
+                thresh=0.1,predictor='peak_data_um_mean_subtracted',
+                locklossMotionThresh=10*1e-6)
+
     else:
         distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
         distances = np.linspace(0,distance,100)
@@ -2541,14 +2529,16 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
             depth = 2.0
 
         Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape), -1*np.ones(distances.shape)
-        (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
 
-        if pred:
-            try:
-                (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,M,lat,lon,distances,h,az)
-                Lockloss = Lockloss - 1
-            except:
-                pass
+        for ii in range(len(distances)):
+            (Rfamp[ii], Lockloss[ii],Rfamp_sigma[ii],Lockloss_sigma[ii]) = makePredictionsV3(
+                trainFile,testFile,predictionFile,
+                attributeDic["Magnitude"],
+                attributeDic["Latitude"],attributeDic["Longitude"],
+                distances[ii],depth,az[ii],
+                siteLat=ifolat, siteLon=ifolon,
+                thresh=0.1,predictor='peak_data_um_mean_subtracted',
+                locklossMotionThresh=10*1e-6)
 
     if os.path.isfile(testFile):
         os.remove(testFile)
@@ -2582,7 +2572,6 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
     sarrivals = sarrivals[:,index]
 
     for distance, degree, parrival, sarrival in zip(distances, degrees,parrivals,sarrivals):
-
         lon, lat, baz = shoot(attributeDic["Longitude"], attributeDic["Latitude"], fwd, distance/1000)
         lats.append(lat)
         lons.append(lon)
@@ -2907,25 +2896,25 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon,pred=True):
     distance,fwd,back = gps2dist_azimuth(attributeDic["Latitude"],attributeDic["Longitude"],ifolat,ifolon)
     degree = (distance/6370000)*(180/np.pi)
 
-    ptime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
-        attributeDic["traveltimes"]["Arbitrary"]["Ptimes"])
-    stime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
-        attributeDic["traveltimes"]["Arbitrary"]["Stimes"])
-    rtwotime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
-        attributeDic["traveltimes"]["Arbitrary"]["Rtwotimes"])
-    rthreePointFivetime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
-        attributeDic["traveltimes"]["Arbitrary"]["RthreePointFivetimes"])
-    rfivetime_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
-        attributeDic["traveltimes"]["Arbitrary"]["Rfivetimes"])
-    rfamp_interp = np.interp(distance, attributeDic["traveltimes"]["Arbitrary"]["Distances"],\
-        attributeDic["traveltimes"]["Arbitrary"]["Rfamp"])
+    ptime_interp = np.interp(distance, np.array(attributeDic["traveltimes"]["Arbitrary"]["Distances"]),\
+        np.array(attributeDic["traveltimes"]["Arbitrary"]["Ptimes"]))
+    stime_interp = np.interp(distance, np.array(attributeDic["traveltimes"]["Arbitrary"]["Distances"]),\
+        np.array(attributeDic["traveltimes"]["Arbitrary"]["Stimes"]))
+    rtwotime_interp = np.interp(distance, np.array(attributeDic["traveltimes"]["Arbitrary"]["Distances"]),\
+        np.array(attributeDic["traveltimes"]["Arbitrary"]["Rtwotimes"]))
+    rthreePointFivetime_interp = np.interp(distance, np.array(attributeDic["traveltimes"]["Arbitrary"]["Distances"]),\
+        np.array(attributeDic["traveltimes"]["Arbitrary"]["RthreePointFivetimes"]))
+    rfivetime_interp = np.interp(distance, np.array(attributeDic["traveltimes"]["Arbitrary"]["Distances"]),\
+        np.array(attributeDic["traveltimes"]["Arbitrary"]["Rfivetimes"]))
+    rfamp_interp = np.interp(distance, np.array(attributeDic["traveltimes"]["Arbitrary"]["Distances"]),\
+        np.array(attributeDic["traveltimes"]["Arbitrary"]["Rfamp"]))
 
     if ifo == "LLO":
-        trainFile = os.path.join(scriptpath,'L1O1O2_GPR_earthquakes.txt')
+        trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
     elif ifo == "Virgo":
-        trainFile = os.path.join(scriptpath,'V1O1O2_GPR_earthquakes.txt')
+        trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
     else:
-        trainFile = os.path.join(scriptpath,'H1O1O2_GPR_earthquakes.txt')
+        trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
 
     N = 10
     randstr = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(N))
@@ -2933,13 +2922,15 @@ def ifotraveltimes_loc(attributeDic,ifo,ifolat,ifolon,pred=True):
     predictionFile = "/tmp/prediction_%s.csv"%randstr
 
     Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma = -1, -1, -1, -1
-    if pred:
-        try:
-            (Rfamp, Lockloss, Rfamp_sigma, Lockloss_sigma) = makePredictions(trainFile,testFile,predictionFile,attributeDic["Magnitude"],attributeDic["Latitude"],attributeDic["Longitude"],distance,attributeDic["Depth"],fwd)
-            Lockloss = Lockloss - 1
-        except:
-            pass
-
+    (Rfamp, Lockloss,Rfamp_sigma,Lockloss_sigma) = makePredictionsV3(
+                trainFile,testFile,predictionFile,
+                attributeDic["Magnitude"],
+                attributeDic["Latitude"],attributeDic["Longitude"],
+                distance,attributeDic["Depth"],fwd,
+                siteLat=ifolat, siteLon=ifolon,
+                thresh=0.1,predictor='peak_data_um_mean_subtracted',
+                locklossMotionThresh=10*1e-6)
+   
     if os.path.isfile(testFile):
         os.remove(testFile)
     if os.path.isfile(predictionFile):
@@ -3027,13 +3018,13 @@ def retrieve_earthquakes(params,gpsStart,gpsEnd):
     for eventfilesType in eventfilesTypes:
 
         eventfilesLocation = os.path.join(params["eventfilesLocation"],eventfilesType)
-        files = glob.glob(os.path.join(eventfilesLocation,"*.xml"))
+        files = glob.glob(os.path.join(eventfilesLocation,"*.json"))
 
         for numFile in range(len(files)):
 
             file = files[numFile]
 
-            fileSplit = file.replace(".xml","").split("-")
+            fileSplit = file.replace(".json","").split("-")
             gps = float(fileSplit[-1])
             if (gps < gpsStart - 3600) or (gps > gpsEnd):
                 continue
@@ -3120,7 +3111,7 @@ def shoot(lon, lat, azimuth, maxdist=None):
     tu = s / (r * a * c)
     y = tu
     c = y + 1
-    while (np.abs (y - c) > EPS):
+    while (np.sum(np.abs (y - c)) > EPS):
 
         sy = np.sin(y)
         cy = np.cos(y)

@@ -151,11 +151,11 @@ def predict_events():
     neqs, ncols = events.shape
 
     for event in events:
-        gpsMin = event[8]
-        gpsMax = event[9]
+        gpsMin = event[9]
+        gpsMax = event[10]
    
         filename = os.path.join(params["inputFileDirectory"],"%d-%d.txt"%(gpsMin,gpsMax))
- 
+
         if not os.path.isfile(filename):
             continue
         data_out_vel = np.loadtxt(filename)
@@ -174,10 +174,11 @@ def predict_events():
 
         if ncols == 15:
             fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f nan nan nan nan nan nan nan nan nan %.1f %.5e %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1],data_out_disp[1,0],data_out_disp[1,1]))
-        elif ncols == 24:
+        elif ncols == 27:
             fid.write("%.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %d %d %.1f %.1f %e %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.1f %.5e %.1f %.5e %.1f %.5e\n"%(event[0],event[1],event[2],event[3],event[4],event[5],event[6],event[7],event[8],event[9],event[10],event[11],event[12],event[13],event[14],event[15],event[16],event[17],event[18],event[19],event[20],event[21],event[22],event[23],data_out_vel[1,0],data_out_vel[1,1],data_out_acc[1,0],data_out_acc[1,1],data_out_disp[1,0],data_out_disp[1,1]))
         else:
-            error("Incorrect number of columns")
+            print("Incorrect number of columns")
+            exit(0)
 
         print gpsMin, gpsMax
 

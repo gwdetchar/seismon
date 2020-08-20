@@ -9,7 +9,6 @@ import seismon.utils
 try:
     import gwpy.time, gwpy.timeseries
     import gwpy.frequencyseries, gwpy.spectrogram
-    import gwpy.plotter
 except:
     print("gwpy import fails... no plotting possible.")
 

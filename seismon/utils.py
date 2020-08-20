@@ -7,19 +7,12 @@ from collections import namedtuple
 from datetime import datetime, timedelta
 from lxml import etree
 
-try:
-    import lal.gpstime
-except:
-    print("No lal installed...")
 import astropy.time
 from astropy import units
 
 import __future__
 
-try:
-    import glue.datafind, glue.segments, glue.segmentsUtils, glue.lal
-except:
-    print("Glue import fails... no datafind possible.")
+import ligo.segments as segments
 
 import seismon.NLNM, seismon.html
 import seismon.eqmon
@@ -390,15 +383,15 @@ def segment_struct(params):
         
         params["segments"] = segmentlist
     elif params["doSegmentsTextFile"]:
-        segmentlist = glue.segments.segmentlist()
+        segmentlist = segments.segmentlist()
         segs = np.loadtxt(params["segmentsTextFile"])
         for seg in segs:
-            segmentlist.append(glue.segments.segment(seg[0],seg[1]))
+            segmentlist.append(segments.segment(seg[0],seg[1]))
         params["segments"] = segmentlist
         params["gpsStart"] = np.min(params["segments"])
         params["gpsEnd"] = np.max(params["segments"])
     else:
-        segmentlist = [glue.segments.segment(params["gpsStart"],params["gpsEnd"])]
+        segmentlist = [segments.segment(params["gpsStart"],params["gpsEnd"])]
         params["segments"] = segmentlist
 
     return params
@@ -1380,8 +1373,6 @@ def retrieve_timeseries(params,channel,segment):
         # make timeseries
         #dataFull = gwpy.timeseries.TimeSeries.read(frames, channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
 
-        dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
-
         try:
             dataFull = gwpy.timeseries.TimeSeries.read(params["frame"], channel.station, start=gpsStart, end=gpsEnd, gap='pad', pad = 0.0)
         except:
@@ -1437,14 +1428,14 @@ def flag_struct(params,segment):
     """
 
     if not "flagList" in params:
-        params["flagList"] = glue.segments.segmentlist()
+        params["flagList"] = segments.segmentlist()
 
     gpsStart = segment[0]
     gpsEnd = segment[1]
 
     # set the times
     duration = np.ceil(gpsEnd-gpsStart)
-    segmentlist = glue.segments.segmentlist()
+    segmentlist = segments.segmentlist()
 
     if params["doFlagsDatabase"]:
         print("Generating flags from database")
@@ -1455,7 +1446,7 @@ def flag_struct(params,segment):
         for line in lines:
             lineSplit = line.split(",")
             seg = [float(lineSplit[0]),float(lineSplit[1])]
-            segmentlist.append(glue.segments.segment(seg[0],seg[1]))
+            segmentlist.append(segments.segment(seg[0],seg[1]))
 
     elif params["doFlagsChannel"]:
         print("Generating flags from timeseries")
@@ -1526,13 +1517,13 @@ def run_flags_analysis(params,segment):
     noticesDirectory = os.path.join(params["path"],"notices")
     noticesFile = os.path.join(noticesDirectory,"notices.txt")
 
-    segmentlist = glue.segments.segmentlist()
+    segmentlist = segments.segmentlist()
     segs = np.loadtxt(noticesFile)
     try:
         for seg in segs:
-            segmentlist.append(glue.segments.segment(seg[0],seg[0]+seg[1]))
+            segmentlist.append(segments.segment(seg[0],seg[0]+seg[1]))
     except:
-            segmentlist.append(glue.segments.segment(segs[0],segs[0]+segs[1]))
+            segmentlist.append(segments.segment(segs[0],segs[0]+segs[1]))
     earthquake_segmentlist = segmentlist
     earthquake_segmentlist.coalesce()
     earthquake_segmentlist_duration = segmentlist_duration(earthquake_segmentlist)
