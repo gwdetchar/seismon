@@ -51,6 +51,78 @@ try:
 except:
     print("No geopy installed...")
 
+
+############################# makePredictionsV3.py #############################
+
+def makePredictionsV3(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi,
+                                        siteLat=30.562894,siteLon=-90.774242,
+                                        thresh=0.1,predictor='peak_data_um_mean_subtracted',
+                                        locklossMotionThresh=10*1e-6):
+    trainData = pd.read_csv(trainFile)
+    (predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD) = make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh)
+    return predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma
+
+#--------------------  makePredictionsV3.py : Sub-functions -----------------------#
+
+
+
+def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
+    #Get Mahalanobis Dist of test point from the training points (Ref: N. Mukund et al. DOI: 10.1088/1361-6382/ab0d2c)
+    P = cdist(trainData[['latitude','longitude']].values,[[lat,lon]],'mahalanobis').ravel()    
+    # Sort as per minimum distance
+    Val = np.sort(P,axis=0)
+    ID  = np.argsort(P,axis=0)
+    # Select events within a threshold [LOCATION]
+    Val_thresh = thresh # 0.1
+    Val_idx = np.where(Val <= Val_thresh)[0]
+    # deal with empty arrays
+    if Val_idx.size==0:
+        Val_thresh = np.inf # use all data
+        Val_idx = np.where(Val <= Val_thresh)[0]
+    TD   = trainData.iloc[pd.DataFrame(ID[Val_idx])[0]]
+    TD=TD.reset_index(drop=True)
+    TD.loc[:,'cdist'] = Val[Val_idx]
+    # greatCircleDist
+    gcDist = degrees2kilometers(locations2degrees(TD['latitude'].values,TD['longitude'].values, siteLat,siteLon))
+    # greatCircleDistEvent
+    gcDistEvent = degrees2kilometers(locations2degrees(lat,lon, siteLat,siteLon))
+    TD.loc[:,'gcDist'] = gcDist
+    # get scaleFac
+    scalingFac=np.zeros(TD.shape[0])
+    for ijk in range(len(TD)):
+        scalingFac[ijk] = scaleFac(mag,gcDistEvent,depth,TD['mag'].iloc[ijk],gcDist[ijk],TD['depth'].iloc[ijk])
+    TD.loc[:,'scaleFac'] = scalingFac    
+    predicted_peak_amplitude = np.sum (  (1.0/TD['cdist']) * TD[predictor] * TD['scaleFac'] ) / np.sum (  (1.0/TD['cdist'])) 
+
+
+    # Results (compatible with seismon client)
+    Rfamp        =  predicted_peak_amplitude*1e-6
+    if Rfamp     > locklossMotionThresh :
+        LocklossTag    =  2
+    else :
+        LocklossTag    = 1 
+    # Set standard deviations (currently set to 0)
+    Rfamp_sigma       = 0
+    LocklossTag_sigma = 0
+    # Combine Rfamp & Lockloss results        
+    robust_prediction = {'robust_Rfamp_prediction':Rfamp,'robust_lockloss_prediction':LocklossTag ,'robust_Rfamp_prediction_sigma':Rfamp_sigma ,'robust_lockloss_prediction_sigma':LocklossTag_sigma}
+    # Save Results
+    if os.path.isdir('RESULTS')==False:
+        os.mkdir('RESULTS')
+    np.save("./RESULTS/robust_prediction",robust_prediction)
+
+    # Return results
+    return(predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD)
+
+#Seismic Amplitude Scaling Factor (Ref: M Coughlin et al. DOI: 10.1088/1361-6382/aa5a60 )
+def scaleFac(m1,r1,h1,m2,r2,h2,b=1.31,c=4672.83,d=0.81):
+    scaleFac = m1*(1.0/m2) * ( 10**(0.5*b*(m1-m2)) ) * (((r2) * (1.0/r1))**d)  * (np.exp(1))**(2*np.pi*(1.0/c)* (  (h2* 10**(2.3-0.5*m2) ) - (h1*10**(2.3-0.5*m1) )   )  )
+    return scaleFac
+
+    
+############################# --------------------------- #############################
+
+
 def makePredictions(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi):
 
     try:
