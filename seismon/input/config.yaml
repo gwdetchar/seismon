@@ -1,0 +1,9 @@
+[database]
+database = seismon
+host = localhost
+port = 5432
+user = seismon
+password =
+
+[pdlcient]
+directory = /Users/mcoughlin/Code/LIGO/Seismon/ProductClient/data/receiver_storage/origin 
