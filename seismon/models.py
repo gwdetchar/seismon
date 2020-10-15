@@ -7,6 +7,7 @@ import simplejson as json
 import enum
 import os
 import glob
+import time
 import copy
 import configparser
 
@@ -429,6 +430,30 @@ def ingest_earthquakes(config, lookback, repeat=False):
             DBSession().commit()
 
 
+def run_seismon(purge=False, init_db=False):
+
+    if purge:
+        sys_command = "find %s/* -type d -mtime +7 -exec rm -rf {} \;" % config["pdlcient"]["directory"]
+        os.system(sys_command)
+
+    if init_db:
+        ingest_earthquakes(config, args.lookback, repeat=True)
+    else:
+        ingest_earthquakes(config, args.lookback)
+
+    ifos = Ifo.query.all()
+    eqs = Earthquake.query.all()
+
+    for eq in eqs:
+        for det in ifos:
+            preds = Prediction.query.filter_by(event_id=eq.event_id,
+                                               ifo=det.ifo).all()
+            if len(preds) == 0:
+                compute_predictions(eq, det)
+            pred = Prediction.query.filter_by(event_id=eq.event_id,
+                                              ifo=det.ifo).one()
+            print(pred)
+
 if __name__ == "__main__":
 
     from argparse import ArgumentParser
@@ -438,6 +463,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', '--purge', action='store_true', default=False)
     parser.add_argument('-C', '--config', default='input/config.yaml')
     parser.add_argument('-l', '--lookback', default=7, help='lookback in days')
+    parser.add_argument("-d", "--debug", action="store_true", default=False)
 
     args = parser.parse_args()
 
@@ -464,24 +490,14 @@ if __name__ == "__main__":
             print(f' - {m}')
         ingest_ifos()
 
-    if args.purge:
-        sys_command = "find %s/* -type d -mtime +7 -exec rm -rf {} \;" % config["pdlcient"]["directory"]
-        os.system(sys_command)
+    if args.debug:
+        run_seismon(purge=args.purge, init_db=args.init_db)
+        exit(0)
 
-    if args.init_db:
-        ingest_earthquakes(config, args.lookback, repeat=True)
-    else:
-        ingest_earthquakes(config, args.lookback)
-
-    ifos = Ifo.query.all()
-    eqs = Earthquake.query.all()
-
-    for eq in eqs:
-        for det in ifos:
-            preds = Prediction.query.filter_by(event_id=eq.event_id,
-                                               ifo=det.ifo).all()
-            if len(preds) == 0:
-                compute_predictions(eq, det)
-            pred = Prediction.query.filter_by(event_id=eq.event_id,
-                                              ifo=det.ifo).one()          
-            print(pred)
+    while True:
+        #try:
+        print('Looking for some earthquakes to analyze!')
+        run_seismon(purge=args.purge, init_db=args.init_db)
+        #except:
+        #    pass
+        time.sleep(15)
