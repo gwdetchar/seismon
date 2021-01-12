@@ -136,9 +136,9 @@ def init_db(user, database, password=None, host=None, port=None):
     url = 'postgresql://{}:{}@{}:{}/{}'
     url = url.format(user, password or '', host or '', port or '', database)
 
-    conn = sa.create_engine(url, client_encoding='utf8',
-                            executemany_mode='values',
-                            executemany_values_page_size=EXECUTEMANY_PAGESIZE)
+    conn = sa.create_engine(url, client_encoding='utf8')
+#                            executemany_mode='values',
+#                            executemany_values_page_size=EXECUTEMANY_PAGESIZE)
 
     DBSession.configure(bind=conn)
     Base.metadata.bind = conn
@@ -227,6 +227,11 @@ class Prediction(Base):
         nullable=False,
         comment='Detector name')
 
+    D = sa.Column(
+        sa.Float,
+        nullable=False,
+        comment='Distance [km]')
+
     P = sa.Column(
         sa.DateTime,
         nullable=False,
@@ -265,11 +270,12 @@ class Prediction(Base):
 
 def compute_predictions(earthquake, ifo):
 
-    Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
+    Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
+				 D=Dist,
                                  P=Ptime,
                                  S=Stime,
                                  R2p0=Rtwotime,
@@ -297,6 +303,7 @@ def compute_traveltimes(earthquake, ifo):
                                          eqlon,
                                          ifolat,
                                          ifolon)
+    Dist = distance/1000
     degree = (distance/6370000)*(180/np.pi)
 
     model = TauPyModel(model="iasp91")
@@ -319,7 +326,7 @@ def compute_traveltimes(earthquake, ifo):
     except:
         Ptime, Stime = Rtwotime, Rtwotime 
 
-    return Ptime.datetime, Stime.datetime, Rtwotime.datetime, RthreePointFivetime.datetime, Rfivetime.datetime
+    return Dist, Ptime.datetime, Stime.datetime, Rtwotime.datetime, RthreePointFivetime.datetime, Rfivetime.datetime
 
 
 def compute_amplitudes(earthquake, ifo):
@@ -376,6 +383,9 @@ def ingest_ifos():
 
 def ingest_earthquakes(config, lookback, repeat=False):
 
+# convert lookback to TimeDelta
+    lookbackTD = TimeDelta(lookback,format='jd')
+
     folders = glob.glob(os.path.join(config["pdlcient"]["directory"],"*"))
     for folder in folders:
         folderSplit = folder.split("/")
@@ -414,7 +424,7 @@ def ingest_earthquakes(config, lookback, repeat=False):
             date = Time(attributeDic["Time"], format='isot', scale='utc') 
             sent = Time(attributeDic["Sent"], format='isot', scale='utc')
 
-            if Time.now() - date > lookback: continue
+            if Time.now() - date > lookbackTD: continue
 
             eqs = Earthquake.query.filter_by(event_id=attributeDic["eventName"]).all()
             if len(eqs) > 0: continue
