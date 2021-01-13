@@ -173,12 +173,14 @@ class Earthquake(Base):
     magnitude = sa.Column(
         sa.Float,
         nullable=False,
-        comment='Magnitude')
+        comment='Magnitude',
+        index=True)
 
     date = sa.Column(
         sa.DateTime,
         nullable=False,
-        comment='UTC event timestamp')
+        comment='UTC event timestamp',
+        index=True)
 
     sent = sa.Column(
         sa.DateTime,
@@ -225,7 +227,8 @@ class Prediction(Base):
         sa.String,
         sa.ForeignKey(Ifo.ifo),
         nullable=False,
-        comment='Detector name')
+        comment='Detector name',
+        index=True)
 
     D = sa.Column(
         sa.Float,
