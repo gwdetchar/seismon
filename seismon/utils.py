@@ -12,7 +12,7 @@ from astropy import units
 
 import __future__
 
-import ligo.segments as segments
+#import ligo.segments as segments
 
 import seismon.NLNM, seismon.html
 import seismon.eqmon
