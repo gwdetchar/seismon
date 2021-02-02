@@ -2022,13 +2022,17 @@ def read_quakeml(file,eventName):
     #attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
     attributeDic['UTC'] = float(dt.strftime("%s"))
 
-    attributeDic["Sent"] = dic["eventParameters"]["event"]["creationInfo"]["creationTime"]
-    timeString = attributeDic["Sent"].replace("T"," ").replace("Z","")
-    dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
-    tm = time.struct_time(dt.timetuple())
-    attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
-    #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
-    attributeDic['SentUTC'] = float(dt.strftime("%s"))
+    try:
+        attributeDic["Sent"] = dic["eventParameters"]["event"]["creationInfo"]["creationTime"]
+        timeString = attributeDic["Sent"].replace("T"," ").replace("Z","")
+        dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+        tm = time.struct_time(dt.timetuple())
+        attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+        #attributeDic['SentGPS'] = float(lal.gpstime.utc_to_gps(dt))
+        attributeDic['SentUTC'] = float(dt.strftime("%s"))
+    except:
+        attributeDic['SentGPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
+        attributeDic['SentUTC'] = float(time.time())
 
     attributeDic["DataSource"] = dic["eventParameters"]["event"]["creationInfo"]["agencyID"]
     #attributeDic["Version"] = float(dic["eventParameters"]["event"]["creationInfo"]["version"])
