@@ -18,6 +18,7 @@ from astropy.time import Time, TimeDelta
 import pkg_resources
 import numpy as np
 import pandas as pd
+from os.path import basename,splitext 
 
 import sqlalchemy as sa
 from sqlalchemy.ext.associationproxy import association_proxy
@@ -26,6 +27,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import create_engine  
 from arrow.arrow import Arrow
 
 from obspy.geodetics.base import gps2dist_azimuth
@@ -230,42 +232,42 @@ class Prediction(Base):
         comment='Detector name',
         index=True)
 
-    D = sa.Column(
+    d = sa.Column(
         sa.Float,
         nullable=False,
         comment='Distance [km]')
 
-    P = sa.Column(
+    p = sa.Column(
         sa.DateTime,
         nullable=False,
         comment='P-wave time')
 
-    S = sa.Column(
+    s = sa.Column(
         sa.DateTime,
         nullable=False,
         comment='S-wave time')
 
-    R2p0 = sa.Column(
+    r2p0 = sa.Column(
            sa.DateTime,
            nullable=False,
            comment='R-2.0 km/s-wave time')
 
-    R3p5 = sa.Column(
+    r3p5 = sa.Column(
            sa.DateTime,
            nullable=False,
            comment='R-3.5 km/s-wave time')
 
-    R5p0 = sa.Column(
+    r5p0 = sa.Column(
            sa.DateTime,
            nullable=False,
            comment='R-5.0 km/s-wave time')
 
-    Rfamp = sa.Column(
+    rfamp = sa.Column(
             sa.Float,
             nullable=False,
             comment='Earthquake amplitude predictions [m/s]')
 
-    Lockloss = sa.Column(
+    lockloss = sa.Column(
                sa.INT,
                nullable=False,
                comment='Earthquake amplitude predictions [m/s]')
@@ -278,14 +280,14 @@ def compute_predictions(earthquake, ifo):
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
-				 D=Dist,
-                                 P=Ptime,
-                                 S=Stime,
-                                 R2p0=Rtwotime,
-                                 R3p5=RthreePointFivetime,
-                                 R5p0=Rfivetime,
-                                 Rfamp=Rfamp,
-                                 Lockloss=int(Lockloss)))
+				 d=Dist,
+                                 p=Ptime,
+                                 s=Stime,
+                                 r2p0=Rtwotime,
+                                 r3p5=RthreePointFivetime,
+                                 r5p0=Rfivetime,
+                                 rfamp=Rfamp,
+                                 lockloss=int(Lockloss)))
     print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))
     DBSession().commit()
 
@@ -352,7 +354,21 @@ def compute_amplitudes(earthquake, ifo):
     else:
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
 
-    trainData = pd.read_csv(trainFile)
+    
+    # Read from CSV file (OLD-WAY)
+    #trainData = pd.read_csv(trainFile)
+
+
+    # Read from the SQL database (NE-WAY but not the ideal way since engine is created in every call)
+    try:
+        engine = create_engine('postgresql+psycopg2://seismon:seismon@localhost:5432/seismon')
+        catalogue_name = splitext(basename(trainFile))[0].lower()  
+        trainData = pd.read_sql_query('select * from public.{}'.format(catalogue_name),con=engine)  
+    except Exception as Excep: 
+        print(Excep)
+        print('Error occured. Could not connect to database. Reverting back to CSV based data fetching.')
+        trainData = pd.read_csv(trainFile)
+
 
     thresh=0.1
     predictor='peak_data_um_mean_subtracted'
