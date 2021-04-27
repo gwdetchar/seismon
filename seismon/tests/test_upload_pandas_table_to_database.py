@@ -6,7 +6,7 @@ import pandas as pd
 
 engine = create_engine('postgresql+psycopg2://seismon:seismon@localhost:5432/seismon')
 
-csv_file_path='/home/nmukund/eq_amplitude_prediction/INPUT_DATA/LLO_processed_USGS_global_EQ_catalogue.csv'
+csv_file_path='../input/LLO_processed_USGS_global_EQ_catalogue.csv'
 
 
 # user inputs ends
