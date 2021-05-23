@@ -3,7 +3,7 @@ database = seismon
 host = localhost
 port = 5432
 user = seismon
-password =
+password = seismon
 
 [pdlcient]
-directory = /Users/mcoughlin/Code/LIGO/Seismon/ProductClient/data/receiver_storage/origin 
+directory = /home/nmukund/ProductClient/data/receiver_storage/origin 

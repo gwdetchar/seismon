@@ -36,7 +36,6 @@ from obspy.taup import TauPyModel
 import seismon
 from seismon import (eqmon, utils)
 
-
 DBSession = scoped_session(sessionmaker())
 EXECUTEMANY_PAGESIZE = 50000
 utcnow = func.timezone('UTC', func.current_timestamp())
@@ -277,7 +276,7 @@ def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
-
+    
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
 				 d=Dist,
@@ -359,20 +358,19 @@ def compute_amplitudes(earthquake, ifo):
     #trainData = pd.read_csv(trainFile)
 
 
-    # Read from the SQL database (NE-WAY but not the ideal way since engine is created in every call)
+    # Read from the SQL database 
     try:
-        engine = create_engine('postgresql+psycopg2://seismon:seismon@localhost:5432/seismon')
         catalogue_name = splitext(basename(trainFile))[0].lower()  
-        trainData = pd.read_sql_query('select * from public.{}'.format(catalogue_name),con=engine)  
+        trainData = pd.read_sql_query('select * from public.{}'.format(catalogue_name),con=conn)  
     except Exception as Excep: 
         print(Excep)
         print('Error occured. Could not connect to database. Reverting back to CSV based data fetching.')
         trainData = pd.read_csv(trainFile)
 
 
-    thresh=0.1
+    thresh=0.1 #used to limit the geographical extend (latitude & longitude) to search around the current event
     predictor='peak_data_um_mean_subtracted'
-    locklossMotionThresh=10*1e-6
+    locklossMotionThresh= 1*1e-6 # thresold for the predicted ground motion (in m/s) above which a lockloss flag is activated
 
     (predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD) = eqmon.make_prediction(trainData,
                     eqlat,
@@ -382,7 +380,7 @@ def compute_amplitudes(earthquake, ifo):
                     ifolat,
                     ifolon,
                     thresh,predictor,locklossMotionThresh)
-    
+    #print(TD)
     return predicted_peak_amplitude, LocklossTag 
 
 
@@ -477,6 +475,8 @@ def run_seismon(purge=False, init_db=False):
         for det in ifos:
             preds = Prediction.query.filter_by(event_id=eq.event_id,
                                                ifo=det.ifo).all()
+
+    
             if len(preds) == 0:
                 compute_predictions(eq, det)
             pred = Prediction.query.filter_by(event_id=eq.event_id,
