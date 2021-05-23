@@ -35,6 +35,12 @@ from obspy.taup import TauPyModel
 
 import seismon
 from seismon import (eqmon, utils)
+from seismon.config import app
+
+from flask_login.mixins import UserMixin
+from flask_sqlalchemy import SQLAlchemy
+
+db = SQLAlchemy(app)
 
 DBSession = scoped_session(sessionmaker())
 EXECUTEMANY_PAGESIZE = 50000
@@ -269,7 +275,7 @@ class Prediction(Base):
     lockloss = sa.Column(
                sa.INT,
                nullable=False,
-               comment='Earthquake amplitude predictions [m/s]')
+               comment='Earthquake lockloss prediction')
 
 
 def compute_predictions(earthquake, ifo):
@@ -421,7 +427,7 @@ def ingest_earthquakes(config, lookback, repeat=False):
 
             if not repeat:
                 if os.path.isfile(os.path.join(timeFolder,"eqxml.txt")):
-                    return
+                    continue
 
             f = open(os.path.join(timeFolder,"eqxml.txt"),"w")
             f.write("Done")
@@ -433,10 +439,10 @@ def ingest_earthquakes(config, lookback, repeat=False):
                 attributeDic = eqmon.read_quakeml(quakemlfile,eventName)
 
             if attributeDic == []:
-                return
+                continue
 
             if (not "GPS" in attributeDic) or (not "Magnitude" in attributeDic):
-                return
+                continue
 
             date = Time(attributeDic["Time"], format='isot', scale='utc') 
             sent = Time(attributeDic["Sent"], format='isot', scale='utc')

@@ -103,9 +103,6 @@ def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor
         LocklossTag    =  1
     else :
         LocklossTag    = 0
-    print(Rfamp,locklossMotionThresh)  
-    print(type(Rfamp),type(locklossMotionThresh))
-    print(LocklossTag)
     # Set standard deviations (currently set to 0)
     Rfamp_sigma       = 0
     LocklossTag_sigma = 0

@@ -1,2 +1,5 @@
+include versioneer.py
+include seismon/_version.py
 include input/*
 recursive-include input/*
+recursive-include kp84/templates *

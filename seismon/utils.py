@@ -14,7 +14,7 @@ import __future__
 
 #import ligo.segments as segments
 
-import seismon.NLNM, seismon.html
+import seismon.NLNM
 import seismon.eqmon
 
 try:
