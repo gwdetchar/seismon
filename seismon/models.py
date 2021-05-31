@@ -272,6 +272,7 @@ class Prediction(Base):
                comment='Earthquake amplitude predictions [m/s]')
 
 
+
 def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
