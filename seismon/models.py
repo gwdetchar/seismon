@@ -278,6 +278,7 @@ class Prediction(Base):
                comment='Earthquake lockloss prediction')
 
 
+
 def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
