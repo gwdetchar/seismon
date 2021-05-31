@@ -51,12 +51,22 @@ CMDCLASS=versioneer.get_cmdclass()
 
 # package dependencies
 install_requires = [
-    'numpy>=1.7.1',
-    'scipy>=0.12.1',
-    'matplotlib>=2.2.0',
-    'obspy',
+    'flask_caching',
+    'flask_humanize',
+    'flask_login',
+    'flask_sqlalchemy',
+    'flask_wtf',
     'gwpy',
-    'lxml'
+    'lxml',
+    'matplotlib>=2.2.0',
+    'numpy>=1.7.1',
+    'obspy',
+    'passlib',
+    'redis',
+    'scipy>=0.12.1',
+    'WTForms',
+    'WTForms-Alchemy',
+    'WTForms-Components'
 ]
 
 # test dependencies

@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Seismon Portal</title>
+    <style>
+	#toggle-tags .custom-control {
+		display: inline block;
+	}
+	.dropbtn {
+		background-color: #343A40;
+		border: black;
+		color: white;
+        }
+	.dropdown {
+		position: relative;
+		display: inline-block;
+	}
+	.dropdown-content {
+		display: none;
+		position: absolute;
+		background-color: #33cccc;
+		box-shadow: 0px 8px 16px 0px rbga(0,0,0,0.2)
+	}
+	.dropdown-content a {
+		color: black;
+		padding: 12px 16px;
+		z-index: 1;
+	}
+	.dropdown:hover .dropdown-content {display: block;}
+	.dropdown-content a:hover {background-color#3399ff;}
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2>Earthquakes</h2>
+    <div class=list-group>
+        {% for eq in earthquakes %}
+	  <a href="{{url_for('earthquake', event_id=eq.event_id)}}" class="event-header list-group-item">
+          <div class="d-flex justify-content-between">
+          <h5>
+          <small>
+	    {{eq.event_id}}
+            {{eq.date}}
+            ({{ (now() - eq.date)|humanize() }})
+          </small>
+          </h5>
+          </div>
+	  </a>
+        {% endfor %}
+    </ul>
+{% endblock %}
+
