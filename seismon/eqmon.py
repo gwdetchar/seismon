@@ -40,11 +40,6 @@ except:
     print("gwpy import fails... no plotting possible.")
 
 try:
-    from pylal import Fr
-except:
-    print("No pylal installed...")
-
-try:
     from geopy.geocoders import Nominatim
 except:
     print("No geopy installed...")
