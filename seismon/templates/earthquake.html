@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block head %}
+    <title>Seismon Portal</title>
+    <style>
+        #toggle-tags .custom-control {
+            display: inline-block;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <h2>Information on specified object</h2>
+    <img src={{ url_for('globemap', event_id=earthquake.event_id) }} alt={{ earthquake.event_id|string }}>
+    
+    <div class=list-group>
+        <p>
+            {{ "Event ID: " + earthquake.event_id }}
+            <br>
+            {{ "Latitude:" }}
+            {{ earthquake.lat }}
+            <br>
+            {{ "Longitude:" }}
+            {{ earthquake.lon }}
+            <br>
+            {{ "Date:" }}
+            {{ earthquake.date }}	    
+	</p>
+    </ul>
+
+    <h2>Predictions</h2>
+    <div class=list-group>
+        {% for pred in predictions %}
+            <p>
+            {{ "Ifo:" }}
+            {{ pred.ifo }}
+	    <br>
+            {{ "Distance [km]:" }}
+            {{ pred.d }}
+            <br>
+            {{ "P-wave time:" }}
+            {{ pred.p - earthquake.date }}
+            <br>
+            {{ "S-wave time:" }}
+            {{ pred.s - earthquake.date }}
+            <br>
+            {{ "R-wave time [3.5 km/s]:" }}
+            {{ pred.r3p5 - earthquake.date }}
+            <br>
+            {{ "RF amplitude [m/s]:" }}
+            {{ pred.rfamp }}
+            <br>
+            {{ "Lockloss prediction:" }}
+            {{ pred.lockloss }}
+        {% endfor %}
+    </ul>
+{% endblock %}
+
