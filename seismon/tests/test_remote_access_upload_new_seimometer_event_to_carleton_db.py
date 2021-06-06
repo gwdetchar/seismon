@@ -23,7 +23,7 @@ server.start()
 engine = create_engine(f'postgresql+psycopg2://seismon:seismon@{server.local_bind_address[0]}:{server.local_bind_address[1]}/seismon')
 
 
-# Update DataBase
+# Connect DataBase
 conn = engine.connect()
 
 
