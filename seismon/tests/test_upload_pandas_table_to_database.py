@@ -40,7 +40,7 @@ data_df_filtered.insert(2,'created_at',created_at_value,True)
 data_df_filtered.insert(3,'modified',modified_value,True)
 
 # Only keep initial entries (to speed up the test)
-data_df_filtered = data_df_filtered.loc[0:1,:]
+#data_df_filtered = data_df_filtered.loc[0:1,:]
 
 # upload dataframe remotely to database
 data_df_filtered.to_sql('{}'.format(db_catalogue_name), con=engine,  if_exists='append', index=False)
