@@ -31,7 +31,7 @@ conn = engine.connect()
 data_df = pd.read_csv(csv_file_path)
 
 # Select few columns [unique_id, peak_data_um-pers-sec_mean_subtracted]
-data_df_filtered = data_df.filter(['id','peak_data_um_mean_subtracted'],axis=1)
+data_df_filtered = data_df.filter(['id','time','place','latitude','longitude','mag','depth','SNR','peak_data_um_mean_subtracted'],axis=1)
 data_df_filtered = data_df_filtered.rename(columns={'id':'event_id'})
 
 # get current UTC time
