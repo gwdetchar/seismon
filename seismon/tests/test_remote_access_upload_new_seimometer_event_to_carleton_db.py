@@ -5,9 +5,12 @@ from sshtunnel import SSHTunnelForwarder
 from sqlalchemy import create_engine  
 import pandas as pd
 from argparse import ArgumentParser
-import random
-import string
+import datetime
 
+
+# Specify path csv file
+csv_file_path='../input/LLO_processed_USGS_global_EQ_catalogue.csv'
+db_catalogue_name = 'llo_catalogues'
 
 server = SSHTunnelForwarder(
     ('virgo.physics.carleton.edu', 22),
@@ -22,22 +25,35 @@ engine = create_engine(f'postgresql+psycopg2://seismon:seismon@{server.local_bin
 
 # Update DataBase
 conn = engine.connect()
-# Begin transaction
-trans = conn.begin()
 
 
+# load to dataframe from CSV file
+data_df = pd.read_csv(csv_file_path)
 
-# generate random string uniqueID
-rand_unique_ID = 'test_' + ''.join(random.choices(string.ascii_lowercase +
-                             string.digits, k = 4))
+# Select few columns [unique_id, peak_data_um-pers-sec_mean_subtracted]
+data_df_filtered = data_df.filter(['id','peak_data_um_mean_subtracted'],axis=1)
+data_df_filtered = data_df_filtered.rename(columns={'id':'event_id'})
 
+# get current UTC time
+created_at_value = datetime.datetime.utcnow().strftime("%a %b %d %H:%M:%S %Z %Y")
+modified_value = datetime.datetime.utcnow().strftime("%a %b %d %H:%M:%S %Z %Y")
 
-lho_processed_catalogue_db = pd.read_sql_query('select * from public.predictions',con=engine)
+# add created_at &  modified time
+data_df_filtered.insert(2,'created_at',created_at_value,True)
+data_df_filtered.insert(3,'modified',modified_value,True)
 
-# Get current table height
-current_db_height = predictions_db.shape[0]
+# Only keep initial entries (to speed up the test)
+data_df_filtered = data_df_filtered.loc[0:1,:]
 
-# Set Random values to column
-parser = ArgumentParser()
-parser.add_argument('--id_val',default=current_db_height+int(1),type=int, help="index corres. to db insert/update")
-parser.add_argument('--created_at_val',default='2021-01-15 19:53:10.303660',type=str, help="Creation time")
+# upload dataframe remotely to database
+data_df_filtered.to_sql('{}'.format(db_catalogue_name), con=engine,  if_exists='append', index=False)
+
+print('Remote upload successful')
+
+# Check if things worked (load remotely)
+print('Attempting to read table remotely...')
+processed_catalogue_db = pd.read_sql_query('select * from public.{}'.format(db_catalogue_name),con=engine)
+print(processed_catalogue_db)
+
+# close connection
+conn.close()
