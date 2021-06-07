@@ -509,10 +509,13 @@ def compute_amplitudes(earthquake, ifo):
 
     if ifo == "LLO":
         trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
+        catalogue_name = 'llo_cataloges'
     elif ifo == "Virgo":
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
+        catalogue_name = 'virgo_cataloges'
     else:
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
+        catalogue_name = 'lho_cataloges'
 
     
     # Read from CSV file (OLD-WAY)
@@ -521,7 +524,6 @@ def compute_amplitudes(earthquake, ifo):
 
     # Read from the SQL database 
     try:
-        catalogue_name = splitext(basename(trainFile))[0].lower()  
         trainData = pd.read_sql_query('select * from public.{}'.format(catalogue_name),con=conn)  
     except Exception as Excep: 
         print(Excep)
