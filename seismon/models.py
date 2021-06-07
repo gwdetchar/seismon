@@ -509,13 +509,13 @@ def compute_amplitudes(earthquake, ifo):
 
     if ifo == "LLO":
         trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
-        catalogue_name = 'llo_cataloges'
+        catalogue_name = 'llo_catalogues'
     elif ifo == "Virgo":
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
-        catalogue_name = 'virgo_cataloges'
+        catalogue_name = 'virgo_catalogues'
     else:
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
-        catalogue_name = 'lho_cataloges'
+        catalogue_name = 'lho_catalogues'
 
     
     # Read from CSV file (OLD-WAY)
