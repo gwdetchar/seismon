@@ -89,7 +89,7 @@ def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor
     TD.loc[:,'scaleFac'] = scalingFac    
     predicted_peak_amplitude = np.sum (  (1.0/TD['cdist']) * TD[predictor] * TD['scaleFac'] ) / np.sum (  (1.0/TD['cdist'])) 
 
-    if np.isnan(predicted_peak_amplitude):
+    if np.isnan(predicted_peak_amplitude) or predicted_peak_amplitude < 0.0 :
         predicted_peak_amplitude = 0.0
 
     # Results (compatible with seismon client)

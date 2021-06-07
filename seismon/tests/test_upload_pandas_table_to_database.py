@@ -54,3 +54,5 @@ print(processed_catalogue_db)
 
 # close connection
 conn.close()
+
+
