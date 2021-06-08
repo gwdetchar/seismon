@@ -21,6 +21,9 @@ parser.add_argument( '--depth', default=8, type=float, help='EQ depthh [km]')
 parser.add_argument( '--SNR', default=19.9, type=float, help='SNR of PeakAmplitude estimation')
 parser.add_argument( '--peak_data_um_mean_subtracted', default=0.33, type=float, help='EQ estimated peak amplitude [um/s]')
 parser.add_argument( '--db_catalogue_name', default='llo_catalogues', type=str,help="Specify catalogue to write to {'llo_catalogues','lho_catalogues','virgo_catalogues'}")
+parser.add_argument( '--uname', default='nmukund', type=str,help='username')
+parser.add_argument( '--pubkey', default='~/.ssh/id_rsa.pub', type=str,help='ssh public key')
+
 args = parser.parse_args()
 
 
@@ -31,8 +34,8 @@ if_exists_then = 'append' #{'append','replace'}
 
 server = SSHTunnelForwarder(
     ('virgo.physics.carleton.edu', 22),
-    ssh_username="nmukund",
-    ssh_pkey="~/.ssh/id_rsa.pub",
+    ssh_username=args.uname,
+    ssh_pkey=args.pubkey,
     ssh_private_key_password="",
     remote_bind_address=('127.0.0.1', 5432))
 
