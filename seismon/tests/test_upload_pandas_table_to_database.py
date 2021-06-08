@@ -5,7 +5,8 @@ from sqlalchemy import create_engine
 import pandas as pd
 import datetime
 
-if_exists_then = 'replace'# {'replace' or 'append'}
+if_exists_then = 'replace'# {'replace' or 'append'}, replace option will swipe clean the entire catalogue-database and fill it again using entries from the csv file.
+
 IFO_list = {'LLO','LHO'}
 
 #-------------------------------
