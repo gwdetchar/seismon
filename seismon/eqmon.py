@@ -40,11 +40,6 @@ except:
     print("gwpy import fails... no plotting possible.")
 
 try:
-    from pylal import Fr
-except:
-    print("No pylal installed...")
-
-try:
     from geopy.geocoders import Nominatim
 except:
     print("No geopy installed...")
@@ -94,8 +89,8 @@ def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor
     TD.loc[:,'scaleFac'] = scalingFac    
     predicted_peak_amplitude = np.sum (  (1.0/TD['cdist']) * TD[predictor] * TD['scaleFac'] ) / np.sum (  (1.0/TD['cdist'])) 
 
-    if np.isnan(predicted_peak_amplitude):
-        predicted_peak_amplitude = 0.0
+    if np.isnan(predicted_peak_amplitude) or predicted_peak_amplitude <= 0.0 :
+        predicted_peak_amplitude =  1e-9
 
     # Results (compatible with seismon client)
     Rfamp        =  predicted_peak_amplitude*1e-6

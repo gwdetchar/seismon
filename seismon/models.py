@@ -278,6 +278,161 @@ class Prediction(Base):
                comment='Earthquake lockloss prediction')
 
 
+class llo_catalogue(Base):
+    """LLO catalogue information"""
+
+    event_id = sa.Column(
+        sa.String,
+        #sa.ForeignKey(Earthquake.event_id),
+        nullable=False,
+        comment='Earthquake ID')
+
+    time= sa.Column(
+            sa.String,
+            nullable=False,
+            comment='time')                      
+
+    latitude= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ latitude')   
+
+    longitude= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ longitude')                                   
+
+    depth = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ depth')    
+
+    mag= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ Magnitude')               
+
+    place = sa.Column(
+        sa.String,
+        nullable=False,
+        comment='EQ Place')   
+
+
+    SNR = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Signal-to-Noise Ratio')          
+
+
+    peak_data_um_mean_subtracted = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Earthquake amplitude predictions [um/s]')      
+
+
+class lho_catalogue(Base):
+    """LLO catalogue information"""
+
+    event_id = sa.Column(
+        sa.String,
+        #sa.ForeignKey(Earthquake.event_id),
+        nullable=False,
+        comment='Earthquake ID')
+
+    time= sa.Column(
+            sa.String,
+            nullable=False,
+            comment='time')                      
+
+    latitude= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ latitude')   
+
+    longitude= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ longitude')                                   
+
+    depth = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ depth')    
+
+    mag= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ Magnitude')               
+
+    place = sa.Column(
+        sa.String,
+        nullable=False,
+        comment='EQ Place')   
+
+
+    SNR = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Signal-to-Noise Ratio')          
+
+
+    peak_data_um_mean_subtracted = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Earthquake amplitude predictions [um/s]')     
+
+class virgo_catalogue(Base):
+    """LLO catalogue information"""
+
+    event_id = sa.Column(
+        sa.String,
+        #sa.ForeignKey(Earthquake.event_id),
+        nullable=False,
+        comment='Earthquake ID')
+
+    time= sa.Column(
+            sa.String,
+            nullable=False,
+            comment='time')                      
+
+    latitude= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ latitude')   
+
+    longitude= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ longitude')                                   
+
+    depth = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ depth')    
+
+    mag= sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='EQ Magnitude')               
+
+    place = sa.Column(
+        sa.String,
+        nullable=False,
+        comment='EQ Place')   
+
+
+    SNR = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Signal-to-Noise Ratio')          
+
+
+    peak_data_um_mean_subtracted = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Earthquake amplitude predictions [um/s]')                 
+
+
 def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
@@ -354,10 +509,13 @@ def compute_amplitudes(earthquake, ifo):
 
     if ifo == "LLO":
         trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
+        catalogue_name = 'llo_catalogues'
     elif ifo == "Virgo":
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
+        catalogue_name = 'virgo_catalogues'
     else:
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
+        catalogue_name = 'lho_catalogues'
 
     
     # Read from CSV file (OLD-WAY)
@@ -366,7 +524,6 @@ def compute_amplitudes(earthquake, ifo):
 
     # Read from the SQL database 
     try:
-        catalogue_name = splitext(basename(trainFile))[0].lower()  
         trainData = pd.read_sql_query('select * from public.{}'.format(catalogue_name),con=conn)  
     except Exception as Excep: 
         print(Excep)
