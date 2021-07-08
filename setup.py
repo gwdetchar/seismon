@@ -64,6 +64,7 @@ install_requires = [
     'passlib',
     'redis',
     'scipy>=0.12.1',
+    'simplejson',
     'WTForms',
     'WTForms-Alchemy',
     'WTForms-Components'
