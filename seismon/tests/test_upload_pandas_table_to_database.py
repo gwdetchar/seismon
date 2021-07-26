@@ -5,6 +5,11 @@ from sqlalchemy import create_engine
 import pandas as pd
 import datetime
 
+import seismon
+import os
+
+
+
 if_exists_then = 'replace'# {'replace' or 'append'}, replace option will swipe clean the entire catalogue-database and fill it again using entries from the csv file.
 
 IFO_list = {'LLO','LHO'}
@@ -13,6 +18,10 @@ IFO_list = {'LLO','LHO'}
 toggle_to_initialize_table_without_entries = 0
 
 #-------------------------------
+
+seismonpath = os.path.dirname(seismon.__file__)
+scriptpath = os.path.join(seismonpath,'input')
+
 engine = create_engine('postgresql+psycopg2://seismon:seismon@localhost:5432/seismon')
 
 # Connect DataBase
@@ -21,7 +30,7 @@ conn = engine.connect()
 
 for IFO in IFO_list:
     # Specify path csv file
-    csv_file_path='../input/{}_processed_USGS_global_EQ_catalogue.csv'.format(IFO.upper())
+    csv_file_path=os.path.join(scriptpath,'{}_processed_USGS_global_EQ_catalogue.csv'.format(IFO.upper()))
     db_catalogue_name = '{}_catalogues'.format(IFO.lower())
 
 
