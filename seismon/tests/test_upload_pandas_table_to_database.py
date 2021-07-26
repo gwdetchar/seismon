@@ -9,6 +9,9 @@ if_exists_then = 'replace'# {'replace' or 'append'}, replace option will swipe c
 
 IFO_list = {'LLO','LHO'}
 
+#Set to 1 to  Drop all entries from the dataFrame (for testing/debugging purposes)
+toggle_to_initialize_table_without_entries = 0
+
 #-------------------------------
 engine = create_engine('postgresql+psycopg2://seismon:seismon@localhost:5432/seismon')
 
@@ -16,14 +19,10 @@ engine = create_engine('postgresql+psycopg2://seismon:seismon@localhost:5432/sei
 conn = engine.connect()
 
 
-
-
 for IFO in IFO_list:
     # Specify path csv file
     csv_file_path='../input/{}_processed_USGS_global_EQ_catalogue.csv'.format(IFO.upper())
     db_catalogue_name = '{}_catalogues'.format(IFO.lower())
-
-
 
 
     """# OLD 
@@ -50,6 +49,12 @@ for IFO in IFO_list:
 
     # Only keep initial entries (to speed up the test)
     #data_df_filtered = data_df_filtered.loc[0:1,:]
+
+
+    # Drop all entries from the dataFrame
+    if toggle_to_initialize_table_without_entries:
+        print('Dropping all entries from the dataFrame')
+        data_df_filtered = data_df_filtered.iloc[0:0]
 
     # upload dataframe remotely to database
     data_df_filtered.to_sql('{}'.format(db_catalogue_name), con=engine,  if_exists=if_exists_then, index=False)

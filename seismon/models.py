@@ -507,10 +507,10 @@ def compute_amplitudes(earthquake, ifo):
     ifolat = ifo.lat
     ifolon = ifo.lon
 
-    if ifo == "LLO":
+    if ifo.ifo == "LLO":
         trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
         catalogue_name = 'llo_catalogues'
-    elif ifo == "Virgo":
+    elif ifo.ifo == "Virgo":
         trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
         catalogue_name = 'virgo_catalogues'
     else:
@@ -521,10 +521,16 @@ def compute_amplitudes(earthquake, ifo):
     # Read from CSV file (OLD-WAY)
     #trainData = pd.read_csv(trainFile)
 
+    # print([ifo.ifo,catalogue_name,trainFile])
 
     # Read from the SQL database 
     try:
         trainData = pd.read_sql_query('select * from public.{}'.format(catalogue_name),con=conn)  
+        if trainData.empty:
+            print('trainData DataFrame is empty! Update EQ Catalogue Database !!!')
+            print('Reverting back to CSV based data fetching.')
+            trainData = pd.read_csv(trainFile)
+
     except Exception as Excep: 
         print(Excep)
         print('Error occured. Could not connect to database. Reverting back to CSV based data fetching.')
