@@ -633,6 +633,13 @@ def run_seismon(purge=False, init_db=False):
         os.system(sys_command)
 
     if init_db:
+        
+        # Upload Past EQ events from CSV to the Database
+        seismonpath = os.path.dirname(seismon.__file__)
+        testpath = os.path.join(seismonpath,'tests')
+        dataframe2database = os.path.join(testpath,'test_upload_pandas_table_to_database.py')
+        os.system('python {}'.format(dataframe2database))
+
         ingest_earthquakes(config, args.lookback, repeat=True)
     else:
         ingest_earthquakes(config, args.lookback)
