@@ -4,6 +4,7 @@ from sshtunnel import SSHTunnelForwarder
 from sqlalchemy import create_engine  
 import pandas as pd
 
+pd.set_option('display.max_rows', None)
 
 server = SSHTunnelForwarder(
     ('virgo.physics.carleton.edu', 22),
@@ -24,8 +25,12 @@ predictions_db = pd.read_sql_query('select * from public.predictions',con=engine
 llo_processed_catalogue_db = pd.read_sql_query('select * from public.predictions',con=engine)
 lho_processed_catalogue_db = pd.read_sql_query('select * from public.predictions',con=engine)
 
+print('Printing earthquakes_db')
 print(earthquakes_db)
+print('Printing ifos_db')
 print(ifos_db)
-print(predictions_db)
-
+print('Printing seismon ml predictions')
+print(predictions_db.loc[:,['event_id', 'ifo', 'rfamp', 'lockloss']])
+print('Printing llo_processed_catalogue_dbi (needs to fix since it actually public.predictions)')
+print(llo_processed_catalogue_db)
 
