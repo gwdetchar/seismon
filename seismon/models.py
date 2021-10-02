@@ -661,13 +661,15 @@ def run_seismon(purge=False, init_db=False):
                 event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
                 pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
                 syscmd='scp {0} nikhil.mukund@ldas-pcdev2.ligo.caltech.edu:/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/'.format(event_filename)
-                try:
-                    print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
-                    os.system(syscmd)
-                    print('File sent.')
-                except:
-                    print('unable to send the file to Caltech machine')
-                    pass
+                # only sent once while looping over ifos 
+                if det=="LLO":
+                    try:
+                        print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
+                        os.system(syscmd)
+                        print('File sent.')
+                    except:
+                        print('unable to send the file to Caltech machine')
+                        pass
 
 
 
