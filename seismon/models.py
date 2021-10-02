@@ -655,7 +655,22 @@ def run_seismon(purge=False, init_db=False):
             # check if event is already processed & if the event magnitude is higher than the specified threshold(modified by NM, 01/10/21) 
             if len(preds) == 0 and eq.magnitude >= float(config['database']['min_eq_magnitude']) :
                 compute_predictions(eq, det)
-            
+
+                # (added by NM on 02/10/21) Sent event to Caltech machine
+                mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent)}
+                event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
+                pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
+                syscmd='scp {0} nikhil.mukund@ldas-pcdev2.ligo.caltech.edu:/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/'.format(event_filename)
+                try:
+                    print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
+                    os.system(syscmd)
+                    print('File sent.')
+                except:
+                    print('unable to send the file to Caltech machine')
+                    pass
+
+
+
             try:   #(modified by NM, 01/10/21)
                 pred = Prediction.query.filter_by(event_id=eq.event_id,ifo=det.ifo).one()
                 print(pred)
