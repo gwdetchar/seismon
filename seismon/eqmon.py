@@ -1683,7 +1683,14 @@ def read_quakeml(file,eventName):
 
     attributeDic["Longitude"] = float(dic["eventParameters"]["event"]["origin"]["longitude"]["value"])
     attributeDic["Latitude"] = float(dic["eventParameters"]["event"]["origin"]["latitude"]["value"])
-    attributeDic["Depth"] = float(dic["eventParameters"]["event"]["origin"]["depth"]["value"]) / 1000
+    
+    # (modified by NM, 02/10.21)  depth info seem to be missing in some cases
+    try:
+        attributeDic["Depth"] = float(dic["eventParameters"]["event"]["origin"]["depth"]["value"]) / 1000
+    except:
+        attributeDic["Depth"] = float(0)
+
+
     attributeDic["eventID"] = eventName
     attributeDic["eventName"] = eventName
 
