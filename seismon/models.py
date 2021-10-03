@@ -657,7 +657,7 @@ def run_seismon(purge=False, init_db=False):
                 compute_predictions(eq, det)
 
                 # (added by NM on 02/10/21) Sent event to Caltech machine
-                mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent)}
+                mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent),'created_at':str(eq.created_at),'modified':str(eq.modified)}
                 event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
                 pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
                 syscmd='scp {0} nikhil.mukund@ldas-pcdev2.ligo.caltech.edu:/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/'.format(event_filename)
