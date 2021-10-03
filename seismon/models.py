@@ -607,8 +607,15 @@ def ingest_earthquakes(config, lookback, repeat=False):
             if (not "GPS" in attributeDic) or (not "Magnitude" in attributeDic):
                 continue
 
-            date = Time(attributeDic["Time"], format='isot', scale='utc') 
-            sent = Time(attributeDic["Sent"], format='isot', scale='utc')
+            date = Time(attributeDic["Time"], format='isot', scale='utc')
+
+            #(modified by NM on 03/10/21 to skip >> KeyError: 'Sent' )
+            try:
+                sent = Time(attributeDic["Sent"], format='isot', scale='utc')
+            except:
+                sent = Time(attributeDic["Time"], format='isot', scale='utc')
+
+
 
             if Time.now() - date > lookbackTD: continue
 
