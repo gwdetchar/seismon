@@ -22,8 +22,8 @@ ifos_db        = pd.read_sql_query('select * from public.ifos',con=engine)
 predictions_db = pd.read_sql_query('select * from public.predictions',con=engine)
 
 
-llo_processed_catalogue_db = pd.read_sql_query('select * from public.predictions',con=engine)
-lho_processed_catalogue_db = pd.read_sql_query('select * from public.predictions',con=engine)
+llo_processed_catalogue_db = pd.read_sql_query('select * from public.llo_catalogues',con=engine)
+lho_processed_catalogue_db = pd.read_sql_query('select * from public.lho_catalogues',con=engine)
 
 print('Printing earthquakes_db')
 print(earthquakes_db)
@@ -31,6 +31,6 @@ print('Printing ifos_db')
 print(ifos_db)
 print('Printing seismon ml predictions')
 print(predictions_db.loc[:,['event_id', 'ifo', 'rfamp', 'lockloss']])
-print('Printing llo_processed_catalogue_dbi (needs to fix since it actually public.predictions)')
+print('Printing public.llo_catalogues')
 print(llo_processed_catalogue_db)
 
