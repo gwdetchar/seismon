@@ -272,6 +272,12 @@ class Prediction(Base):
             nullable=False,
             comment='Earthquake amplitude predictions [m/s]')
 
+    #(added by NM on 04/10/21)
+    rfamp_measured = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='Earthquake amplitude measured [m/s]')
+
     lockloss = sa.Column(
                sa.INT,
                nullable=False,
@@ -447,6 +453,7 @@ def compute_predictions(earthquake, ifo):
                                  r3p5=RthreePointFivetime,
                                  r5p0=Rfivetime,
                                  rfamp=Rfamp,
+                                 rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
     print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))
     DBSession().commit()
