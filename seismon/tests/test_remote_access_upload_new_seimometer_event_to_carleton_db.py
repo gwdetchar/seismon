@@ -121,6 +121,6 @@ predictions_db = pd.read_sql_query('select * from public.predictions',con=engine
 print('Printing processed catalog')
 print(processed_catalogue_db)
 print('Printing updated prediction table')
-print(predictions_db)
+print(predictions_db.loc[:,['event_id', 'ifo', 'rfamp','rfamp_measured', 'lockloss']])
 # close connection
 conn.close()
