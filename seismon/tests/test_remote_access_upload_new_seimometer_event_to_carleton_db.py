@@ -67,6 +67,52 @@ data_df_filtered = pd.DataFrame(data_dict)
 # upload dataframe remotely to database
 data_df_filtered.to_sql('{}'.format(args.db_catalogue_name), con=engine,  if_exists=if_exists_then, index=False)
 
+#-------------------------------------
+# Code snippet to add back measurements to Predictions table (for comparison)
+# Added on 05/10/2021 by NM
+#get PREDICTIONS DATABASE Table
+predictions_db = pd.read_sql_query('select * from public.predictions',con=engine)
+# get CATALOG DATABASE Tables
+llo_processed_catalogue_db = pd.read_sql_query('select * from public.llo_catalogues',con=engine)
+lho_processed_catalogue_db = pd.read_sql_query('select * from public.lho_catalogues',con=engine)
+
+
+# get event_id
+event_id=args.event_id
+
+
+#get IFO name from the catalog 
+if args.db_catalogue_name=='llo_catalogues':
+    ifo_name = 'LLO'
+    # get corresponding id from processed_catalog
+    miD = llo_processed_catalogue_db['event_id'] == event_id 
+    # get corresponding rfamp measured value from processed_catalog
+    rfamp_measured = llo_processed_catalogue_db.loc[miD]['peak_data_um_mean_subtracted'].values[0]
+
+elif args.db_catalogue_name=='lho_catalogues':
+    ifo_name = 'LHO'
+    # get corresponding id from processed_catalog
+    miD = lho_processed_catalogue_db['event_id'] == event_id 
+    # get corresponding rfamp measured value from processed_catalog
+    rfamp_measured = lho_processed_catalogue_db.loc[miD]['peak_data_um_mean_subtracted'].values[0]
+
+
+
+# get event id from predictions table
+piD=(predictions_db['event_id']==event_id) & (predictions_db['ifo']==ifo_name)
+
+
+# replace current value for the rfamp_measured (-1)  with the observed value
+current_val  = predictions_db['rfamp_measured'][piD].values[0]
+predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].replace(current_val,rfamp_measured)
+
+
+# Update actual database 'predictions' table 
+if_exists_then='replace'
+predictions_db_slice = predictions_db.loc[piD]
+predictions_db_slice.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
+#-------------------------------------
+
 print('Remote upload successful')
 
 # Check if things worked (load remotely)
