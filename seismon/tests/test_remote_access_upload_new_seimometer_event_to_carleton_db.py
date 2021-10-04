@@ -118,7 +118,10 @@ print('Remote upload successful')
 # Check if things worked (load remotely)
 print('Attempting to read back from database-table (for verification)...')
 processed_catalogue_db = pd.read_sql_query('select * from public.{}'.format(args.db_catalogue_name),con=engine)
+predictions_db = pd.read_sql_query('select * from public.predictions',con=engine)
+print('Printing processed catalog')
 print(processed_catalogue_db)
-
+print('Printing updated prediction table')
+print(predictions_db)
 # close connection
 conn.close()
