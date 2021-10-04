@@ -109,8 +109,7 @@ predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].repl
 
 # Update actual database 'predictions' table 
 if_exists_then='replace'
-predictions_db_slice = predictions_db.loc[piD]
-predictions_db_slice.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
+predictions_db.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
 #-------------------------------------
 
 print('Remote upload successful')
