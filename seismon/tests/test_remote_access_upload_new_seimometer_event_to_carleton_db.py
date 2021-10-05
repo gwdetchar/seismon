@@ -65,6 +65,7 @@ data_df_filtered = pd.DataFrame(data_dict)
 
 
 # upload dataframe remotely to database
+print('Remotely updating {} processed catalog',args.db_catalogue_name)
 data_df_filtered.to_sql('{}'.format(args.db_catalogue_name), con=engine,  if_exists=if_exists_then, index=False)
 
 #-------------------------------------
@@ -102,12 +103,13 @@ if rfamp_measured != []:
     piD=(predictions_db['event_id']==event_id) & (predictions_db['ifo']==ifo_name)
     # replace current value for the rfamp_measured (-1)  with the observed value
     current_val  = predictions_db['rfamp_measured'][piD].values[0]
-    predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].replace(current_val,rfamp_measured)
+    predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].replace(current_val,rfamp_measured,ifo_name)
     # Update actual database 'predictions' table 
     if_exists_then='replace'
+    print('Event {}  found in {}. Remotely updating predictions DataBase table for {}'.format(args.event_id,args.db_catalogue_name))
     predictions_db.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
 else:
-    print('Event {} not found in {}. Cannot update predictions DataBase'.format(args.event_id,args.db_catalogue_name))
+    print('Event {} not found in {}. Skipping remote update of predictions DataBase table for {}'.format(args.event_id,args.db_catalogue_name))
 
 #-------------------------------------
 print('Remote upload successful')
