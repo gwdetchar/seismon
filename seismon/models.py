@@ -444,6 +444,8 @@ def compute_predictions(earthquake, ifo):
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
     
+    print(Rfamp)
+
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
 				 d=Dist,
