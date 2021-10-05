@@ -275,7 +275,7 @@ class Prediction(Base):
     #(added by NM on 04/10/21)
     rfamp_measured = sa.Column(
             sa.Float,
-            nullable=True,
+            nullable=False,
             comment='Earthquake amplitude measured [m/s]')
 
     lockloss = sa.Column(
@@ -444,8 +444,7 @@ def compute_predictions(earthquake, ifo):
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
     
-    print(Rfamp,Lockloss,earthquake.event_id)
-
+    
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
 				 d=Dist,
