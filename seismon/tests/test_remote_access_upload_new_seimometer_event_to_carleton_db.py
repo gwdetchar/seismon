@@ -7,6 +7,9 @@ import pandas as pd
 from argparse import ArgumentParser
 import datetime
 from argparse import ArgumentParser
+
+pd.set_option('display.max_rows',100)
+
 parser = ArgumentParser()
 
 parser.add_argument( '--event_id', default='us20003j2v', type=str,help='unique ID assigned by USGS')
@@ -119,7 +122,9 @@ processed_catalogue_db = pd.read_sql_query('select * from public.{}'.format(args
 predictions_db = pd.read_sql_query('select * from public.predictions',con=engine)
 print('Printing processed catalog')
 print(processed_catalogue_db)
+
 print('Printing updated prediction table')
+pd.set_option('display.max_rows', None)
 print(predictions_db.loc[:,['event_id', 'ifo', 'rfamp','rfamp_measured', 'lockloss']])
 # close connection
 conn.close()
