@@ -275,7 +275,7 @@ class Prediction(Base):
     #(added by NM on 04/10/21)
     rfamp_measured = sa.Column(
             sa.Float,
-            nullable=False,
+            nullable=True,
             comment='Earthquake amplitude measured [m/s]')
 
     lockloss = sa.Column(
