@@ -82,7 +82,7 @@ VALUES \
 %(r3p5)s,\
 %(r5p0)s,\
 %(rfamp)s,\
-%(lockloss)s\
+%(lockloss)s,\
 %(rfamp_measured)s\
 )',\
 {\
