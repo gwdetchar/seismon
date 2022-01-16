@@ -224,7 +224,7 @@ class Ifo(Base):
 class Prediction(Base):
     """Prediction information"""
 
-    #id = sa.Column(sa.Integer, primary_key=True)
+    id = sa.Column(sa.Integer, primary_key=True)
 
     event_id = sa.Column(
         sa.String,
