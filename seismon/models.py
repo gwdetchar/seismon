@@ -444,7 +444,7 @@ def compute_predictions(earthquake, ifo):
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
     
-    
+    '''
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
 				 d=Dist,
@@ -456,8 +456,8 @@ def compute_predictions(earthquake, ifo):
                                  rfamp=Rfamp,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
-    print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))
-    DBSession().commit()
+    print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))'''
+    #DBSession().commit()
 
 
 def compute_traveltimes(earthquake, ifo):
@@ -592,6 +592,7 @@ def ingest_earthquakes(config, lookback, repeat=False):
             continue
 
         for timeFolder in timeFolders:
+            
             attributeDic = []
             eqxmlfile = os.path.join(timeFolder,"eqxml.xml")
             quakemlfile = os.path.join(timeFolder,"quakeml.xml")
