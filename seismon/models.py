@@ -224,7 +224,7 @@ class Ifo(Base):
 class Prediction(Base):
     """Prediction information"""
 
-    id = sa.Column(sa.Integer, primary_key=False)
+    id = sa.Column(sa.Integer, primary_key=True)
 
     event_id = sa.Column(
         sa.String,
@@ -236,8 +236,7 @@ class Prediction(Base):
         sa.String,
         sa.ForeignKey(Ifo.ifo),
         nullable=False,
-        comment='Detector name',
-        index=True)
+        comment='Detector name')
 
     d = sa.Column(
         sa.Float,
@@ -449,7 +448,7 @@ def compute_predictions(earthquake, ifo):
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
-				 d=Dist,
+				                 d=Dist,
                                  p=Ptime,
                                  s=Stime,
                                  r2p0=Rtwotime,
