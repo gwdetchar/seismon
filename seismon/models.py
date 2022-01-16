@@ -224,7 +224,7 @@ class Ifo(Base):
 class Prediction(Base):
     """Prediction information"""
 
-    id = sa.Column(sa.Integer, primary_key=True)
+    id = sa.Column(sa.Integer, primary_key=False)
 
     event_id = sa.Column(
         sa.String,
@@ -446,7 +446,7 @@ def compute_predictions(earthquake, ifo):
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
     
-    '''
+
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
 				 d=Dist,
@@ -458,8 +458,8 @@ def compute_predictions(earthquake, ifo):
                                  rfamp=Rfamp,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
-    print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))'''
-    #DBSession().commit()
+    print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))
+    DBSession().commit()
 
 
 def compute_traveltimes(earthquake, ifo):
