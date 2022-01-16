@@ -99,7 +99,6 @@ VALUES \
 "r5p0":                         args.r5p0_val,\
 "rfamp":                        args.rfamp_val,\
 "lockloss":                     args.lockloss_val,
-"lockloss":                     args.lockloss_val,    
 "rfamp_measured":               args.rfamp_measured_val
 })
 
