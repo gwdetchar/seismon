@@ -49,6 +49,7 @@ parser.add_argument('--r3p5_val',default='2021-01-12 07:25:33.508677',type=str, 
 parser.add_argument('--r5p0_val',default='2021-01-12 07:24:24.620074',type=str, help="Arrival time: R5p0")
 parser.add_argument('--rfamp_val',default=0.216506,type=float, help="Predicted Rf Amplitude [um/s]")
 parser.add_argument('--lockloss_val',default=0,type=int, help="lockloss state")
+parser.add_argument('--rfamp_measured_val',default=-1,type=float, help="measured Rayleigh wave amplitude at the site [um/s]")
 args = parser.parse_args()
 
 # Insert to DataBase
@@ -65,7 +66,8 @@ r2p0,\
 r3p5,\
 r5p0,\
 rfamp,\
-lockloss)\
+lockloss,\
+rfamp_measured)\
 VALUES \
 (\
 %(id)s,\
@@ -81,6 +83,7 @@ VALUES \
 %(r5p0)s,\
 %(rfamp)s,\
 %(lockloss)s\
+%(rfamp_measured)s\
 )',\
 {\
 "id":                           args.id_val,\
@@ -95,7 +98,9 @@ VALUES \
 "r3p5":                         args.r3p5_val,\
 "r5p0":                         args.r5p0_val,\
 "rfamp":                        args.rfamp_val,\
-"lockloss":                     args.lockloss_val
+"lockloss":                     args.lockloss_val,
+"lockloss":                     args.lockloss_val,    
+"rfamp_measured":               args.rfamp_measured_val
 })
 
 
