@@ -31,7 +31,6 @@ from argparse import ArgumentParser
 pd.set_option('display.max_rows',100)
 
 parser = ArgumentParser()
-parser.add_argument('--id_val',default=current_db_height+int(1),type=int, help="index corres. to db insert/update")
 parser.add_argument('--created_at_val',default='2021-01-15 19:53:10.303660',type=str, help="Creation time")
 parser.add_argument('--modified_val',default='2021-01-15 19:53:10.303660',type=str, help="Modified time")
 parser.add_argument( '--time_val', default='12-Sep-2015 20:32:26', type=str,help='EQ event time [UTC]')
