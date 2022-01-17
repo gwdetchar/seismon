@@ -2,6 +2,8 @@
 from obspy.geodetics.base import gps2dist_azimuth
 from obspy.taup import TauPyModel
 
+import numpy as np
+
 import seismon
 from seismon import (eqmon, utils)
 from seismon.config import app
@@ -257,9 +259,9 @@ miD = processed_catalogue_db['event_id'] == event_id
 try:
     rfamp_measured = processed_catalogue_db.loc[miD]['peak_data_um_mean_subtracted'].values[0]
 except:
-    rfamp_measured = []    
+    rfamp_measured = np.array([])    
 
-if rfamp_measured != []:
+if np.size(rfamp_measured)!= 0:
     # get event id from predictions table
     piD=(predictions_db['event_id']==event_id) & (predictions_db['ifo']==ifo_name)
     # replace current value for the rfamp_measured (-1)  with the observed value
