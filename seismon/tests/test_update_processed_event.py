@@ -1,7 +1,7 @@
 
 from obspy.geodetics.base import gps2dist_azimuth
 from obspy.taup import TauPyModel
-
+import sys
 import numpy as np
 
 import seismon
@@ -228,7 +228,7 @@ data_df_filtered = pd.DataFrame(data_dict)
 
 
 # upload dataframe remotely to database
-print('Remotely updating {} processed catalog',args.db_catalogue_name)
+print('Remotely updating {} processed catalog'.format(args.db_catalogue_name))
 data_df_filtered.to_sql('{}'.format(args.db_catalogue_name), con=engine,  if_exists=if_exists_then, index=False)
 
 #-------------------------------------
@@ -236,6 +236,12 @@ data_df_filtered.to_sql('{}'.format(args.db_catalogue_name), con=engine,  if_exi
 # Added on 05/10/2021 by NM
 #get PREDICTIONS DATABASE Table
 predictions_db = pd.read_sql_query('select * from public.predictions',con=engine)
+
+
+if len(predictions_db)==0:	
+   print('predictions table is empty. Exiting')	
+   sys.exit()
+
 # get CATALOG DATABASE Tables
 llo_processed_catalogue_db = pd.read_sql_query('select * from public.llo_catalogues',con=engine)
 lho_processed_catalogue_db = pd.read_sql_query('select * from public.lho_catalogues',con=engine)
@@ -264,8 +270,16 @@ except:
 if np.size(rfamp_measured)!= 0:
     # get event id from predictions table
     piD=(predictions_db['event_id']==event_id) & (predictions_db['ifo']==ifo_name)
+
+
+    # Check is piD is empty
+    if np.sum(piD)==0:
+       print('No event corresponding to the requested event_id found. Exiting')
+       sys.exit()
+ 
+
     # replace current value for the rfamp_measured (-1)  with the observed value
-    current_val  = predictions_db['rfamp_measured'][piD].values[0]
+    #current_val  = predictions_db['rfamp_measured'][piD].values[0]
 
     #predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].replace(current_val,rfamp_measured,ifo_name)    
     # Update actual database 'predictions' table 

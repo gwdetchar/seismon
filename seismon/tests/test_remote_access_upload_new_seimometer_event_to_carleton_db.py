@@ -6,12 +6,13 @@ from sqlalchemy import create_engine
 import pandas as pd
 from argparse import ArgumentParser
 import datetime
-from argparse import ArgumentParser
+import numpy
 
 pd.set_option('display.max_rows',100)
 
 parser = ArgumentParser()
 
+'''
 parser.add_argument( '--event_id', default='us20003j2v', type=str,help='unique ID assigned by USGS')
 parser.add_argument( '--time', default='12-Sep-2015 20:32:26', type=str,help='EQ event time [UTC]')
 parser.add_argument( '--created_at', default='Mon Jun 07 22:56:39  2021',type=str, help='created at [UTC]')
@@ -26,6 +27,25 @@ parser.add_argument( '--peak_data_um_mean_subtracted', default=0.33, type=float,
 parser.add_argument( '--db_catalogue_name', default='llo_catalogues', type=str,help="Specify catalogue to write to {'llo_catalogues','lho_catalogues','virgo_catalogues'}")
 parser.add_argument( '--uname', default='nmukund', type=str,help='username')
 parser.add_argument( '--pubkey', default='~/.ssh/id_rsa.pub', type=str,help='ssh public key')
+'''
+
+
+parser.add_argument( '--event_id', default='us7000fvy7', type=str,help='unique ID assigned by USGS')
+parser.add_argument( '--time', default='21-Nov-2021 11:50:59', type=str,help='EQ event time [UTC]')
+parser.add_argument( '--created_at', default='Mon Jun 07 22:56:39  2021',type=str, help='created at [UTC]')
+parser.add_argument( '--modified',   default='Mon Jun 07 22:56:39  2021',type=str, help='modified [UTC]')
+parser.add_argument( '--place',   default='153km SSE of L\'Esperance Rock, New Zealand',type=str, help='EQ event location')
+parser.add_argument( '--latitude', default=20.0000, type=float,help='EQ latitude')
+parser.add_argument( '--longitude', default=-110.0000, type=float, help='EQ longitude')
+parser.add_argument( '--mag', default=5.5, type=float, help='EQ magnitude')
+parser.add_argument( '--depth', default=10, type=float, help='EQ depthh [km]')
+parser.add_argument( '--SNR', default=3.6, type=float, help='SNR of PeakAmplitude estimation')
+parser.add_argument( '--peak_data_um_mean_subtracted', default=0.33, type=float, help='EQ estimated peak amplitude [um/s]')
+parser.add_argument( '--db_catalogue_name', default='lho_catalogues', type=str,help="Specify catalogue to write to {'llo_catalogues','lho_catalogues','virgo_catalogues'}")
+parser.add_argument( '--uname', default='nmukund', type=str,help='username')
+parser.add_argument( '--pubkey', default='~/.ssh/id_rsa.pub', type=str,help='ssh public key')
+
+
 
 args = parser.parse_args()
 
@@ -68,7 +88,7 @@ data_df_filtered = pd.DataFrame(data_dict)
 
 
 # upload dataframe remotely to database
-print('Remotely updating {} processed catalog',args.db_catalogue_name)
+print('Remotely updating {} processed catalog'.format(args.db_catalogue_name))
 data_df_filtered.to_sql('{}'.format(args.db_catalogue_name), con=engine,  if_exists=if_exists_then, index=False)
 
 #-------------------------------------
@@ -99,32 +119,41 @@ miD = processed_catalogue_db['event_id'] == event_id
 try:
     rfamp_measured = processed_catalogue_db.loc[miD]['peak_data_um_mean_subtracted'].values[0]
 except:
-    rfamp_measured = []    
+    rfamp_measured = np.array([])
 
-if rfamp_measured != []:
+if rfamp_measured.size != 0:
     # get event id from predictions table
     piD=(predictions_db['event_id']==event_id) & (predictions_db['ifo']==ifo_name)
+    #piD = (predictions_db['event_id'].str.contains(event_id)) & (predictions_db['ifo'].str.contains(ifo_name))
     # replace current value for the rfamp_measured (-1)  with the observed value
     current_val  = predictions_db['rfamp_measured'][piD].values[0]
-    predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].replace(current_val,rfamp_measured,ifo_name)
+    predictions_db['rfamp_measured'][piD]=predictions_db['rfamp_measured'][piD].replace(current_val,rfamp_measured)
     # Update actual database 'predictions' table 
-    if_exists_then='replace'
-    print('Event {}  found in {}. Remotely updating predictions DataBase table for {}'.format(args.event_id,args.db_catalogue_name))
+    if_exists_then='append'
+    print('Updating measured amplitude for event_id:{} at ifo:{} in predictions table to {} um/s'.format(event_id,ifo_name,rfamp_measured))
+
+    #predictions_db.reset_index(drop=True).to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
     predictions_db.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
+    #conn.execute('ALTER TABLE `predictions` ADD PRIMARY KEY (`event_id`);')
 else:
-    print('Event {} not found in {}. Skipping remote update of predictions DataBase table for {}'.format(args.event_id,args.db_catalogue_name))
+    print('Event {} not found in {}. Skipping remote update of predictions DataBase table'.format(args.event_id,args.db_catalogue_name))
 
 #-------------------------------------
 print('Remote upload successful')
 # Check if things worked (load remotely)
 print('Attempting to read back from database-table (for verification)...')
-processed_catalogue_db = pd.read_sql_query('select * from public.{}'.format(args.db_catalogue_name),con=engine)
-predictions_db = pd.read_sql_query('select * from public.predictions',con=engine)
+
+
+
+kiD = processed_catalogue_db['event_id'] == event_id
+jiD = predictions_db['event_id'] == event_id
+
+
 print('Printing processed catalog')
-print(processed_catalogue_db)
+print(processed_catalogue_db.loc[kiD,:])
 
 print('Printing updated prediction table')
 pd.set_option('display.max_rows', None)
-print(predictions_db.loc[:,['event_id', 'ifo', 'rfamp','rfamp_measured', 'lockloss']])
+print(predictions_db.loc[jiD,['event_id', 'ifo', 'rfamp','rfamp_measured', 'lockloss']])
 # close connection
 conn.close()

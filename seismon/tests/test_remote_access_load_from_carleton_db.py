@@ -4,7 +4,7 @@ from sshtunnel import SSHTunnelForwarder
 from sqlalchemy import create_engine  
 import pandas as pd
 
-#pd.set_option('display.max_rows', None)
+pd.set_option('display.max_rows', None)
 
 server = SSHTunnelForwarder(
     ('virgo.physics.carleton.edu', 22),
