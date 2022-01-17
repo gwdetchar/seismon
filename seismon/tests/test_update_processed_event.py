@@ -36,6 +36,15 @@ parser.add_argument('--modified',default='2021-01-15 19:53:10.303660',type=str, 
 parser.add_argument( '--time', default='12-Sep-2015 20:32:26', type=str,help='EQ event time [UTC]')
 parser.add_argument('--event_id',default='nn00805321',type=str, help="Unique Event ID")
 parser.add_argument( '--place',   default='Not Specified',type=str, help='EQ event location')
+
+parser.add_argument( '--latitude', default=-32.6066, type=float,help='EQ latitude')
+parser.add_argument( '--longitude', default=-178.0287, type=float, help='EQ longitude')
+parser.add_argument( '--mag', default=5.9, type=float, help='EQ magnitude')
+parser.add_argument( '--depth', default=8, type=float, help='EQ depthh [km]')
+parser.add_argument( '--SNR', default=19.9, type=float, help='SNR of PeakAmplitude estimation')
+parser.add_argument( '--peak_data_um_mean_subtracted', default=0.33, type=float, help='EQ estimated peak amplitude [um/s]')
+
+
 parser.add_argument('--ifo',default='LHO',type=str,  help="IFO")
 parser.add_argument('--d',default=803.700371, type=float, help="Distance from source[km]")
 parser.add_argument('--p',default='2021-01-12 07:23:30.157502', type=str, help="Arrival time: P")
