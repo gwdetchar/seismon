@@ -274,17 +274,29 @@ if np.size(rfamp_measured)!= 0:
     #predictions_db.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
 
 
-    DBSession().merge(Prediction(event_id=str(predictions_db[piD].loc[0]['event_id']) ,
-                                    ifo=str(predictions_db[piD].loc[0]['ifo']) ,
-                                    d=predictions_db[piD].loc[0]['d'] ,
-                                    p=predictions_db[piD].loc[0]['p'] ,
-                                    s=predictions_db[piD].loc[0]['s'] ,
-                                    r2p0=predictions_db[piD].loc[0]['r2p0'] ,
-                                    r3p5=predictions_db[piD].loc[0]['r3p5'] ,
-                                    r5p0=predictions_db[piD].loc[0]['r5p0'] ,
-                                    rfamp=predictions_db[piD].loc[0]['rfamp'] ,
-                                    rfamp_measured=rfamp_measured,
-                                    lockloss= int(predictions_db[piD].loc[0]['lockloss'])   ))
+    event_id_val = str(predictions_db[piD].loc[0]['event_id'])
+    ifo_val = str(predictions_db[piD].loc[0]['ifo']) 
+    d_val = predictions_db[piD].loc[0]['d'] 
+    p_val = predictions_db[piD].loc[0]['p'] 
+    s_val = predictions_db[piD].loc[0]['s']
+    r2p0_val = predictions_db[piD].loc[0]['r2p0'] 
+    r3p5_val = predictions_db[piD].loc[0]['r3p5'] 
+    r5p0_val = predictions_db[piD].loc[0]['r5p0'] 
+    rfamp_val = predictions_db[piD].loc[0]['rfamp']
+    rfamp_measured_val = rfamp_measured
+    lockloss_val = int(predictions_db[piD].loc[0]['lockloss']) 
+
+    DBSession().merge(Prediction(event_id=event_id_val ,
+                                    ifo=ifo_val,
+                                    d=d_val,
+                                    p=p_val,
+                                    s=s_val ,
+                                    r2p0=r2p0_val,
+                                    r3p5=r3p5_val,
+                                    r5p0=r5p0_val,
+                                    rfamp= rfamp_val,
+                                    rfamp_measured=rfamp_measured_val,
+                                    lockloss=  lockloss_val ))
     DBSession().commit()
 
 
