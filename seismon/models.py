@@ -639,6 +639,9 @@ def ingest_earthquakes(config, lookback, repeat=False):
                                          magnitude=attributeDic["Magnitude"],
                                          date=date.datetime,
                                          sent=sent.datetime))
+
+
+                                         
             print('Ingested event: %s' % attributeDic["eventName"])
             DBSession().commit()
 
@@ -668,6 +671,8 @@ def run_seismon(purge=False, init_db=False):
         for det in ifos:
             preds = Prediction.query.filter_by(event_id=eq.event_id,
                                                ifo=det.ifo).all()
+
+            print(preds)                                               
 
             # check if event is already processed & if the event magnitude is higher than the specified threshold(modified by NM, 01/10/21) 
             if len(preds) == 0 and eq.magnitude >= float(config['database']['min_eq_magnitude']) :
