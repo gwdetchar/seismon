@@ -482,7 +482,7 @@ def compute_predictions(earthquake, ifo):
                                  rfamp=Rfamp,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
-    print('Prediction for event: %s with mag: {} at IFO: {}' % (earthquake.event_id,earthquake.magnitude,ifo.ifo))
+    print('Prediction for event: {} with mag: {} at IFO: {}' % (earthquake.event_id,earthquake.magnitude,ifo.ifo))
     DBSession().commit()
 
 
