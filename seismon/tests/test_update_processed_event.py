@@ -1,8 +1,13 @@
+# Script to update the Database tables at Carleton based on the results from 
+# processing new earthquake events at the Caltech cluster.
 
 from obspy.geodetics.base import gps2dist_azimuth
 from obspy.taup import TauPyModel
 import sys
 import numpy as np
+
+#add seismon-python-path
+sys.path.insert(0,"/home/nikhil.mukund/seismon/")
 
 import seismon
 from seismon import (eqmon, utils)
@@ -29,6 +34,8 @@ import pandas as pd
 from argparse import ArgumentParser
 import datetime
 from argparse import ArgumentParser
+
+
 
 pd.set_option('display.max_rows',100)
 
@@ -312,6 +319,7 @@ if np.size(rfamp_measured)!= 0:
                                     rfamp_measured=rfamp_measured_val,
                                     lockloss=  lockloss_val ))
     DBSession().commit()
+    print('prediction table updated for event: {} at ifo: {} with the measured Rayleigh amplitude of {} um/s [predicted val: {}um/s]'.format(event_id_val,ifo_val,rfamp_measured_val,rfamp_val))  
 
     # After the above update
     # Delete duplicate_entries whose rfamp_measured value is  set to -1
