@@ -240,25 +240,21 @@ class Prediction(Base):
 
     magnitude = sa.Column(
         sa.Float,
-        sa.ForeignKey(Earthquake.magnitude),
         nullable=False,
         comment='Magnitude')
 
     depth = sa.Column(
         sa.Float,
-        sa.ForeignKey(Earthquake.depth),
         nullable=False,
         comment='Depth')        
 
     lat = sa.Column(
         sa.Float,
-        sa.ForeignKey(Earthquake.lat),
         nullable=False,
         comment='Latitude')    
 
     lon = sa.Column(
         sa.Float,
-        sa.ForeignKey(Earthquake.lon),
         nullable=False,
         comment='Longitude')                
                                                                  
