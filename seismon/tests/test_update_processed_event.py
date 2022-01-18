@@ -288,17 +288,17 @@ if np.size(rfamp_measured)!= 0:
     #predictions_db.to_sql('{}'.format('predictions'), con=engine,  if_exists=if_exists_then, index=False)
 
 
-    event_id_val = str(predictions_db[piD].loc[0]['event_id'])
-    ifo_val = str(predictions_db[piD].loc[0]['ifo']) 
-    d_val = predictions_db[piD].loc[0]['d'] 
-    p_val = predictions_db[piD].loc[0]['p'] 
-    s_val = predictions_db[piD].loc[0]['s']
-    r2p0_val = predictions_db[piD].loc[0]['r2p0'] 
-    r3p5_val = predictions_db[piD].loc[0]['r3p5'] 
-    r5p0_val = predictions_db[piD].loc[0]['r5p0'] 
-    rfamp_val = predictions_db[piD].loc[0]['rfamp']
+    event_id_val = predictions_db[piD]['event_id'].to_list()[0]
+    ifo_val = predictions_db[piD]['ifo'].to_list()[0]
+    d_val = predictions_db[piD]['d'].to_list()[0] 
+    p_val = predictions_db[piD]['p'].to_list()[0] 
+    s_val = predictions_db[piD]['s'].to_list()[0]
+    r2p0_val = predictions_db[piD]['r2p0'].to_list()[0] 
+    r3p5_val = predictions_db[piD]['r3p5'].to_list()[0] 
+    r5p0_val = predictions_db[piD]['r5p0'].to_list()[0] 
+    rfamp_val = predictions_db[piD]['rfamp'].to_list()[0]
     rfamp_measured_val = rfamp_measured
-    lockloss_val = int(predictions_db[piD].loc[0]['lockloss']) 
+    lockloss_val = int(predictions_db[piD]['lockloss'].to_list()[0]) 
 
     DBSession().merge(Prediction(event_id=event_id_val ,
                                     ifo=ifo_val,
@@ -312,6 +312,16 @@ if np.size(rfamp_measured)!= 0:
                                     rfamp_measured=rfamp_measured_val,
                                     lockloss=  lockloss_val ))
     DBSession().commit()
+
+    # After the above update
+    # Delete duplicate_entries whose rfamp_measured value is  set to -1
+    preds = Prediction.query.filter_by(event_id=event_id_val, ifo=ifo_val).all() 
+    for pred in preds:
+        if pred.rfamp_measured == -1:
+           DBSession().delete(pred)
+           DBSession().commit()
+
+      
 
 
 
