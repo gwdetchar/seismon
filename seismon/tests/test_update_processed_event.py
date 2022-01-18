@@ -172,22 +172,22 @@ class Prediction(Base):
         comment='Detector name')
 
     magnitude = sa.Column(
-        sa.float,
+        sa.Float,
         nullable=False,
         comment='Magnitude')
 
     depth = sa.Column(
-        sa.float,
+        sa.Float,
         nullable=False,
         comment='Depth')        
 
     lat = sa.Column(
-        sa.float,
+        sa.Float,
         nullable=False,
         comment='Latitude')    
 
     lon = sa.Column(
-        sa.float,
+        sa.Float,
         nullable=False,
         comment='Longitude')                
                                                                  
