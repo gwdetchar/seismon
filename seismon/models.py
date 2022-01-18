@@ -236,7 +236,32 @@ class Prediction(Base):
         sa.String,
         sa.ForeignKey(Ifo.ifo),
         nullable=False,
-        comment='Detector name')
+        comment='Detector name')        
+
+    magnitude = sa.Column(
+        sa.float,
+        sa.ForeignKey(Earthquake.magnitude),
+        nullable=False,
+        comment='Magnitude')
+
+    depth = sa.Column(
+        sa.float,
+        sa.ForeignKey(Earthquake.depth),
+        nullable=False,
+        comment='Depth')        
+
+    lat = sa.Column(
+        sa.float,
+        sa.ForeignKey(Earthquake.lat),
+        nullable=False,
+        comment='Latitude')    
+
+    lon = sa.Column(
+        sa.float,
+        sa.ForeignKey(Earthquake.lon),
+        nullable=False,
+        comment='Longitude')                
+                                                                 
 
     d = sa.Column(
         sa.Float,
@@ -448,6 +473,10 @@ def compute_predictions(earthquake, ifo):
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
+                                 magnitude=earthquake.magnitude,
+                                 depth=earthquake.depth,
+                                 lat=earthquake.lat,
+                                 lon=earthquake.lon,
 				                 d=Dist,
                                  p=Ptime,
                                  s=Stime,
@@ -457,7 +486,7 @@ def compute_predictions(earthquake, ifo):
                                  rfamp=Rfamp,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
-    print('Prediction ifo %s for event: %s' % (ifo.ifo, earthquake.event_id))
+    print('Prediction for event: %s with mag: {} at IFO: {}' % (earthquake.event_id,earthquake.magnitude,ifo.ifo))
     DBSession().commit()
 
 

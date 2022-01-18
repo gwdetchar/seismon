@@ -171,6 +171,27 @@ class Prediction(Base):
         nullable=False,
         comment='Detector name')
 
+    magnitude = sa.Column(
+        sa.float,
+        nullable=False,
+        comment='Magnitude')
+
+    depth = sa.Column(
+        sa.float,
+        nullable=False,
+        comment='Depth')        
+
+    lat = sa.Column(
+        sa.float,
+        nullable=False,
+        comment='Latitude')    
+
+    lon = sa.Column(
+        sa.float,
+        nullable=False,
+        comment='Longitude')                
+                                                                 
+
     d = sa.Column(
         sa.Float,
         nullable=False,
@@ -297,6 +318,10 @@ if np.size(rfamp_measured)!= 0:
 
     event_id_val = predictions_db[piD]['event_id'].to_list()[0]
     ifo_val = predictions_db[piD]['ifo'].to_list()[0]
+    mag_val = predictions_db[piD]['magnitude'].to_list()[0]
+    depth_val = predictions_db[piD]['depth'].to_list()[0]
+    lat_val = predictions_db[piD]['lat'].to_list()[0]
+    lon_val = predictions_db[piD]['lon'].to_list()[0]                
     d_val = predictions_db[piD]['d'].to_list()[0] 
     p_val = predictions_db[piD]['p'].to_list()[0] 
     s_val = predictions_db[piD]['s'].to_list()[0]
@@ -309,6 +334,10 @@ if np.size(rfamp_measured)!= 0:
 
     DBSession().merge(Prediction(event_id=event_id_val ,
                                     ifo=ifo_val,
+                                    magnitude=mag_val,
+                                    depth=depth_val,
+                                    lat=lat_val,
+                                    lon=lon_val,
                                     d=d_val,
                                     p=p_val,
                                     s=s_val ,
@@ -319,7 +348,7 @@ if np.size(rfamp_measured)!= 0:
                                     rfamp_measured=rfamp_measured_val,
                                     lockloss=  lockloss_val ))
     DBSession().commit()
-    print('prediction table updated for event: {} at ifo: {} with the measured Rayleigh amplitude of {} um/s [predicted val: {}um/s]'.format(event_id_val,ifo_val,rfamp_measured_val,rfamp_val))  
+    print('prediction table updated for event: {} with mag: {} at ifo: {} with the measured Rayleigh amplitude of {} um/s [predicted val: {}um/s]'.format(event_id_val,mag_val,ifo_val,rfamp_measured_val,rfamp_val))  
 
     # After the above update
     # Delete duplicate_entries whose rfamp_measured value is  set to -1
@@ -335,8 +364,6 @@ if np.size(rfamp_measured)!= 0:
 
 else:
     print('Event {} not found in {}. Skipping remote update of predictions DataBase table for {}'.format(args.event_id,args.db_catalogue_name))
-
-
 
 
 
