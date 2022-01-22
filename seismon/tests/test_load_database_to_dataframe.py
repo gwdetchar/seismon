@@ -18,6 +18,10 @@ virgo_processed_catalogue_db = pd.read_sql_query('select * from public.virgo_cat
 
 print(earthquakes_db)
 print(ifos_db)
-print(predictions_db)
+#print(predictions_db)
 print(llo_processed_catalogue_db)
 print(lho_processed_catalogue_db)
+
+pd.set_option('display.max_rows',None)
+pd.set_option('display.max_columns',None)
+print(predictions_db)
