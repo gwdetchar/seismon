@@ -93,6 +93,8 @@ data_df_filtered = pd.DataFrame(data_dict)
 print('Remotely updating {} processed catalog'.format(args.db_catalogue_name))
 data_df_filtered.to_sql('{}'.format(args.db_catalogue_name), con=engine,  if_exists=if_exists_then, index=False)
 
+
+
 #-------------------------------------
 # Code snippet to add back measurements to Predictions table (for comparison)
 # Added on 05/10/2021 by NM
