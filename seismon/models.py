@@ -727,13 +727,18 @@ def run_seismon(purge=False, init_db=False):
                         pass
 
 
-
-            try:   #(modified by NM, 01/10/21)
+            # Print Predictions, for debugging purpose
+            '''
+            try:   #(modified by NM, 03/02/22) 
+                # uncomment below to print predictions
                 preds = Prediction.query.filter_by(event_id=eq.event_id,ifo=det.ifo).all()
                 [print(val) for val in preds]
 
             except:
                 pass
+           '''
+
+
 
 if __name__ == "__main__":
 
