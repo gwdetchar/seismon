@@ -65,9 +65,6 @@ install_requires = [
     'redis',
     'scipy>=0.12.1',
     'simplejson',
-    'WTForms',
-    'WTForms-Alchemy',
-    'WTForms-Components'
 ]
 
 # test dependencies
@@ -109,10 +106,10 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Intended Audience :: Science/Research',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Developers',
@@ -125,4 +122,11 @@ setup(
         'Operating System :: MacOS',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     ],
+    extras_require={
+        "frontend": [
+            'WTForms',
+            'WTForms-Alchemy',
+            'WTForms-Components'
+        ],
+    },
 )
