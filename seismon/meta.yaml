@@ -1,5 +1,5 @@
 {% set name = "seismon" %}
-{% set version = "0.0.1" %}
+{% set version = "0.0.2" %}
 
 package:
   name: {{ name|lower }}
@@ -7,7 +7,7 @@ package:
 
 source:
   url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/seismon-{{ version }}.tar.gz
-  sha256: fc83bcce263b6f304f4fb9856be4b05b38caf07e870df69e3a13101021f33e56
+  sha256: a12c23d8d8452450aca953a0bd25567e5031fccd98d222ca8aa1b470c1b48994
 
 build:
   script: {{ PYTHON }} -m pip install . -vv
@@ -43,8 +43,8 @@ test:
     - pip
 
 about:
-  home: https://github.com/ligovirgo/seismon/
-  summary: A python package for GW-EM Followup Optimization
+  home: https://github.com/gwdetchar/seismon/
+  summary: A python package for mitigating the effects of earthquakes on GW detectors
   license: GPL-3.0
   license_file: LICENSE
 
