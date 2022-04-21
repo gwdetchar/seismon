@@ -88,7 +88,7 @@ setup(
     long_description=("seismon is a python package for mitigating the effects of earthquakes on GW detectors"),
     author='Michael Coughlin',
     author_email='michael.coughlin@ligo.org',
-    license='GPLv3',
+    license='GPL-2.0-or-later',
     url='https://github.com/gwdetchar/seismon/',
 
     # package content
