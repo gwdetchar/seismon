@@ -52,7 +52,6 @@ CMDCLASS=versioneer.get_cmdclass()
 # package dependencies
 install_requires = [
     'flask_caching',
-    'flask_humanize',
     'flask_login',
     'flask_sqlalchemy',
     'flask_wtf',

@@ -1,0 +1,53 @@
+{% set name = "seismon" %}
+{% set version = "0.0.1" %}
+
+package:
+  name: {{ name|lower }}
+  version: {{ version }}
+
+source:
+  url: https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/seismon-{{ version }}.tar.gz
+  sha256: fc83bcce263b6f304f4fb9856be4b05b38caf07e870df69e3a13101021f33e56
+
+build:
+  script: {{ PYTHON }} -m pip install . -vv
+  number: 0
+
+requirements:
+  host:
+    - pip
+    - python
+  run:
+    - flask-caching
+    - flask-login
+    - flask-sqlalchemy
+    - flask-wtf
+    - gwpy
+    - lxml
+    - matplotlib-base >=2.2.0
+    - numpy >=1.7.1
+    - obspy
+    - passlib
+    - python
+    - redis
+    - scipy >=0.12.1
+    - simplejson
+
+test:
+  imports:
+    - seismon
+    - utils
+  commands:
+    - pip check
+  requires:
+    - pip
+
+about:
+  home: https://github.com/ligovirgo/seismon/
+  summary: A python package for GW-EM Followup Optimization
+  license: GPL-3.0
+  license_file: LICENSE
+
+extra:
+  recipe-maintainers:
+    - mcoughlin
