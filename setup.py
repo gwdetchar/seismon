@@ -66,6 +66,7 @@ install_requires = [
     'redis',
     'scipy>=0.12.1',
     'simplejson',
+    'sqlalchemy',
 ]
 
 # test dependencies
