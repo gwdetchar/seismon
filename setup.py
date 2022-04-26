@@ -52,6 +52,7 @@ CMDCLASS=versioneer.get_cmdclass()
 # package dependencies
 install_requires = [
     'arrow',
+    'astropy',
     'flask_caching',
     'flask_login',
     'flask_sqlalchemy',
