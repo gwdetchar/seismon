@@ -51,8 +51,9 @@ CMDCLASS=versioneer.get_cmdclass()
 
 # package dependencies
 install_requires = [
+    'arrow',
+    'astropy',
     'flask_caching',
-    'flask_humanize',
     'flask_login',
     'flask_sqlalchemy',
     'flask_wtf',
@@ -65,9 +66,7 @@ install_requires = [
     'redis',
     'scipy>=0.12.1',
     'simplejson',
-    'WTForms',
-    'WTForms-Alchemy',
-    'WTForms-Components'
+    'sqlalchemy',
 ]
 
 # test dependencies
@@ -87,12 +86,12 @@ setup(
     name='seismon',
     provides=['seismon'],
     version=__version__,
-    description="A python package for GW-EM Followup Optimization",
-    long_description=("seismon is a python package for GW-EM Followup Optimization "),
+    description="A python package for mitigating the effects of earthquakes on GW detectors",
+    long_description=("seismon is a python package for mitigating the effects of earthquakes on GW detectors"),
     author='Michael Coughlin',
     author_email='michael.coughlin@ligo.org',
-    license='GPLv3',
-    url='https://github.com/ligovirgo/seismon/',
+    license='GPL-2.0-or-later',
+    url='https://github.com/gwdetchar/seismon/',
 
     # package content
     packages=find_packages(),
@@ -109,10 +108,10 @@ setup(
     classifiers=[
         'Development Status :: 4 - Beta',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
         'Intended Audience :: Science/Research',
         'Intended Audience :: End Users/Desktop',
         'Intended Audience :: Developers',
@@ -125,4 +124,11 @@ setup(
         'Operating System :: MacOS',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
     ],
+    extras_require={
+        "frontend": [
+            'WTForms',
+            'WTForms-Alchemy',
+            'WTForms-Components'
+        ],
+    },
 )

@@ -2,7 +2,6 @@ import datetime
 import os
 
 from flask import Flask
-from flask_humanize import Humanize
 import click
 from getpass import getpass
 from passlib.apache import HtpasswdFile
@@ -80,5 +79,3 @@ class DateConverter(BaseConverter):
 app.url_map.converters['date'] = DateConverter
 app.jinja_env.filters['zip'] = zip
 app.jinja_env.globals['now'] = datetime.datetime.now
-
-humanize = Humanize(app)
