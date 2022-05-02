@@ -28,7 +28,7 @@ from sqlalchemy.orm.exc import NoResultFound
 from sqlalchemy import func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import create_engine  
-from arrow.arrow import Arrow
+#from arrow.arrow import Arrow
 
 from obspy.geodetics.base import gps2dist_azimuth
 from obspy.taup import TauPyModel
