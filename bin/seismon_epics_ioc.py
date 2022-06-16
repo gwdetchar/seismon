@@ -9,7 +9,7 @@ sys.path.append('/ligo/cdscfg')
 import stdenv as cds
 cds.INIT_ENV()
 
-print "Run this for site " + cds.SITE + " ifo " + cds.IFO
+print ("Run this for site " + cds.SITE + " ifo " + cds.IFO)
 
 # create server
 from pcaspy import Driver, SimpleServer
@@ -142,5 +142,5 @@ if __name__ == '__main__':
     # process CA transactions
     while True:
         server.process(0.1)
-	ioc_uptime = ioc_uptime + 1
+    ioc_uptime = ioc_uptime + 1
 
