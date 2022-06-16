@@ -142,5 +142,5 @@ if __name__ == '__main__':
     # process CA transactions
     while True:
         server.process(0.1)
-	ioc_uptime = ioc_uptime + 1
+    ioc_uptime = ioc_uptime + 1
 
