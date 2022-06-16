@@ -2,10 +2,9 @@
 
 # EPICS IOC for seismon data
 # K. Thorne - use stdenv, allow parameter for data directory
+# E. von Reis - use environment instead of stdenv for IFO and SITE values
 
 # Setup up CDS standard environment
-import sys
-sys.path.append('/ligo/cdscfg')
 from collections import namedtuple
 import os
 

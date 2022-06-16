@@ -12,10 +12,10 @@
 #
 # D.Barker LHO 17nov2016
 # K. Thorne - use stdenv, allow parameter for data directory
+# E. von Reis - use environment instead of stdenv for IFO and SITE values
 
 # Setup up CDS standard environment
 import sys
-sys.path.append('/ligo/cdscfg')
 import os
 from collections import namedtuple
 
@@ -28,7 +28,9 @@ cds = CDS(os.environ['SITE'], os.environ['IFO'])
 print ("Run this for site " + cds.SITE + " ifo " + cds.IFO)
 # Extract command-line parameters
 # 'data directory'
-datadir = sys.argv[1:1]
+datadir = ''
+if len(sys.argv) > 1:
+    datadir = sys.argv[1]
 if len(datadir) == 0:
     datadir = "/seisapps/seisdata/all/" + cds.IFO + "O2"
 
