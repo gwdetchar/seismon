@@ -9,7 +9,7 @@ sys.path.append('/ligo/cdscfg')
 import stdenv as cds
 cds.INIT_ENV()
 
-print "Run this for site " + cds.SITE + " ifo " + cds.IFO
+print ("Run this for site " + cds.SITE + " ifo " + cds.IFO)
 
 # create server
 from pcaspy import Driver, SimpleServer

@@ -19,14 +19,14 @@ sys.path.append('/ligo/cdscfg')
 import stdenv as cds
 cds.INIT_ENV()
 
-print "Run this for site " + cds.SITE + " ifo " + cds.IFO
+print ("Run this for site " + cds.SITE + " ifo " + cds.IFO)
 # Extract command-line parameters
 # 'data directory'
 datadir = sys.argv[1:1]
 if len(datadir) == 0:
     datadir = "/seisapps/seisdata/all/" + cds.IFO + "O2"
 
-print "seismon data directory is " + datadir
+print("seismon data directory is " + datadir)
 
 import os
 if not os.path.isdir(datadir):
@@ -58,16 +58,16 @@ olddatafile = []
 while True:
     # find latest file in datadir
   searchpath = datadir + "/*"
-  print "searchpath %s" % searchpath
+  print("searchpath %s" % searchpath)
   sys.stdout.flush()
   globstring = glob.iglob(searchpath)
 #    print "datadir globstring %s" % globstring
   newest_datadir = max(glob.iglob(searchpath), key=os.path.getctime)
-  print "newest_datadir %s" % newest_datadir
+  print("newest_datadir %s" % newest_datadir)
 
 # get name os usxxxxxxxx directory under the earthquakes subdirectory
   searchpath = newest_datadir + "/earthquakes/" + DATADIRPREFIX + "*"
-  print "searchpath %s" % searchpath
+  print ("searchpath %s" % searchpath)
   sys.stdout.flush()
 
 #  First, make sure this is not empty.  If it is, add to uptime, continue
@@ -80,16 +80,16 @@ while True:
 #    print "datadir globstring %s" % globstring
     newest_usdatadir = max(glob.iglob(searchpath), key=os.path.getctime)
  
-    print "newest_usdatadir %s" % newest_usdatadir
+    print ("newest_usdatadir %s" % newest_usdatadir)
     
     datafile = newest_usdatadir + "/earthquakes.txt"
 
     try:
-        df = open(datafile,'r') 
+        df = open(datafile,'rt')
     except IOError:
-        print 'cannot open', datafile
+        print ('cannot open', datafile)
     else:
-        print "open datafile %s" % datafile
+        print ("open datafile %s" % datafile)
         olddatafile = datafile
         found_ifo_line = False
         for line in df:
@@ -119,8 +119,8 @@ while True:
 	        lat_f = float(lat)
 	        long_f = float(long)
 	        dist_f = float(dist)
-	        #print "EQ_GPS %.1f, EQ_MAG %.1f EQ_LAT %.1f EQ_LONG %.1f EQ_DIST %.1f EQ_DEPTH %.1f PWAVE_TIME %.1f SWAVE_TIME %.1f R2.0_TIME %.1f R3.5_TIME %.1f R5.0_TIME %.1f RVEL %.1f" % \
-	        (eq_gps_f, eq_mag_f, lat_f, long_f, dist_f, depth_f, p_arr_f, s_arr_f, r20_arr_f, r35_arr_f, r50_arr_f, rvel_f)
+	        #print ("EQ_GPS %.1f, EQ_MAG %.1f EQ_LAT %.1f EQ_LONG %.1f EQ_DIST %.1f EQ_DEPTH %.1f PWAVE_TIME %.1f SWAVE_TIME %.1f R2.0_TIME %.1f R3.5_TIME %.1f R5.0_TIME %.1f RVEL %.1f" %
+	        # (eq_gps_f, eq_mag_f, lat_f, long_f, dist_f, depth_f, p_arr_f, s_arr_f, r20_arr_f, r35_arr_f, r50_arr_f, rvel_f))
 	        
 	        # Write data to EPICS Channels, remember ezca appends H1: to channel name
 	        caput(cds.IFO + ':CDS-SEISMON_EQ_TIME_GPS', eq_gps_f)
@@ -242,7 +242,7 @@ while True:
  
         df.close()
         if not found_ifo_line:
-            print "Error - incomplete file. Does not contain a " + cds.IFO + " line"
+            print("Error - incomplete file. Does not contain a " + cds.IFO + " line")
 
   counter = counter +1
   uptime = uptime + CYCLE_TIME
