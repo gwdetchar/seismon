@@ -313,6 +313,10 @@ if __name__ == '__main__':
             ifo = 'K1'
         elif (site == 'GEO'):
             ifo = 'G1'
+        elif (site == 'TST'):
+            ifo = 'X2'
+        else:
+            ifo = "_1"
 
 
     prefix = ifo +':SEI-SEISMON_'

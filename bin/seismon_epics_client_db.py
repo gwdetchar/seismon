@@ -225,7 +225,7 @@ if __name__ == "__main__":
             ifo = 'K1'
         elif (site == 'GEO'):
             ifo = 'G1'
-        elif (site == 'TXT'):
+        elif (site == 'TST'):
             ifo = 'X2'
         else:
             ifo = "_1"
