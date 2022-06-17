@@ -317,6 +317,8 @@ if __name__ == '__main__':
 
     prefix = ifo +':SEI-SEISMON_'
 
+    print(f"Starting IOC for SITE={site} and IFO={ifo}")
+
     ioc_uptime = 0
     server = SimpleServer()
     pvdb = init_pvdb(site)
