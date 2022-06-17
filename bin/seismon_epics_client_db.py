@@ -185,7 +185,18 @@ if __name__ == "__main__":
     from argparse import ArgumentParser
     parser = ArgumentParser()
 
-    parser.add_argument('-I', '--ifo', default='LLO')
+    site = 'LLO'
+    ifo = None
+
+    # but check environment
+    if 'SITE' in os.environ:
+        site = os.environ['SITE']
+
+    if 'IFO' in os.environ:
+        ifo = os.environ['IFO']
+
+    parser.add_argument('-I', '-s', '--site', default=site)
+    parser.add_argument('-i', '--ifo', default=ifo)
     parser.add_argument('-C', '--config', default='input/config.yaml')
 
     args = parser.parse_args()
@@ -199,18 +210,25 @@ if __name__ == "__main__":
     config.read(args.config)
 
 # get ifo and identify site
+
+    site = args.site
     ifo = args.ifo
-    ifo_pre = '' 
-    if (ifo == 'LLO'):
-        ifo_pre = 'L1'
-    elif (ifo == 'LHO'):
-        ifo_pre = 'H1'
-    elif (ifo == 'VIRGO'):
-        ifo_pre = 'V1'
-    elif (ifo == 'KAGRA'):
-        ifo_pre = 'K1'
-    elif (ifo == 'GEO'):
-        ifo_pre = 'G1'
+
+    if ifo is None:
+        if (site == 'LLO'):
+            ifo = 'L1'
+        elif (site == 'LHO'):
+            ifo = 'H1'
+        elif (site == 'VIRGO'):
+            ifo = 'V1'
+        elif (site == 'KAGRA'):
+            ifo = 'K1'
+        elif (site == 'GEO'):
+            ifo = 'G1'
+        elif (site == 'TXT'):
+            ifo = 'X2'
+        else:
+            ifo = "_1"
 
 # initialize counters
     counter = 0
@@ -247,7 +265,7 @@ if __name__ == "__main__":
         mags = []
  
 # get list of predictions for this IFO sorted by P.wave time
-        prlist = session.query(Prediction).filter_by(ifo = ifo).order_by(desc(Prediction.p)) 
+        prlist = session.query(Prediction).filter_by(ifo = site).order_by(desc(Prediction.p))
 
 # loop over the predictions
         for pr in prlist:
@@ -294,7 +312,7 @@ if __name__ == "__main__":
                 r50_arr = Time(pr.r5p0,format='datetime')
 
 # update EPICS channels from them
-                write_epics(ifo,ifo_pre,num_eq,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr)
+                write_epics(site,ifo,num_eq,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr)
 
 # stop once we hit the limit
                 num_eq = num_eq + 1
@@ -303,6 +321,6 @@ if __name__ == "__main__":
 
         counter = counter + 1
         uptime = uptime + CYCLE_TIME
-        caput(ifo_pre + ':SEI-SEISMON_SYSTEM_UPTIME_SEC', uptime)
-        caput(ifo_pre + ':SEI-SEISMON_SYSTEM_COUNTER', counter)
+        caput(ifo + ':SEI-SEISMON_SYSTEM_UPTIME_SEC', uptime)
+        caput(ifo + ':SEI-SEISMON_SYSTEM_COUNTER', counter)
         time.sleep(CYCLE_TIME)

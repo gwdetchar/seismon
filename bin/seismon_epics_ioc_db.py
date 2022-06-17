@@ -16,7 +16,7 @@
 
 # create server
 from pcaspy import Driver, SimpleServer
-import time
+import os
 
 def init_pvdb(SITE):
 
@@ -283,28 +283,43 @@ if __name__ == '__main__':
     from argparse import ArgumentParser
     parser = ArgumentParser()
 
-    parser.add_argument('-I', '--ifo', default='LLO')
+    site = 'LLO'
+    ifo = None
+
+    # but check environment
+    if 'SITE' in os.environ:
+        site = os.environ['SITE']
+
+    if 'IFO' in os.environ:
+        ifo = os.environ['IFO']
+
+    parser.add_argument('-I', '-s', '--site', default=site)
+    parser.add_argument('-i', '--ifo', default=ifo)
 
     args = parser.parse_args()
 
 # get ifo and identify site
+    site = args.site
     ifo = args.ifo
-    ifo_pre = '' 
-    if (ifo == 'LLO'):
-        ifo_pre = 'L1'
-    elif (ifo == 'LHO'):
-        ifo_pre = 'H1'
-    elif (ifo == 'VIRGO'):
-        ifo_pre = 'V1'
-    elif (ifo == 'KAGRA'):
-        ifo_pre = 'K1'
-    elif (ifo == 'GEO'):
-        ifo_pre = 'G1'
-    prefix = ifo_pre +':SEI-SEISMON_'
+
+    if ifo is None:
+        if (site == 'LLO'):
+            ifo = 'L1'
+        elif (site == 'LHO'):
+            ifo = 'H1'
+        elif (site == 'VIRGO'):
+            ifo = 'V1'
+        elif (site == 'KAGRA'):
+            ifo = 'K1'
+        elif (site == 'GEO'):
+            ifo = 'G1'
+
+
+    prefix = ifo +':SEI-SEISMON_'
 
     ioc_uptime = 0
     server = SimpleServer()
-    pvdb = init_pvdb(ifo)
+    pvdb = init_pvdb(site)
     server.createPV(prefix, pvdb)
     driver = myDriver()
 
