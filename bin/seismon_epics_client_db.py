@@ -336,7 +336,7 @@ if __name__ == "__main__":
                 lng = float(eq.lon)
                 depth = float(eq.depth)
                 eqdist = float(pr.d)
-                rvel = float(pr.rfamp)*1.0e6
+                rvel = float(pr.rfamp)
                 p_arr = Time(pr.p,format='datetime')
                 s_arr = Time(pr.s,format='datetime')
                 r20_arr = Time(pr.r2p0,format='datetime')
