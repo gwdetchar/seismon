@@ -326,7 +326,7 @@ if __name__ == "__main__":
             idx = idx + 1
             this_magn = mags[idx]
             this_rvel = rvels[idx]
-            if this_magn > MAGN_MIN and this_rvel > RVEL_MIN:
+            if this_magn > MAGN_MIN or this_rvel > RVEL_MIN:
                 pr = preds[idx]
 
 # extract database quantities to variables
