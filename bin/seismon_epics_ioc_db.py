@@ -21,21 +21,21 @@ import os
 def init_pvdb(SITE):
 
     idxs = [0,1,2,3,4]
-    pvdb =  {'SYSTEM_TIME_GPS' : {
+    pvdb =  {'SYSTEM_TIME_GPS_V2' : {
             'prec' : 0,
             'type' : 'float', 
             'unit' : 'sec', 
             'lolim' : 1000000000, 
             'hilim' : 2000000000,
             },
-            'SYSTEM_UPTIME_SEC' : {
+            'SYSTEM_UPTIME_SEC_V2' : {
             'prec' : 0,
             'type' : 'float', 
             'unit' : 'sec', 
             'lolim' : 0, 
             'hilim' : 5000000,
             },
-            'SYSTEM_COUNTER' : {
+            'SYSTEM_COUNTER_V2' : {
             'prec' : 0,
             'type' : 'float', 
             'unit' : 'none', 
