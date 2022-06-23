@@ -90,7 +90,7 @@ def write_epics(SITE,IFO,eqidx,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r
     # update program's GPS time
     now_t = Time.now()
     gpsnow = now_t.gps
-    caput(IFO + ':SEI-SEISMON_SYSTEM_TIME_GPS', gpsnow)
+    caput(IFO + ':SEI-SEISMON_SYSTEM_TIME_GPS_V2', gpsnow)
 
     # Calculate the time-to-arrive in minutes and seconds
     # All this folderol with multipliers is because mod arithmetic is funny
@@ -321,6 +321,6 @@ if __name__ == "__main__":
 
         counter = counter + 1
         uptime = uptime + CYCLE_TIME
-        caput(ifo + ':SEI-SEISMON_SYSTEM_UPTIME_SEC', uptime)
-        caput(ifo + ':SEI-SEISMON_SYSTEM_COUNTER', counter)
+        caput(ifo + ':SEI-SEISMON_SYSTEM_UPTIME_SEC_V2', uptime)
+        caput(ifo + ':SEI-SEISMON_SYSTEM_COUNTER_V2', counter)
         time.sleep(CYCLE_TIME)
