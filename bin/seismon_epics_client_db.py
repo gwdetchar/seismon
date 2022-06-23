@@ -27,6 +27,11 @@ import os
 import time
 import copy
 import configparser
+import seismon
+import os.path
+import numpy as np
+import csv
+from seismon.eqmon import distance_latlon
 
 from astropy import table
 from astropy import coordinates
@@ -36,6 +41,11 @@ from astropy.time import Time, TimeDelta
 from sqlalchemy import Table, create_engine, MetaData, asc, desc
 from sqlalchemy.orm import create_session
 from sqlalchemy.ext.declarative import declarative_base
+
+
+# get path to seismon dir
+seismonpath = os.path.dirname(seismon.__file__)
+inputpath = os.path.join(seismonpath,'input')
 
 # set up engine to connect to database
 def engine_db(user, database, password=None, host=None, port=None):
@@ -53,7 +63,8 @@ from epics import caput
 import epics
 epics.ca.context_create()
 
-def write_epics(SITE,IFO,eqidx,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr):   
+def write_epics(SITE,IFO,eqidx,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr,
+                c_lat, c_long, c_names):
 # here we use the LIGO meaning of IFO and SITE
 #  SITE is the observatory, IFO is the GWIC interferometer prefix
 
@@ -167,6 +178,15 @@ def write_epics(SITE,IFO,eqidx,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r
     caput(IFO + ':SEI-SEISMON_' + SITE + '_R50_ARRIVALTIME_MINS_%d'%eqidx, r50_sign * r50_arrival_time_minutes)
     caput(IFO + ':SEI-SEISMON_' + SITE + '_R50_ARRIVALTIME_SECS_%d'%eqidx, r50_sign * r50_arrival_time_seconds)
 
+    # nearest country
+    # just shortest distance to some point in the country, so not super accurate
+    distances = distance_latlon(lat, lng, c_lat, c_long)
+    idx = np.argmin(distances)
+    country = c_names[idx]
+    locationstr = f"{country}"
+    truncloc = locationstr[:60]
+    caput(f"{IFO}:SEI-SEISMON_EQ_LOCATION_{eqidx}", truncloc)
+
 # run every two seconds
 CYCLE_TIME = int(4)
 
@@ -254,6 +274,18 @@ if __name__ == "__main__":
 #Create a session to use the tables    
     session = create_session(bind=engine)
 
+    # open up and read in countries file
+    countries_file = os.path.join(inputpath, "countries.csv")
+    cntry_abbrev, cntry_latitudes, cntry_longitudes, cntry_names = [], [], [], []
+    with open(countries_file, 'r', encoding='utf-8') as f:
+        reader = csv.reader(f, delimiter='\t')
+        for abb, lat, lon, country in reader:
+            cntry_abbrev.append(abb)
+            cntry_latitudes.append(float(lat))
+            cntry_longitudes.append(float(lon))
+            cntry_names.append(country)
+    cntry_latitudes, cntry_longitudes = np.array(cntry_latitudes), np.array(cntry_longitudes)
+
 # continuous loop
     while True:
  
@@ -312,7 +344,9 @@ if __name__ == "__main__":
                 r50_arr = Time(pr.r5p0,format='datetime')
 
 # update EPICS channels from them
-                write_epics(site,ifo,num_eq,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr)
+                write_epics(site,ifo,num_eq,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr,
+                            cntry_latitudes, cntry_longitudes, cntry_names)
+
 
 # stop once we hit the limit
                 num_eq = num_eq + 1
@@ -323,4 +357,7 @@ if __name__ == "__main__":
         uptime = uptime + CYCLE_TIME
         caput(ifo + ':SEI-SEISMON_SYSTEM_UPTIME_SEC_V2', uptime)
         caput(ifo + ':SEI-SEISMON_SYSTEM_COUNTER_V2', counter)
+
+
+
         time.sleep(CYCLE_TIME)
