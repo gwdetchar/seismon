@@ -184,7 +184,7 @@ def write_epics(SITE,IFO,eqidx,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r
     idx = np.argmin(distances)
     country = c_names[idx]
     locationstr = f"{country}"
-    truncloc = locationstr[:60]
+    truncloc = locationstr[:39]
     caput(f"{IFO}:SEI-SEISMON_EQ_LOCATION_{eqidx}", truncloc)
 
 # run every two seconds
