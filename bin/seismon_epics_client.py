@@ -66,16 +66,16 @@ olddatafile = []
 while True:
     # find latest file in datadir
   searchpath = datadir + "/*"
-  print("searchpath %s" % searchpath)
+  # print("searchpath %s" % searchpath)
   sys.stdout.flush()
   globstring = glob.iglob(searchpath)
 #    print "datadir globstring %s" % globstring
   newest_datadir = max(glob.iglob(searchpath), key=os.path.getctime)
-  print("newest_datadir %s" % newest_datadir)
+  # print("newest_datadir %s" % newest_datadir)
 
 # get name os usxxxxxxxx directory under the earthquakes subdirectory
   searchpath = newest_datadir + "/earthquakes/" + DATADIRPREFIX + "*"
-  print ("searchpath %s" % searchpath)
+  # print ("searchpath %s" % searchpath)
   sys.stdout.flush()
 
 #  First, make sure this is not empty.  If it is, add to uptime, continue
@@ -88,7 +88,7 @@ while True:
 #    print "datadir globstring %s" % globstring
     newest_usdatadir = max(glob.iglob(searchpath), key=os.path.getctime)
  
-    print ("newest_usdatadir %s" % newest_usdatadir)
+    # print ("newest_usdatadir %s" % newest_usdatadir)
     
     datafile = newest_usdatadir + "/earthquakes.txt"
 
@@ -97,7 +97,7 @@ while True:
     except IOError:
         print ('cannot open', datafile)
     else:
-        print ("open datafile %s" % datafile)
+        # print ("open datafile %s" % datafile)
         olddatafile = datafile
         found_ifo_line = False
         for line in df:
