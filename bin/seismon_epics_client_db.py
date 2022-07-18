@@ -197,7 +197,7 @@ MAGN_MIN = float(4.5)
 RVEL_MIN = float(8.0e-8) 
 
 # only 5 entries
-MAX_COUNT = int(5)
+MAX_COUNT = int(6)
 
 # main routine
 if __name__ == "__main__":
