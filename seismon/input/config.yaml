@@ -7,4 +7,4 @@ password = seismon
 min_eq_magnitude = 4.5
 
 [pdlcient]
-directory = /home/nmukund/ProductClient/data/receiver_storage/origin 
+directory = /var/lib/seismon/ProductClient/data/receiver_storage/origin 
