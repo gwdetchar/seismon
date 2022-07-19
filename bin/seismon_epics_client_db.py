@@ -196,8 +196,8 @@ MAGN_MIN = float(4.5)
 # Set minimum velocity
 RVEL_MIN = float(8.0e-8) 
 
-# only 5 entries
-MAX_COUNT = int(5)
+# set number of entries in EPICS
+MAX_COUNT = int(6)
 
 # main routine
 if __name__ == "__main__":
