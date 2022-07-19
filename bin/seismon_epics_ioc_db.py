@@ -20,7 +20,7 @@ import os
 
 def init_pvdb(SITE):
 
-    idxs = [0,1,2,3,4]
+    idxs = [0,1,2,3,4,5]
     pvdb =  {'SYSTEM_TIME_GPS_V2' : {
             'prec' : 0,
             'type' : 'float', 
