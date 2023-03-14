@@ -118,7 +118,7 @@ def scaleFac(m1,r1,h1,m2,r2,h2,b=1.31,c=4672.83,d=0.81):
 
 
 
-#def make_prediction_gpr(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
+##def make_prediction_gpr(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
 
 
 ############################# --------------------------- #############################
