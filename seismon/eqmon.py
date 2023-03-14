@@ -116,7 +116,11 @@ def scaleFac(m1,r1,h1,m2,r2,h2,b=1.31,c=4672.83,d=0.81):
     scaleFac = m1*(1.0/m2) * ( 10**(0.5*b*(m1-m2)) ) * (((r2) * (1.0/r1))**d)  * (np.exp(1))**(2*np.pi*(1.0/c)* (  (h2* 10**(2.3-0.5*m2) ) - (h1*10**(2.3-0.5*m1) )   )  )
     return scaleFac
 
-    
+
+
+#def make_prediction_gpr(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
+
+
 ############################# --------------------------- #############################
 
 
