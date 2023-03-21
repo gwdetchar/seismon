@@ -483,6 +483,9 @@ def compute_predictions(earthquake, ifo):
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
     Rfamp, Lockloss,Rfamp_powerLawFit = compute_amplitudes(earthquake, ifo)
     
+    # make sure Rfamp etc is in float 
+    Rfamp = np.float(Rfamp)
+    Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
