@@ -10,6 +10,7 @@ import glob
 import time
 import copy
 import configparser
+import pickle
 
 from astropy import table
 from astropy import coordinates
@@ -39,6 +40,22 @@ from seismon.config import app
 
 from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
+
+
+#-------------Set User Params---------------
+model_path = 'trained_models_path' # gpr-models are available (sub-folder within the folder containing this script)
+locklossMotionThresh= 1e-6 # (in m/s) threshold for the predicted ground motion  above which a lockloss flag is activated
+#-------------Set LDG Params--------------- 
+# used to send new evetns from PDL Client  to LDAS Cluster (to measure real seismic event)
+FLAG_send_pdl_event_to_ldg = 0
+ldg_uname = "nikhil.mukund" 
+ldg_cluster  =  "ldas-pcdev2.ligo.caltech.edu"
+ldg_cluster_pdl_client_event_folder = "/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/" # NEW_EVENTS_PDL_CLIENT_CARLETON (if running from Carleton)
+#-------------Set Global Variables (modified inside functions)---------------
+# Initialize
+FLAG_is_llo_gpr_model_loaded = 0 # 1 if model for eqmon.gprPrediction loaded
+FLAG_is_lho_gpr_model_loaded = 0
+#-----------------------------------------
 
 db = SQLAlchemy(app)
 
@@ -464,7 +481,7 @@ class virgo_catalogue(Base):
 def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
-    Rfamp, Lockloss = compute_amplitudes(earthquake, ifo)
+    Rfamp, Lockloss,Rfamp_powerLawFit = compute_amplitudes(earthquake, ifo)
     
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
@@ -488,8 +505,8 @@ def compute_predictions(earthquake, ifo):
 
 def compute_traveltimes(earthquake, ifo):
 
-    seismonpath = os.path.dirname(seismon.__file__)
-    scriptpath = os.path.join(seismonpath,'input')
+    seismon_path = os.path.dirname(seismon.__file__)
+    script_path = os.path.join(seismon_path,'input')
 
     depth = earthquake.depth
     eqtime = Time(earthquake.date, format='datetime')
@@ -529,33 +546,38 @@ def compute_traveltimes(earthquake, ifo):
 
 
 def compute_amplitudes(earthquake, ifo):
+    
+    # global variables (that gets modified globally)
+    global FLAG_is_llo_gpr_model_loaded 
+    
 
-    seismonpath = os.path.dirname(seismon.__file__)
-    scriptpath = os.path.join(seismonpath,'input')
+    seismon_path = os.path.dirname(seismon.__file__)
+    script_path = os.path.join(seismon_path,'input')
 
     depth = earthquake.depth
     eqtime = Time(earthquake.date, format='datetime')
     eqlat = earthquake.lat
     eqlon = earthquake.lon
     mag = earthquake.magnitude
+
+
+   
+    '''
+    # OLD-SEISMON
+
     ifolat = ifo.lat
     ifolon = ifo.lon
 
     if ifo.ifo == "LLO":
-        trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
+        trainFile = os.path.join(script_path,'LLO_processed_USGS_global_EQ_catalogue.csv')
         catalogue_name = 'llo_catalogues'
     elif ifo.ifo == "Virgo":
-        trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
+        trainFile = os.path.join(script_path,'LHO_processed_USGS_global_EQ_catalogue.csv')
         catalogue_name = 'virgo_catalogues'
     else:
-        trainFile = os.path.join(scriptpath,'LHO_processed_USGS_global_EQ_catalogue.csv')
+        trainFile = os.path.join(script_path,'LHO_processed_USGS_global_EQ_catalogue.csv')
         catalogue_name = 'lho_catalogues'
 
-    
-    # Read from CSV file (OLD-WAY)
-    #trainData = pd.read_csv(trainFile)
-
-    # print([ifo.ifo,catalogue_name,trainFile])
 
     # Read from the SQL database 
     try:
@@ -570,12 +592,9 @@ def compute_amplitudes(earthquake, ifo):
         print('Error occured. Could not connect to database. Reverting back to CSV based data fetching.')
         trainData = pd.read_csv(trainFile)
 
-
     thresh=0.1 #used to limit the geographical extend (latitude & longitude) to search around the current event
     predictor='peak_data_um_mean_subtracted'
-    locklossMotionThresh= 1*1e-6 # thresold for the predicted ground motion (in m/s) above which a lockloss flag is activated
-
-    (predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD) = eqmon.make_prediction(trainData,
+    predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD = eqmon.make_prediction(trainData,
                     eqlat,
                     eqlon,
                     mag,
@@ -583,8 +602,49 @@ def compute_amplitudes(earthquake, ifo):
                     ifolat,
                     ifolon,
                     thresh,predictor,locklossMotionThresh)
-    #print(TD)
-    return predicted_peak_amplitude, LocklossTag 
+    #print(TD)                    
+    '''
+    
+
+    # call powerLawFit for comparison
+    Y_pred_powerLawFit,Y_pred_st_powerLawFit = eqmon.powerLawFit(ifo.ifo,eqlat,eqlon,mag)   
+
+    # NEW GPR-SEISMON
+    # load model using pickle
+    model_name = "gpr_model_"+ifo.ifo.upper()+".dump"
+    models_path = "trained_prediction_models"
+    model_fullname = os.path.join(script_path,models_path,model_name)
+
+    # LOAD IFO Specific GPR Models (just once)
+    if ifo.ifo.lower() == "llo":  
+        # LLO      
+        if FLAG_is_llo_gpr_model_loaded==0:
+            llo_model= pickle.load(open(model_fullname,"rb"))
+            model=llo_model
+            FLAG_is_llo_gpr_model_loaded=1
+        else:
+            model=llo_model
+    else:      
+        # LHO & others 
+        if FLAG_is_lho_gpr_model_loaded==0:
+            lho_model= pickle.load(open(model_fullname,"rb"))
+            model=lho_model
+            FLAG_is_lho_gpr_model_loaded=1
+        else:
+            model=lho_model              
+
+    # call gprPredict 
+    Y_pred,Y_pred_std,model = eqmon.gprPredict(0,0,model,ifo.ifo,eqlat,eqlon,mag,depth)
+    # set LocklossTag FLAG
+    if Y_pred > locklossMotionThresh*1e-6: # Y_pred is in um/s, while locklossMotionThresh is in m/s
+        LocklossTag = 1
+    else:
+        LocklossTag = 0
+    predicted_peak_amplitude = Y_pred
+    return predicted_peak_amplitude, LocklossTag, Y_pred_powerLawFit
+
+
+
 
 
 def ingest_ifos():
@@ -680,8 +740,8 @@ def run_seismon(purge=False, init_db=False):
     if init_db:
         
         # Upload Past EQ events from CSV to the Database
-        seismonpath = os.path.dirname(seismon.__file__)
-        testpath = os.path.join(seismonpath,'tests')
+        seismon_path = os.path.dirname(seismon.__file__)
+        testpath = os.path.join(seismon_path,'tests')
         dataframe2database = os.path.join(testpath,'test_upload_pandas_table_to_database.py')
         os.system('python {}'.format(dataframe2database))
 
@@ -715,7 +775,7 @@ def run_seismon(purge=False, init_db=False):
                 
                 event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
                 pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
-                syscmd='scp {0} nikhil.mukund@ldas-pcdev2.ligo.caltech.edu:/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/'.format(event_filename)
+                syscmd='scp {0} {}@{}:{}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
                 # only sent once while looping over ifos 
                 if det.ifo=="LHO":
                     try:
