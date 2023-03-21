@@ -779,7 +779,7 @@ def run_seismon(purge=False, init_db=False):
                 
                 event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
                 pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
-                syscmd='scp {0} {}@{}:{}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
+                syscmd='scp {0} {1}@{2}:{3}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
                 # only sent once while looping over ifos 
                 if det.ifo=="LHO":
                     try:
