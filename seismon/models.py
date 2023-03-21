@@ -613,7 +613,7 @@ def compute_amplitudes(earthquake, ifo):
     
 
     # call powerLawFit for comparison
-    Y_pred_powerLawFit,Y_pred_st_powerLawFit = eqmon.powerLawFit(ifo.ifo,eqlat,eqlon,mag)   
+    Y_pred_powerLawFit,Y_pred_st_powerLawFit = eqmon.powerLawFit(ifo,eqlat,eqlon,mag)   
 
     # NEW GPR-SEISMON
     # load model using pickle

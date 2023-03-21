@@ -2823,7 +2823,7 @@ def shoot(lon, lat, azimuth, maxdist=None):
 ################################-----------------------################################-
 
 # make predictions in um/s using the Analytical PowerLaw  model
-def powerLawFit(ifo_name,lat,lon,mag):   
+def powerLawFit(ifo,lat,lon,mag):   
     R_earth = 6371
     pi = np.pi
     lat = np.array([lat]).flatten()
@@ -2831,12 +2831,10 @@ def powerLawFit(ifo_name,lat,lon,mag):
     mag = np.array([mag]).flatten()
     
     # get ifo coordinates
-    if ifo_name.lower()=='llo' or ifo_name.lower() =='l1' or ifo_name.lower()=='livingston' :
-        ifo_lat = 30.5630
-        ifo_lon = -90.7742
-    elif ifo_name.lower()=='lho' or ifo_name.lower() =='h1' or ifo_name.lower()=='hanford' :
-        ifo_lat = 46.2353
-        ifo_lon = -119.2704
+    ifo_lat = ifo.lat
+    ifo_lon = ifo.lon
+    
+   
     dist = np.zeros(len(lat),)        
     Y_pred_powerLaw = np.zeros(len(lat),)
     Y_pred_powerLaw_std = np.zeros(len(lat),) + np.finfo(float).eps # powerLaw doesn't provide uncertainity
