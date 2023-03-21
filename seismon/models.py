@@ -613,8 +613,8 @@ def compute_amplitudes(earthquake, ifo):
     # NEW GPR-SEISMON
     # load model using pickle
     model_name = "gpr_model_"+ifo.ifo.upper()+".dump"
-    models_path = "trained_prediction_models"
-    model_fullname = os.path.join(script_path,models_path,model_name)
+    model_path = "trained_prediction_models"
+    model_fullname = os.path.join(script_path,model_path,model_name)
 
     # LOAD IFO Specific GPR Models (just once)
     if ifo.ifo.lower() == "llo":  
