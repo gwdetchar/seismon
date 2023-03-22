@@ -660,6 +660,8 @@ def compute_amplitudes(earthquake, ifo):
     
     # NOTE: Since GPR-model is only trained onn events with Mag>5.5. Set others ->0
     if mag < min_eq_magnitude:
+        print('magnitude ({:0.2f}) less than min_eq_magnitude'.format(mag))
+        print('Setting GPR-predicted amplitude to zero')
         Y_pred=0
         Y_pred_std=0
 
