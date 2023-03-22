@@ -553,6 +553,9 @@ def compute_amplitudes(earthquake, ifo):
     # global variables (that gets modified globally)
     global FLAG_is_llo_gpr_model_loaded 
     global FLAG_is_lho_gpr_model_loaded
+
+    global llo_model
+    global lho_model
     
 
     seismon_path = os.path.dirname(seismon.__file__)
@@ -622,8 +625,6 @@ def compute_amplitudes(earthquake, ifo):
     else:
         model_name = "gpr_model_LHO.dump"
 
-
-    
     model_path = "trained_prediction_models"
     model_fullname = os.path.join(script_path,model_path,model_name)
 
