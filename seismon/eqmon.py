@@ -53,7 +53,7 @@ except:
 ######################### GPR based SEISMON Prediction 
 ################################-----------------------################################-
 # make predictions in um/s using the trained GPR model
-def gprPredict(load_model,model_fullname,model,ifo_name,lat,lon,mag,depth):   
+def gprPredict(load_model,model_fullname,model,ifo,lat,lon,mag,depth):   
     if load_model == 1:
         # load model
         # load model using pickle
@@ -65,13 +65,9 @@ def gprPredict(load_model,model_fullname,model,ifo_name,lat,lon,mag,depth):
     lon = np.array([lon]).flatten()
     mag = np.array([mag]).flatten()
     depth = np.array([depth]).flatten()
-    # get ifo coordinates
-    if ifo_name.lower()=='llo' or ifo_name.lower() =='l1' or ifo_name.lower()=='livingston' :
-        ifo_lat = 30.5630
-        ifo_lon = -90.7742
-    elif ifo_name.lower()=='lho' or ifo_name.lower() =='h1' or ifo_name.lower()=='hanford' :
-        ifo_lat = 46.2353
-        ifo_lon = -119.2704
+    # get ifo coordinate
+    ifo_lat = ifo.lat
+    ifo_lon = ifo.lon
     # calculate distance
     dist=np.array([])
     # calculate distance

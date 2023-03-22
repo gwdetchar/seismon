@@ -646,7 +646,7 @@ def compute_amplitudes(earthquake, ifo):
             model=lho_model              
 
     # call gprPredict 
-    Y_pred,Y_pred_std,model = eqmon.gprPredict(0,0,model,ifo.ifo,eqlat,eqlon,mag,depth)
+    Y_pred,Y_pred_std,model = eqmon.gprPredict(0,0,model,ifo,eqlat,eqlon,mag,depth)
     # set LocklossTag FLAG
     if Y_pred > locklossMotionThresh*1e-6: # Y_pred is in um/s, while locklossMotionThresh is in m/s
         LocklossTag = 1
