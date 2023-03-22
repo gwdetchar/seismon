@@ -312,6 +312,11 @@ class Prediction(Base):
             nullable=False,
             comment='ML-based Earthquake amplitude predictions [um/s]')
     
+    rfamp_std = sa.Column(
+        sa.Float,
+        nullable=False,
+        comment='std for ML-based Earthquake amplitude predictions [um/s]')
+    
     rfamp_linear = sa.Column(
             sa.Float,
             nullable=False,
@@ -487,10 +492,11 @@ class virgo_catalogue(Base):
 def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
-    Rfamp, Lockloss,Rfamp_powerLawFit = compute_amplitudes(earthquake, ifo)
+    Rfamp, Lockloss,Rfamp_powerLawFit, Rfamp_std = compute_amplitudes(earthquake, ifo)
     
     # make sure Rfamp etc is in float 
     Rfamp = np.float(Rfamp)
+    Rfamp_std = np.float(Rfamp_std)
     Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
 
     #PRINT: only LLO/LHO
@@ -516,6 +522,7 @@ def compute_predictions(earthquake, ifo):
                                  r3p5=RthreePointFivetime,
                                  r5p0=Rfivetime,
                                  rfamp=Rfamp,
+                                 rfamp_std=Rfamp_std,
                                  rfamp_linear=Rfamp_powerLawFit,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
@@ -683,7 +690,7 @@ def compute_amplitudes(earthquake, ifo):
     else:
         LocklossTag = 0
     predicted_peak_amplitude = Y_pred
-    return predicted_peak_amplitude, LocklossTag, Y_pred_powerLawFit
+    return predicted_peak_amplitude, LocklossTag, Y_pred_powerLawFit,Y_pred_std
 
 
 
