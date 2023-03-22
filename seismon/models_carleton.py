@@ -490,8 +490,8 @@ def compute_predictions(earthquake, ifo):
     #PRINT:
     print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.
           format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
-    print('....... Linear-prediction:{} um/s'.format(Rfamp_powerLawFit))
-    print('....... ML-prediction:{} um/s'.format(Rfamp))
+    print('....... Linear-prediction:{0.2f} um/s'.format(Rfamp_powerLawFit))
+    print('....... ML-prediction:{0.2f} um/s'.format(Rfamp))
     print('')
    
 
