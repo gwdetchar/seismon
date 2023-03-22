@@ -57,6 +57,7 @@ FLAG_is_llo_gpr_model_loaded = 0 # 1 if model for eqmon.gprPrediction loaded
 FLAG_is_lho_gpr_model_loaded = 0
 #-----------------------------------------
 
+
 db = SQLAlchemy(app)
 
 DBSession = scoped_session(sessionmaker())
@@ -656,6 +657,15 @@ def compute_amplitudes(earthquake, ifo):
 
     # call gprPredict 
     Y_pred,Y_pred_std,model = eqmon.gprPredict(0,model_fullname,model,ifo,eqlat,eqlon,mag,depth)
+    
+    # NOTE: Since GPR-model is only trained onn events with Mag>5.5. Set others ->0
+    if mag < min_eq_magnitude:
+        Y_pred=0
+        Y_pred_std=0
+
+
+    
+    
     # set LocklossTag FLAG
     if Y_pred > locklossMotionThresh*1e-6: # Y_pred is in um/s, while locklossMotionThresh is in m/s
         LocklossTag = 1
@@ -839,6 +849,7 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read(args.config)
+    min_eq_magnitude = float(config['database']['min_eq_magnitude'])
 
     conn = init_db(config['database']['user'],
                    config['database']['database'],
