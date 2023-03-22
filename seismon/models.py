@@ -487,7 +487,12 @@ def compute_predictions(earthquake, ifo):
     Rfamp = np.float(Rfamp)
     Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
 
-    
+    #PRINT:
+    print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.
+          format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
+    print('....... Linear-prediction:{} um/s'.format(Rfamp_powerLawFit))
+    print('....... ML-prediction:{} um/s'.format(Rfamp))
+    print('')
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
