@@ -617,7 +617,13 @@ def compute_amplitudes(earthquake, ifo):
 
     # NEW GPR-SEISMON
     # load model using pickle
-    model_name = "gpr_model_"+ifo.ifo.upper()+".dump"
+    
+    #TOFIX: (currently  GEO,Virgo uses LHO GPR model)
+    if ifo.ifo.upper()=="LLO": 
+        model_name = "gpr_model_LLO.dump"
+    else:
+        model_name = "gpr_model_LHO.dump"
+
     model_path = "trained_prediction_models"
     model_fullname = os.path.join(script_path,model_path,model_name)
 
