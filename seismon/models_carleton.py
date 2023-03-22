@@ -493,12 +493,13 @@ def compute_predictions(earthquake, ifo):
     Rfamp = np.float(Rfamp)
     Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
 
-    #PRINT:
-    print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.
-          format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
-    print('....... Linear-prediction:{:0.2f} um/s'.format(Rfamp_powerLawFit))
-    print('....... ML-prediction:{:0.2f} um/s'.format(Rfamp))
-    print('-----------------------------------------------')
+    #PRINT: only LLO/LHO
+    if ifo.ifo.lower()=='llo' or ifo.ifo.lower()=='lho' :
+        print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.
+            format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
+        print('....... Linear-prediction:{:0.2f} um/s'.format(Rfamp_powerLawFit))
+        print('....... ML-prediction:{:0.2f} um/s'.format(Rfamp))
+        print('-----------------------------------------------')
    
 
 
