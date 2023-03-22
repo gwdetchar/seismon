@@ -310,13 +310,18 @@ class Prediction(Base):
     rfamp = sa.Column(
             sa.Float,
             nullable=False,
-            comment='Earthquake amplitude predictions [m/s]')
+            comment='ML-based Earthquake amplitude predictions [um/s]')
+    
+    rfamp_linear = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='PowerLawFit-based Earthquake amplitude predictions [um/s]')    
 
     #(added by NM on 04/10/21)
     rfamp_measured = sa.Column(
             sa.Float,
             nullable=False,
-            comment='Earthquake amplitude measured [m/s]')
+            comment='Earthquake amplitude measured [um/s]')
 
     lockloss = sa.Column(
                sa.INT,
@@ -510,6 +515,7 @@ def compute_predictions(earthquake, ifo):
                                  r3p5=RthreePointFivetime,
                                  r5p0=Rfivetime,
                                  rfamp=Rfamp,
+                                 rfamp_linear=Rfamp_powerLawFit,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
     DBSession().commit()
