@@ -655,7 +655,7 @@ def compute_amplitudes(earthquake, ifo):
             model=lho_model              
 
     # call gprPredict 
-    Y_pred,Y_pred_std,model = eqmon.gprPredict(0,0,model,ifo,eqlat,eqlon,mag,depth)
+    Y_pred,Y_pred_std,model = eqmon.gprPredict(0,model_fullname,model,ifo,eqlat,eqlon,mag,depth)
     # set LocklossTag FLAG
     if Y_pred > locklossMotionThresh*1e-6: # Y_pred is in um/s, while locklossMotionThresh is in m/s
         LocklossTag = 1
@@ -784,8 +784,7 @@ def run_seismon(purge=False, init_db=False):
             if len(preds) == 0 and eq.magnitude >= float(config['database']['min_eq_magnitude']) :
                 compute_predictions(eq, det)
 
-                # (added by NM on 02/10/21) Sent event to Caltech machine
-                
+                # (added by NM on 02/10/21) Sent event to Caltech machine                
                 # (added by NM on 03/10/21) KeyError for: sent = Time(attributeDic["Sent"], format='isot', scale='utc')
                 try:
                     mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent),'created_at':str(eq.created_at),'modified':str(eq.modified)}
