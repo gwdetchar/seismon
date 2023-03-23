@@ -12,7 +12,7 @@ directory = /home/nmukund/ProductClient/data/receiver_storage/origin
 [eq_prediction]
 model_path = input_path/trained_models_path 
 locklossMotionThresh= 1 
-
+ 
 
 [ldg_params]
 FLAG_send_pdl_event_to_ldg = 0
