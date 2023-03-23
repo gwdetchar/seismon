@@ -51,11 +51,14 @@ FLAG_send_pdl_event_to_ldg = 0
 ldg_uname = "nikhil.mukund" 
 ldg_cluster  =  "ldas-pcdev2.ligo.caltech.edu"
 ldg_cluster_pdl_client_event_folder = "/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT_CARLETON/" # NEW_EVENTS_PDL_CLIENT_CARLETON (if running from Carleton)
-#-------------Set Global Variables (modified inside functions)---------------
-# Initialize
+
+
+#-------------Initialize Global Variables (dont, change modified inside functions)---------------
+# 
 FLAG_is_llo_gpr_model_loaded = 0 # 1 if model for eqmon.gprPrediction loaded
 FLAG_is_lho_gpr_model_loaded = 0
 #-----------------------------------------
+
 
 
 db = SQLAlchemy(app)

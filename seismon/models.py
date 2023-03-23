@@ -51,11 +51,15 @@ FLAG_send_pdl_event_to_ldg = 0
 ldg_uname = "nikhil.mukund" 
 ldg_cluster  =  "ldas-pcdev2.ligo.caltech.edu"
 ldg_cluster_pdl_client_event_folder = "/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/" # NEW_EVENTS_PDL_CLIENT_CARLETON (if running from Carleton)
-#-------------Set Global Variables (modified inside functions)---------------
-# Initialize
+
+
+
+#-------------Initialize Global Variables (dont, change modified inside functions)---------------
+# 
 FLAG_is_llo_gpr_model_loaded = 0 # 1 if model for eqmon.gprPrediction loaded
 FLAG_is_lho_gpr_model_loaded = 0
 #-----------------------------------------
+
 
 db = SQLAlchemy(app)
 
@@ -309,13 +313,23 @@ class Prediction(Base):
     rfamp = sa.Column(
             sa.Float,
             nullable=False,
-            comment='Earthquake amplitude predictions [m/s]')
+            comment='ML-based Earthquake amplitude predictions [um/s]')
+    
+    rfamp_std = sa.Column(
+        sa.Float,
+        nullable=False,
+        comment='std for ML-based Earthquake amplitude predictions [um/s]')
+    
+    rfamp_linear = sa.Column(
+            sa.Float,
+            nullable=False,
+            comment='PowerLawFit-based Earthquake amplitude predictions [um/s]')    
 
     #(added by NM on 04/10/21)
     rfamp_measured = sa.Column(
             sa.Float,
             nullable=False,
-            comment='Earthquake amplitude measured [m/s]')
+            comment='Earthquake amplitude measured [um/s]')
 
     lockloss = sa.Column(
                sa.INT,
@@ -481,18 +495,22 @@ class virgo_catalogue(Base):
 def compute_predictions(earthquake, ifo):
 
     Dist, Ptime, Stime, Rtwotime, RthreePointFivetime, Rfivetime = compute_traveltimes(earthquake, ifo) 
-    Rfamp, Lockloss,Rfamp_powerLawFit = compute_amplitudes(earthquake, ifo)
-
+    Rfamp, Lockloss,Rfamp_powerLawFit, Rfamp_std = compute_amplitudes(earthquake, ifo)
+    
     # make sure Rfamp etc is in float 
     Rfamp = np.float(Rfamp)
+    Rfamp_std = np.float(Rfamp_std)
     Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
 
-    #PRINT:
-    print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.
-          format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
-    print('....... Linear-prediction:{:0.2f} um/s'.format(Rfamp_powerLawFit))
-    print('....... ML-prediction:{:0.2f} um/s'.format(Rfamp))
-    print('')
+    #PRINT: only LLO/LHO
+    if ifo.ifo.lower()=='llo' or ifo.ifo.lower()=='lho' :
+        print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.
+            format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
+        print('....... Linear-prediction:{:0.2f} um/s'.format(Rfamp_powerLawFit))
+        print('....... ML-prediction:{:0.2f} um/s'.format(Rfamp))
+        print('-----------------------------------------------')
+   
+
 
     DBSession().merge(Prediction(event_id=earthquake.event_id,
                                  ifo=ifo.ifo,
@@ -507,9 +525,10 @@ def compute_predictions(earthquake, ifo):
                                  r3p5=RthreePointFivetime,
                                  r5p0=Rfivetime,
                                  rfamp=Rfamp,
+                                 rfamp_std=Rfamp_std,
+                                 rfamp_linear=Rfamp_powerLawFit,
                                  rfamp_measured=-1,
                                  lockloss=int(Lockloss)))
-    print('Prediction for event: {} with mag: {:0.2f} at IFO: {}'.format(earthquake.event_id,earthquake.magnitude,ifo.ifo))
     DBSession().commit()
 
 
@@ -655,13 +674,26 @@ def compute_amplitudes(earthquake, ifo):
 
     # call gprPredict 
     Y_pred,Y_pred_std,model = eqmon.gprPredict(0,model_fullname,model,ifo,eqlat,eqlon,mag,depth)
+    
+    '''
+    # CHECK: Since GPR-model is only trained onn events with Mag>5.5. Set others ->0
+    if mag < min_eq_magnitude:
+        print('magnitude ({:0.2f}) less than min_eq_magnitude'.format(mag))
+        print('Setting GPR-predicted amplitude to zero')
+        Y_pred=0
+        Y_pred_std=0
+    '''
+
+
+    
+    
     # set LocklossTag FLAG
     if Y_pred > locklossMotionThresh*1e-6: # Y_pred is in um/s, while locklossMotionThresh is in m/s
         LocklossTag = 1
     else:
         LocklossTag = 0
     predicted_peak_amplitude = Y_pred
-    return predicted_peak_amplitude, LocklossTag, Y_pred_powerLawFit
+    return predicted_peak_amplitude, LocklossTag, Y_pred_powerLawFit,Y_pred_std
 
 
 
@@ -783,8 +815,7 @@ def run_seismon(purge=False, init_db=False):
             if len(preds) == 0 and eq.magnitude >= float(config['database']['min_eq_magnitude']) :
                 compute_predictions(eq, det)
 
-                # (added by NM on 02/10/21) Sent event to Caltech machine
-                
+                # (added by NM on 02/10/21) Sent event to Caltech machine                
                 # (added by NM on 03/10/21) KeyError for: sent = Time(attributeDic["Sent"], format='isot', scale='utc')
                 try:
                     mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent),'created_at':str(eq.created_at),'modified':str(eq.modified)}
@@ -839,6 +870,7 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read(args.config)
+    min_eq_magnitude = float(config['database']['min_eq_magnitude'])
 
     conn = init_db(config['database']['user'],
                    config['database']['database'],
