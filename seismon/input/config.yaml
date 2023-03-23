@@ -11,7 +11,7 @@ directory = /home/nmukund/ProductClient/data/receiver_storage/origin
 
 [eq_prediction]
 model_path = input/trained_prediction_models 
-locklossMotionThresh= 1 
+locklossMotionThresh = 1 
  
 
 [ldg_params]

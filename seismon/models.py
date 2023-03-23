@@ -42,16 +42,6 @@ from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 
 
-#-------------Set User Params---------------
-model_path = 'trained_models_path' # gpr-models are available (sub-folder within the folder containing this script)
-locklossMotionThresh= 1e-6 # (in m/s) threshold for the predicted ground motion  above which a lockloss flag is activated
-#-------------Set LDG Params--------------- 
-# used to send new evetns from PDL Client  to LDAS Cluster (to measure real seismic event)
-FLAG_send_pdl_event_to_ldg = 0
-ldg_uname = "nikhil.mukund" 
-ldg_cluster  =  "ldas-pcdev2.ligo.caltech.edu"
-ldg_cluster_pdl_client_event_folder = "/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/" # NEW_EVENTS_PDL_CLIENT_CARLETON (if running from Carleton)
-
 
 
 #-------------Initialize Global Variables (dont, change modified inside functions)---------------
@@ -59,6 +49,7 @@ ldg_cluster_pdl_client_event_folder = "/home/nikhil.mukund/public_html/SEISMON/N
 FLAG_is_llo_gpr_model_loaded = 0 # 1 if model for eqmon.gprPrediction loaded
 FLAG_is_lho_gpr_model_loaded = 0
 #-----------------------------------------
+
 
 
 db = SQLAlchemy(app)
@@ -651,8 +642,7 @@ def compute_amplitudes(earthquake, ifo):
     else:
         model_name = "gpr_model_LHO.dump"
 
-    model_path = "trained_prediction_models"
-    model_fullname = os.path.join(script_path,model_path,model_name)
+    model_fullname = os.path.join(seismon_path,model_path,model_name)
 
     # LOAD IFO Specific GPR Models (just once)
     if ifo.ifo.lower() == "llo":  
@@ -828,14 +818,15 @@ def run_seismon(purge=False, init_db=False):
                 pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
                 syscmd='scp {0} {1}@{2}:{3}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
                 # only sent once while looping over ifos 
-                if det.ifo=="LHO":
-                    try:
-                        print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
-                        os.system(syscmd)
-                        print('File sent.')
-                    except:
-                        print('unable to send the file to Caltech machine')
-                        pass
+                if FLAG_send_pdl_event_to_ldg == 1:
+                    if det.ifo=="LHO":
+                        try:
+                            print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
+                            os.system(syscmd)
+                            print('File sent.')
+                        except:
+                            print('unable to send the file to Caltech machine')
+                            pass
 
 
             # Print Predictions, for debugging purpose
@@ -870,7 +861,18 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read(args.config)
+
+    # Fetch from config
+    # [database]
     min_eq_magnitude = float(config['database']['min_eq_magnitude'])
+    # [eq_prediction]
+    locklossMotionThresh =  float(config['eq_prediction']['locklossMotionThresh'])
+    model_path = config['eq_prediction']['model_path']
+    # [ldg_params]
+    FLAG_send_pdl_event_to_ldg= config['ldg_params']['FLAG_send_pdl_event_to_ldg']
+    ldg_uname = config['ldg_params']['ldg_uname']
+    ldg_cluster = config['ldg_params']['ldg_cluster']
+    ldg_cluster_pdl_client_event_folder = config['ldg_params']['ldg_cluster_pdl_client_event_folder']
 
     conn = init_db(config['database']['user'],
                    config['database']['database'],

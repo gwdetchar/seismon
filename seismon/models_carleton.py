@@ -818,14 +818,15 @@ def run_seismon(purge=False, init_db=False):
                 pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
                 syscmd='scp {0} {1}@{2}:{3}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
                 # only sent once while looping over ifos 
-                if det.ifo=="LHO":
-                    try:
-                        print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
-                        os.system(syscmd)
-                        print('File sent.')
-                    except:
-                        print('unable to send the file to Caltech machine')
-                        pass
+                if FLAG_send_pdl_event_to_ldg == 1:
+                    if det.ifo=="LHO":
+                        try:
+                            print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
+                            os.system(syscmd)
+                            print('File sent.')
+                        except:
+                            print('unable to send the file to Caltech machine')
+                            pass
 
 
             # Print Predictions, for debugging purpose
