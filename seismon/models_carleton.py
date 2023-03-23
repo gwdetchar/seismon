@@ -42,15 +42,6 @@ from flask_login.mixins import UserMixin
 from flask_sqlalchemy import SQLAlchemy
 
 
-#-------------Set User Params---------------
-model_path = 'input_path/trained_models_path' # gpr-models are available (sub-folder within the folder containing this script)
-locklossMotionThresh= 1 # (in um/s) threshold for the predicted ground motion  above which a lockloss flag is activated
-#-------------Set LDG Params--------------- 
-# used to send new evetns from PDL Client  to LDAS Cluster (to measure real seismic event)
-FLAG_send_pdl_event_to_ldg = 0
-ldg_uname = "nikhil.mukund" 
-ldg_cluster  =  "ldas-pcdev2.ligo.caltech.edu"
-ldg_cluster_pdl_client_event_folder = "/home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT_CARLETON/" # NEW_EVENTS_PDL_CLIENT_CARLETON (if running from Carleton)
 
 
 #-------------Initialize Global Variables (dont, change modified inside functions)---------------
@@ -869,7 +860,18 @@ if __name__ == "__main__":
 
     config = configparser.ConfigParser()
     config.read(args.config)
+
+    # Fetch from config
+    # [database]
     min_eq_magnitude = float(config['database']['min_eq_magnitude'])
+    # [eq_prediction]
+    locklossMotionThresh =  float(config['eq_prediction']['locklossMotionThresh'])
+    model_path = config['eq_prediction']['model_path']
+    # [ldg_params]
+    FLAG_send_pdl_event_to_ldg= config['ldg_params']['FLAG_send_pdl_event_to_ldg']
+    ldg_uname = config['ldg_params']['ldg_uname']
+    ldg_cluster = config['ldg_params']['ldg_cluster']
+    ldg_cluster_pdl_client_event_folder = config['ldg_params']['ldg_cluster_pdl_client_event_folder']
 
     conn = init_db(config['database']['user'],
                    config['database']['database'],
