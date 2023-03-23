@@ -10,15 +10,15 @@ min_eq_magnitude = 5.5
 directory = /home/nmukund/ProductClient/data/receiver_storage/origin 
 
 [eq_prediction]
-model_path = input_path/trained_models_path # gpr-models are available here (sub-folder within seismon_path)
-locklossMotionThresh= 1 # threshold ground motion (in um/s) to activate thhe lockloss flag
+model_path = input_path/trained_models_path 
+locklossMotionThresh= 1 
 
 
 [ldg_params]
-FLAG_send_pdl_event_to_ldg = 0 # used to send new evetns from PDL Client  to LDAS Cluster (to measure real seismic event)
+FLAG_send_pdl_event_to_ldg = 0
 ldg_uname = nikhil.mukund
 ldg_cluster  =  ldas-pcdev2.ligo.caltech.edu
-ldg_cluster_pdl_client_event_folder = /home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT_CARLETON/ # NEW_EVENTS_PDL_CLIENT_CARLETON (if running from Carleton)
+ldg_cluster_pdl_client_event_folder = /home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT_CARLETON/
 
 
 
