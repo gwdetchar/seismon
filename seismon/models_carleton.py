@@ -43,8 +43,8 @@ from flask_sqlalchemy import SQLAlchemy
 
 
 #-------------Set User Params---------------
-model_path = 'trained_models_path' # gpr-models are available (sub-folder within the folder containing this script)
-locklossMotionThresh= 1e-6 # (in m/s) threshold for the predicted ground motion  above which a lockloss flag is activated
+model_path = 'input_path/trained_models_path' # gpr-models are available (sub-folder within the folder containing this script)
+locklossMotionThresh= 1 # (in um/s) threshold for the predicted ground motion  above which a lockloss flag is activated
 #-------------Set LDG Params--------------- 
 # used to send new evetns from PDL Client  to LDAS Cluster (to measure real seismic event)
 FLAG_send_pdl_event_to_ldg = 0
@@ -651,8 +651,7 @@ def compute_amplitudes(earthquake, ifo):
     else:
         model_name = "gpr_model_LHO.dump"
 
-    model_path = "trained_prediction_models"
-    model_fullname = os.path.join(script_path,model_path,model_name)
+    model_fullname = os.path.join(seismon_path,model_path,model_name)
 
     # LOAD IFO Specific GPR Models (just once)
     if ifo.ifo.lower() == "llo":  
