@@ -653,7 +653,8 @@ def compute_amplitudes(earthquake, ifo):
             FLAG_is_llo_gpr_model_loaded=1
         else:
             model=llo_model
-    elif ifo.ifo.lower() == "lho":      
+    else:     
+        # CHECK: Currently lho_model used for lho/virgo/geo
         # LHO  
         if FLAG_is_lho_gpr_model_loaded==0:
             lho_model= pickle.load(open(model_fullname,"rb"))
