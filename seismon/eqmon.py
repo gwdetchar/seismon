@@ -2827,6 +2827,7 @@ def powerLawFit(ifo,lat,lon,mag,depth):
     lat = np.array([lat]).flatten()
     lon = np.array([lon]).flatten()
     mag = np.array([mag]).flatten()
+    depth = np.array([depth]).flatten()
     
     # get ifo coordinates
     ifo_lat = ifo.lat
