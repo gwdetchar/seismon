@@ -2821,7 +2821,7 @@ def shoot(lon, lat, azimuth, maxdist=None):
 ################################-----------------------################################-
 
 # make predictions in um/s using the Analytical PowerLaw  model
-def powerLawFit(ifo,lat,lon,mag):   
+def powerLawFit(ifo,lat,lon,mag,depth):   
     R_earth = 6371
     pi = np.pi
     lat = np.array([lat]).flatten()
@@ -2831,14 +2831,28 @@ def powerLawFit(ifo,lat,lon,mag):
     # get ifo coordinates
     ifo_lat = ifo.lat
     ifo_lon = ifo.lon
+
+    # get ifo name
+    ifo_name = ifo.ifo
     
    
     dist = np.zeros(len(lat),)        
     Y_pred_powerLaw = np.zeros(len(lat),)
     Y_pred_powerLaw_std = np.zeros(len(lat),) + np.finfo(float).eps # powerLaw doesn't provide uncertainity
+    
+
     for ijk in range(len(lat)):
         dist[ijk] = gps2dist_azimuth(ifo_lat,ifo_lon,lat[ijk],lon[ijk])[0]/1e3
-        Y_pred_powerLaw[ijk] = 10**(0.9*(mag[ijk]-6.5))*(dist[ijk]/pi/R_earth)**(-5/6)
+        #  generic one from Edgard/Ross
+        #Y_pred_powerLaw[ijk] = 10**(0.9*(mag[ijk]-6.5))*(dist[ijk]/pi/R_earth)**(-5/6)  
+        #       
+        # another updated one from Eyal [SEI LOG: 2104]
+        if ifo_name.lower()=='llo' or ifo_name.lower() =='l1' or ifo_name.lower()=='livingston':
+            Y_pred_powerLaw[ijk] = np.exp(2.25*mag[ijk] - 1.54*np.log(dist[ijk]/R_earth/pi) - 0.22*np.log(depth[ijk]/R_earth) - 16.29)
+        #TO-FIX: currently uses same formula for LHO/GEO/VIRGO    
+        else:
+            Y_pred_powerLaw[ijk] = np.exp(2.34*mag[ijk] - 2.72*np.log(dist[ijk]/R_earth/pi) - 0.28*np.log(depth[ijk]/R_earth) - 18.01)
+
     # return powerLaw result
     return Y_pred_powerLaw,Y_pred_powerLaw_std
 
