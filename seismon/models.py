@@ -901,4 +901,4 @@ if __name__ == "__main__":
         run_seismon(purge=args.purge, init_db=args.init_db)
         #except:
         #    pass
-        time.sleep(15)
+        time.sleep( config['eq_prediction']['sleep_time_secs'] )

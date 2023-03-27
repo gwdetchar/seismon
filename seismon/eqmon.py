@@ -58,11 +58,11 @@ def gprPredict(load_model,model_fullname,model,ifo,lat,lon,mag,depth):
         # load model
         # load model using pickle
         print('-----------------------------------------------')
-        print('loading model: {}'.format(model_fullname))
+        #print('loading model: {}'.format(model_fullname))
         model = pickle.load(open(model_fullname,"rb"))
     else:
         print('-----------------------------------------------')
-        print('using pre-loaded model: {}'.format(model_fullname))
+        #print('using pre-loaded model: {}'.format(model_fullname))
     lat = np.array([lat]).flatten()
     lon = np.array([lon]).flatten()
     mag = np.array([mag]).flatten()
