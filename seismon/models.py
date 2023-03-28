@@ -870,7 +870,7 @@ if __name__ == "__main__":
     locklossMotionThresh =  float(config['eq_prediction']['locklossMotionThresh'])
     model_path = config['eq_prediction']['model_path']
     # [ldg_params]
-    FLAG_send_pdl_event_to_ldg= config['ldg_params']['FLAG_send_pdl_event_to_ldg']
+    FLAG_send_pdl_event_to_ldg= int(config['ldg_params']['FLAG_send_pdl_event_to_ldg'])
     ldg_uname = config['ldg_params']['ldg_uname']
     ldg_cluster = config['ldg_params']['ldg_cluster']
     ldg_cluster_pdl_client_event_folder = config['ldg_params']['ldg_cluster_pdl_client_event_folder']
