@@ -1,5 +1,23 @@
 """
-Database schema.
+models.py : Primary script of SEISMON framework to make ground motion predictions [um/s] 
+at the GW detectors from initial USGS earthquake parameters acquired using the 
+USGS PDL client.
+
+# Make sure USGS PDL client is running
+
+# Specify correct path & settings in the input/config.yaml file
+
+# To Initialize the database:
+python models.py --init_db
+
+# To purge all the events 
+python models.py --purge
+
+# Normal execution (once thee database is configured)
+python models.py --config input/config.yaml
+
+ 
+
 """
 
 from datetime import datetime, date
