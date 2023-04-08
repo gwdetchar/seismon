@@ -63,6 +63,7 @@ install_requires = [
     'numpy>=1.7.1',
     'obspy',
     'passlib',
+    'psycopg2',
     'redis',
     'scipy>=0.12.1',
     'simplejson',
