@@ -327,7 +327,7 @@ if __name__ == "__main__":
             this_magn = mags[idx]
             this_rvel = rvels[idx]
             # print(f"{idx} {Time(eq.date,format='datetime')}")
-            if this_magn > MAGN_MIN or this_rvel > RVEL_MIN:
+            if this_magn >= MAGN_MIN or this_rvel > RVEL_MIN:
                 pr = preds[idx]
 
 # extract database quantities to variables
