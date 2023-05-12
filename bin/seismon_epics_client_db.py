@@ -297,7 +297,7 @@ if __name__ == "__main__":
         mags = []
  
 # get list of predictions for this IFO sorted by P.wave time
-        prlist = session.query(Prediction).filter_by(ifo = site).order_by(desc(Prediction.p))
+        prlist = session.query(Prediction).filter_by(ifo = site).order_by(desc(Prediction.p)).limit(200)
 
 # loop over the predictions
         for pr in prlist:
@@ -326,6 +326,7 @@ if __name__ == "__main__":
             idx = idx + 1
             this_magn = mags[idx]
             this_rvel = rvels[idx]
+            # print(f"{idx} {Time(eq.date,format='datetime')}")
             if this_magn > MAGN_MIN or this_rvel > RVEL_MIN:
                 pr = preds[idx]
 
@@ -342,6 +343,7 @@ if __name__ == "__main__":
                 r20_arr = Time(pr.r2p0,format='datetime')
                 r35_arr  = Time(pr.r3p5,format='datetime')
                 r50_arr = Time(pr.r5p0,format='datetime')
+                # print(f"time={eq_t} mag={magn} lat={lat} long={lng}")
 
 # update EPICS channels from them
                 write_epics(site,ifo,num_eq,eq_t,magn,lat,lng,depth,eqdist,rvel,p_arr,s_arr,r20_arr,r35_arr,r50_arr,
