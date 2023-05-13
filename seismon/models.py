@@ -690,7 +690,7 @@ def run_seismon(purge=False, init_db=False):
         ingest_earthquakes(config, args.lookback)
 
     ifos = Ifo.query.all()
-    eqs = Earthquake.query.order_by(desc(Earthquake.date)).limit(100)
+    eqs = Earthquake.query.order_by(Earthquake.date.desc()).limit(100).all()
 
     for eq in eqs:
         for det in ifos:
