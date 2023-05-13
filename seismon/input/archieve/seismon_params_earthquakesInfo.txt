@@ -1,0 +1,11 @@
+ifo H1
+frameType H1_R
+runName earthquakes_info
+user mcoughlin
+dirPath /home/mcoughlin/Seismon
+publicPath /home/mcoughlin/public_html/Seismon
+codePath /home/mcoughlin/Seismon
+executableDir /home/mcoughlin/Seismon/bin
+eventfilesLocation /home/mcoughlin/Seismon/eventfiles
+#eventfilesLocation /home/mcoughlin/Seismon/eventfiles/database
+velocitymapsLocation /home/mcoughlin/Seismon/velocity_maps

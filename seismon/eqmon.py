@@ -1,5 +1,7 @@
 #!/usr/bin/python
 
+
+
 import os, sys, time, glob, math, matplotlib, random, string
 import csv
 import pickle
@@ -20,6 +22,8 @@ from operator import itemgetter
 import pandas as pd
 
 from obspy.geodetics import degrees2kilometers, locations2degrees
+from obspy.geodetics.base import gps2dist_azimuth as gps2dist_azimuth
+
 
 from lxml import etree
 import scipy.spatial
@@ -45,79 +49,59 @@ except:
     print("No geopy installed...")
 
 
-############################# makePredictionsV3.py #############################
+################################-----------------------################################-
+######################### GPR based SEISMON Prediction 
+################################-----------------------################################-
+# make predictions in um/s using the trained GPR model
+def gprPredict(load_model,model_fullname,model,ifo,lat,lon,mag,depth):   
+    if load_model == 1:
+        # load model
+        # load model using pickle
+        print('-----------------------------------------------')
+        #print('loading model: {}'.format(model_fullname))
+        model = pickle.load(open(model_fullname,"rb"))
+    else:
+        print('-----------------------------------------------')
+        #print('using pre-loaded model: {}'.format(model_fullname))
+    lat = np.array([lat]).flatten()
+    lon = np.array([lon]).flatten()
+    mag = np.array([mag]).flatten()
+    depth = np.array([depth]).flatten()
+    # get ifo coordinate
+    ifo_lat = ifo.lat
+    ifo_lon = ifo.lon
+    # calculate distance
+    dist=np.array([])
+    # calculate distance
+    for ijk in np.arange(np.size(lat)):
+        #dist in meters
+        tempDist = gps2dist_azimuth(ifo_lat, ifo_lon, lat[ijk], lon[ijk])[0]
+        # dist in degrees (consistent with MATLAB distace() func output )
+        tempDistAngle = (tempDist/1e3)*(180/np.pi)*(1.0/6371)
+        dist = np.append(dist, tempDistAngle)            
+    # apply rescaling
+    nlat,nlon,nmag,ndepth,ndist = reScaleParams(lat,lon,mag,depth,dist)
+    X = np.array([nlat,nlon,nmag,ndepth,ndist]).transpose()
+    #  standardize using model.X_mean & model.X_std
+    X = (X - model.X_mean) / model.X_std
+    # make predicts using the model with one sigma uncertainty
+    mean_pred, var_pred = model.predict(X)
+    std_pred = np.sqrt(var_pred)
+    # Destandardize the model predictions
+    Y_pred     = (model.Y_std*mean_pred) + model.Y_mean
+    Y_pred_std = (model.Y_std*std_pred)      
+    # rescale
+    Y_pred      = 10**(Y_pred-3)
+    Y_pred_std  = 10**(Y_pred_std)
+    Y_pred = np.array(Y_pred).flatten()
+    Y_pred_std = np.array(Y_pred_std).flatten()
+    return Y_pred,Y_pred_std,model
 
-def makePredictionsV3(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi,
-                                        siteLat=30.562894,siteLon=-90.774242,
-                                        thresh=0.1,predictor='peak_data_um_mean_subtracted',
-                                        locklossMotionThresh=10*1e-6):
-    trainData = pd.read_csv(trainFile)
-    (predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD) = make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh)
-    return predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma
-
-#--------------------  makePredictionsV3.py : Sub-functions -----------------------#
 
 
-
-def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
-    #Get Mahalanobis Dist of test point from the training points (Ref: N. Mukund et al. DOI: 10.1088/1361-6382/ab0d2c)
-
-    P = cdist(trainData[['latitude','longitude']].values,
-              [[lat,lon]],'mahalanobis').ravel()    
-    # Sort as per minimum distance
-    Val = np.sort(P,axis=0)
-    ID  = np.argsort(P,axis=0)
-    # Select events within a threshold [LOCATION]
-    Val_thresh = thresh # 0.1
-    Val_idx = np.where(Val <= Val_thresh)[0]
-    # deal with empty arrays
-    if Val_idx.size==0:
-        Val_thresh = np.inf # use all data
-        Val_idx = np.where(Val <= Val_thresh)[0]
-    TD   = trainData.iloc[pd.DataFrame(ID[Val_idx])[0]]
-    TD=TD.reset_index(drop=True)
-    TD.loc[:,'cdist'] = Val[Val_idx]
-    # greatCircleDist
-    gcDist = degrees2kilometers(locations2degrees(TD['latitude'].values,TD['longitude'].values, siteLat,siteLon))
-    # greatCircleDistEvent
-    gcDistEvent = degrees2kilometers(locations2degrees(lat,lon, siteLat,siteLon))
-    TD.loc[:,'gcDist'] = gcDist
-    # get scaleFac
-    scalingFac=np.zeros(TD.shape[0])
-    for ijk in range(len(TD)):
-        scalingFac[ijk] = scaleFac(mag,gcDistEvent,depth,TD['mag'].iloc[ijk],gcDist[ijk],TD['depth'].iloc[ijk])
-    TD.loc[:,'scaleFac'] = scalingFac    
-    predicted_peak_amplitude = np.sum (  (1.0/TD['cdist']) * TD[predictor] * TD['scaleFac'] ) / np.sum (  (1.0/TD['cdist'])) 
-
-    if np.isnan(predicted_peak_amplitude) or predicted_peak_amplitude <= 0.0 :
-        predicted_peak_amplitude =  1e-9
-
-    # Results (compatible with seismon client)
-    Rfamp        =  predicted_peak_amplitude*1e-6
-    if Rfamp     > locklossMotionThresh :
-        LocklossTag    =  1
-    else :
-        LocklossTag    = 0
-    # Set standard deviations (currently set to 0)
-    Rfamp_sigma       = 0
-    LocklossTag_sigma = 0
-    # Combine Rfamp & Lockloss results        
-    robust_prediction = {'robust_Rfamp_prediction':Rfamp,'robust_lockloss_prediction':LocklossTag ,'robust_Rfamp_prediction_sigma':Rfamp_sigma ,'robust_lockloss_prediction_sigma':LocklossTag_sigma}
-    # Save Results
-    #if os.path.isdir('RESULTS')==False:
-    #    os.mkdir('RESULTS')
-    #np.save("./RESULTS/robust_prediction",robust_prediction)
-
-    # Return results
-    return(predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD)
-
-#Seismic Amplitude Scaling Factor (Ref: M Coughlin et al. DOI: 10.1088/1361-6382/aa5a60 )
-def scaleFac(m1,r1,h1,m2,r2,h2,b=1.31,c=4672.83,d=0.81):
-    scaleFac = m1*(1.0/m2) * ( 10**(0.5*b*(m1-m2)) ) * (((r2) * (1.0/r1))**d)  * (np.exp(1))**(2*np.pi*(1.0/c)* (  (h2* 10**(2.3-0.5*m2) ) - (h1*10**(2.3-0.5*m1) )   )  )
-    return scaleFac
-
-    
-############################# --------------------------- #############################
+################################-----------------------################################-
+#################################### Other functions
+################################-----------------------################################-
 
 
 def run_earthquakes(params,segment):
@@ -2830,3 +2814,261 @@ def shoot(lon, lat, azimuth, maxdist=None):
     baz *= 180./np.pi
 
     return (glon2, glat2, baz)
+
+
+################################-----------------------################################-
+######################### Analytical PowerLaw  model
+################################-----------------------################################-
+
+# make predictions in um/s using the Analytical PowerLaw  model
+def powerLawFit(ifo,lat,lon,mag,depth):   
+    R_earth = 6371
+    pi = np.pi
+    lat = np.array([lat]).flatten()
+    lon = np.array([lon]).flatten()
+    mag = np.array([mag]).flatten()
+    depth = np.array([depth]).flatten()
+    
+    # get ifo coordinates
+    ifo_lat = ifo.lat
+    ifo_lon = ifo.lon
+
+    # get ifo name
+    ifo_name = ifo.ifo
+    
+   
+    dist = np.zeros(len(lat),)        
+    Y_pred_powerLaw = np.zeros(len(lat),)
+    Y_pred_powerLaw_std = np.zeros(len(lat),) + np.finfo(float).eps # powerLaw doesn't provide uncertainity
+    
+
+    for ijk in range(len(lat)):
+        dist[ijk] = gps2dist_azimuth(ifo_lat,ifo_lon,lat[ijk],lon[ijk])[0]/1e3
+        #  generic one from Edgard/Ross
+        #Y_pred_powerLaw[ijk] = 10**(0.9*(mag[ijk]-6.5))*(dist[ijk]/pi/R_earth)**(-5/6)  
+        #       
+        # another updated one from Eyal [SEI LOG: 2104]
+        if ifo_name.lower()=='llo' or ifo_name.lower() =='l1' or ifo_name.lower()=='livingston':
+            Y_pred_powerLaw[ijk] = np.exp(2.25*mag[ijk] - 1.54*np.log(dist[ijk]/R_earth/pi) - 0.22*np.log(depth[ijk]/R_earth) - 16.29)
+        #TO-FIX: currently uses same formula for LHO/GEO/VIRGO    
+        else:
+            Y_pred_powerLaw[ijk] = np.exp(2.34*mag[ijk] - 2.72*np.log(dist[ijk]/R_earth/pi) - 0.28*np.log(depth[ijk]/R_earth) - 18.01)
+
+    # return powerLaw result
+    return Y_pred_powerLaw,Y_pred_powerLaw_std
+
+
+################################-----------------------################################-
+######################### GPR-Predictor Utility functions
+################################-----------------------################################-
+
+    # rescale EQ params
+def reScaleParams(lat,lon,mag,depth,dist):
+    eps = np.finfo(float).eps
+    # apply transform to params
+    # NOTE: Make sure to apply the correct inverse transform in compareResults
+    nlat = 5.0+(lat/50)
+    nlon = 5.0+(lon/100)
+    ndepth=10.0/np.log10(abs(depth)+eps)
+    ndist=10.0/np.log10(abs(dist)+eps)
+    nmag = mag
+    #nrfAmp = 3+np.log10(abs(rfAmp)+eps);
+    return nlat,nlon,nmag,ndepth,ndist
+
+def undoReScaleParams(nlat,nlon,nmag,ndepth,ndist):
+    eps = np.finfo(float).eps
+    # apply transform to params
+    # NOTE: Make sure to apply the correct inverse transform in compareResults
+    lat = 50*(nlat-5.0)
+    lon = 100*(nlon-5.0)
+    depth=10**(10.0/(abs(ndepth)+eps))
+    dist=10**(10.0/(abs(ndist)+eps))
+    mag = nmag
+    return lat,lon,mag,depth,dist
+
+def captured_percent(measurements,predictions,Fac):
+    K = np.divide(predictions,measurements)
+    L = predictions[K>1] <= Fac*measurements[K>1] 
+    M = predictions[K<1] >= np.divide(measurements[K<1],Fac)
+    Captured_pc = 100*np.divide((sum(L) + sum(M)),np.size(K))
+    return Captured_pc
+
+################################-----------------------################################-
+######################### OLD-SEISMON CODES & Utility funcs (Mahalanobis Distance based)
+################################-----------------------################################-
+
+############################# makePredictionsV3.py #############################
+# OLD-SEISMON (Mahalanobis Distance based)
+def makePredictionsV3(trainFile,testFile,predictionFile,mag,lat,lon,dist,depth,azi,
+                                        siteLat=30.562894,siteLon=-90.774242,
+                                        thresh=0.1,predictor='peak_data_um_mean_subtracted',
+                                        locklossMotionThresh=10*1e-6):
+    trainData = pd.read_csv(trainFile)
+    (predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD) = make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh)
+    return predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma
+
+
+
+# OLD-SEISMON (Mahalanobis Distance based)
+def make_prediction(trainData,lat,lon,mag,depth,siteLat,siteLon,thresh,predictor,locklossMotionThresh):
+    #Get Mahalanobis Dist of test point from the training points (Ref: N. Mukund et al. DOI: 10.1088/1361-6382/ab0d2c)
+
+    P = cdist(trainData[['latitude','longitude']].values,
+              [[lat,lon]],'mahalanobis').ravel()    
+    # Sort as per minimum distance
+    Val = np.sort(P,axis=0)
+    ID  = np.argsort(P,axis=0)
+    # Select events within a threshold [LOCATION]
+    Val_thresh = thresh # 0.1
+    Val_idx = np.where(Val <= Val_thresh)[0]
+    # deal with empty arrays
+    if Val_idx.size==0:
+        Val_thresh = np.inf # use all data
+        Val_idx = np.where(Val <= Val_thresh)[0]
+    TD   = trainData.iloc[pd.DataFrame(ID[Val_idx])[0]]
+    TD=TD.reset_index(drop=True)
+    TD.loc[:,'cdist'] = Val[Val_idx]
+    # greatCircleDist
+    gcDist = degrees2kilometers(locations2degrees(TD['latitude'].values,TD['longitude'].values, siteLat,siteLon))
+    # greatCircleDistEvent
+    gcDistEvent = degrees2kilometers(locations2degrees(lat,lon, siteLat,siteLon))
+    TD.loc[:,'gcDist'] = gcDist
+    # get scaleFac
+    scalingFac=np.zeros(TD.shape[0])
+    for ijk in range(len(TD)):
+        scalingFac[ijk] = scaleFac(mag,gcDistEvent,depth,TD['mag'].iloc[ijk],gcDist[ijk],TD['depth'].iloc[ijk])
+    TD.loc[:,'scaleFac'] = scalingFac    
+    predicted_peak_amplitude = np.sum (  (1.0/TD['cdist']) * TD[predictor] * TD['scaleFac'] ) / np.sum (  (1.0/TD['cdist'])) 
+
+    if np.isnan(predicted_peak_amplitude) or predicted_peak_amplitude <= 0.0 :
+        predicted_peak_amplitude =  1e-9
+
+    # Results (compatible with seismon client)
+    Rfamp        =  predicted_peak_amplitude*1e-6
+    if Rfamp     > locklossMotionThresh :
+        LocklossTag    =  1
+    else :
+        LocklossTag    = 0
+    # Set standard deviations (currently set to 0)
+    Rfamp_sigma       = 0
+    LocklossTag_sigma = 0
+    # Combine Rfamp & Lockloss results        
+    robust_prediction = {'robust_Rfamp_prediction':Rfamp,'robust_lockloss_prediction':LocklossTag ,'robust_Rfamp_prediction_sigma':Rfamp_sigma ,'robust_lockloss_prediction_sigma':LocklossTag_sigma}
+    # Save Results
+    #if os.path.isdir('RESULTS')==False:
+    #    os.mkdir('RESULTS')
+    #np.save("./RESULTS/robust_prediction",robust_prediction)
+
+    # Return results
+    return(predicted_peak_amplitude,LocklossTag,Rfamp_sigma,LocklossTag_sigma,TD)
+
+#Seismic Amplitude Scaling Factor (Ref: M Coughlin et al. DOI: 10.1088/1361-6382/aa5a60 )
+def scaleFac(m1,r1,h1,m2,r2,h2,b=1.31,c=4672.83,d=0.81):
+    scaleFac = m1*(1.0/m2) * ( 10**(0.5*b*(m1-m2)) ) * (((r2) * (1.0/r1))**d)  * (np.exp(1))**(2*np.pi*(1.0/c)* (  (h2* 10**(2.3-0.5*m2) ) - (h1*10**(2.3-0.5*m1) )   )  )
+    return scaleFac
+
+
+################################-----------------------################################-
+######################### PLOTTING FUNCTIONS to Compare Predictions & Measurements
+################################-----------------------################################-
+
+def plot_prediction(Y_meas,Y_pred,Y_pred_std,
+                    save_fig=0,
+                    fig_name='temp.png',
+                    fig_title='',
+                    Fac=5,
+                    plot_uncertainity=0,
+                    save_location='./'):
+    Y_meas = np.array(Y_meas)
+    Y_meas = Y_meas.reshape((len(Y_meas),1))
+    Y_pred = Y_pred.reshape((len(Y_pred),1))
+    Y_pred_std = Y_pred_std.reshape((len(Y_pred_std),1))
+
+    # sort Y [max to min] & get index
+    idx = np.argsort(Y_meas,axis=0)
+    # reverse index [max to min]
+    #idx = np.flipud(idx)
+    # sort
+    Y_meas = Y_meas[idx,:].flatten(); 
+    Y_pred = Y_pred[idx].flatten();  
+    Y_pred_std = Y_pred_std[idx].flatten();    
+    # Plot 
+    fig = plt.figure(figsize=(10,10))
+    XVAL = np.arange(len(Y_meas)).flatten()
+    # shhow factor of fac around Y_meas
+    plt.fill_between(XVAL, Y_meas/Fac, Y_meas*Fac,
+                   color='green', alpha=0.3, label="Factor of {}".format(Fac))    
+    # Fill the one sigma uncertainty region
+    if plot_uncertainity==1:
+        plt.errorbar(XVAL,Y_meas,yerr=Y_pred_std,alpha=0.3,
+                 color='grey',label="Prediction uncertainty",
+                 errorevery=30)
+    # Plot the prediction
+    plt.plot(XVAL, Y_pred, 'k*', alpha=0.5,label="Prediction")
+    # Plot measured values
+    plt.scatter(XVAL, Y_meas,marker='o', alpha=0.9, label="Actual Output")    
+    # Add a legend to the plot
+    plt.legend(loc='upper left',fontsize=15)
+    # log scale
+    plt.yscale('log')
+    # label axis
+    plt.xlabel('Event ID',fontsize=20)
+    plt.ylabel('Peak Amplitude [um/s]',fontsize=20)
+    plt.title(fig_title,fontsize=20)
+    plt.grid()
+    # add captured percentage info
+    Captured_pc = captured_percent(Y_meas,Y_pred,Fac)
+    plt.annotate('Percentage captured\nwithin a factor of {}: {:0.2f}%'.format(Fac,Captured_pc),xy=(10,5e1,),fontsize=15)
+    # save the plot
+    if save_fig==1:
+        plt.savefig(os.path.join(save_location,fig_name))
+    # Show the plot
+    plt.show()        
+
+
+def scatter_plot_prediction(Y_meas,Y_pred,Y_pred_std,
+                    save_fig=0,
+                    fig_name='temp_scatter.png',
+                    fig_title='',
+                    Fac=5,
+                    plot_uncertainity=0,
+                    save_location='./'):
+    #make scatter plot
+    Y_meas = np.array(Y_meas)
+    Y_meas = Y_meas.reshape((len(Y_meas),1))
+    Y_pred = Y_pred.reshape((len(Y_pred),1))
+    Y_pred_std = Y_pred_std.reshape((len(Y_pred_std),1))
+    # sort Y [max to min] & get index
+    idx = np.argsort(Y_meas,axis=0)
+    # reverse index [max to min]
+    #idx = np.flipud(idx)
+    # sort
+    Y_meas = Y_meas[idx,:].flatten(); 
+    Y_pred = Y_pred[idx].flatten();  
+    Y_pred_std = Y_pred_std[idx].flatten();  
+    # PLOT
+    fig = plt.figure(figsize=(10,10))
+    ax = plt.gca()
+    ax.plot(Y_meas, Y_pred, 'o', c='blue', alpha=0.3, markeredgecolor='none',markersize=10)
+    ax.set_aspect('equal')
+    ax.set_yscale('log')
+    ax.set_xscale('log')
+    ax.grid()
+    ax.axis([5e-2,2e2,5e-2,2e2]);
+    ax.set_ylabel('Prediction [um/s]',fontsize=20);
+    ax.set_xlabel('Measurement [um/s]',fontsize=20);
+    ax.set_title(fig_title,fontsize=20)
+    """ax.plot(ax.get_xlim(), ax.get_xlim(),'--k')
+    ax.plot(ax.get_xlim(), ax.get_xlim(),'--k')"""
+    LIM = np.linspace(*ax.get_xlim())
+    ax.plot(LIM, LIM,'--k')
+    ax.plot(LIM, Fac*LIM,'--k')
+    ax.plot(LIM, (1/Fac)*LIM,'--k')
+    percentage_captured = captured_percent(Y_meas,Y_pred,Fac)
+    #plt.text(2, 3e-2, 'percentage captured within a factor of {} : {:0.2f} %'.format(FAC,percentage_captured), fontsize=12)
+    plt.text(1e-1,5e1, 'percentage captured within a factor of {} : {:0.2f} %'.format(Fac,percentage_captured), fontsize=15)
+    # save the plot
+    if save_fig==1:
+        plt.savefig(os.path.join(save_location,fig_name))
+    # Show the plot
+    plt.show()        

@@ -1,5 +1,0 @@
-dataLocation /usr/local/seismon/ProductClient/data/receiver_storage/origin
-internalDataLocation /usr/local/seismon/ProductClient/data/receiver_storage/internal-origin
-publicdataLocation /usr/local/seismon/publicdata
-databasedataLocation /usr/local/seismon/databasedata
-eventfilesLocation /usr/local/seismon/eventfiles

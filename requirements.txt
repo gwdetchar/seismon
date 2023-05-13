@@ -11,6 +11,8 @@ pandas>=0.20.3
 mkl>=2018.0.0
 lalsuite
 geopy>=1.14.0
-enum
+psycopg2
+simplejson
 six>=1.5
 sqlalchemy
+GPy>=1.10.0

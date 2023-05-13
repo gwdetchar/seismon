@@ -1,0 +1,13 @@
+The percentage of total locklosses is 75.3289473684% 
+The total number of earthquakes is 666. 
+The number of earthquakes above 50 percent is 303. 
+The number of earthquakes above 75 percent is 9. 
+The number of earthquakes above 90 percent is 1. 
+The number of earthquakes above 95 percent is 1. 
+The threshhold at 50.0% is 9.92687e-07(m/s) 
+The threshhold at 75.0% is nan(m/s) 
+The threshhold at 90.0% is nan(m/s) 
+The threshhold at 95.0% is nan(m/s) 
+The number of times of locklosses is 229. 
+The number of times of no locklosses is 75. 
+The number of times of not locked is 362. 

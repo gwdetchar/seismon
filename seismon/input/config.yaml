@@ -6,5 +6,21 @@ user = seismon
 password = seismon
 min_eq_magnitude = 4.5
 
+
 [pdlcient]
 directory = /var/lib/seismon/ProductClient/data/receiver_storage/origin 
+
+[eq_prediction]
+model_path = input/trained_prediction_models 
+locklossMotionThresh = 1 
+sleep_time_secs = 15
+ 
+
+[ldg_params]
+FLAG_send_pdl_event_to_ldg = 1
+ldg_uname = nikhil.mukund
+ldg_cluster  =  ldas-pcdev2.ligo.caltech.edu
+ldg_cluster_pdl_client_event_folder = /home/nikhil.mukund/public_html/SEISMON/NEW_EVENTS_PDL_CLIENT/
+
+
+
