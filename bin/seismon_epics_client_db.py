@@ -297,7 +297,7 @@ if __name__ == "__main__":
         mags = []
  
 # get list of predictions for this IFO sorted by P.wave time
-        prlist = session.query(Prediction).filter_by(ifo = site).order_by(desc(Prediction.p)).limit(200)
+        prlist = session.query(Prediction).filter_by(ifo = site).order_by(desc(Prediction.p)).limit(20)
 
 # loop over the predictions
         for pr in prlist:
