@@ -2148,6 +2148,7 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
 
     seismonpath = os.path.dirname(seismon.__file__)
     scriptpath = os.path.join(seismonpath,'input')
+    datpath = os.path.join(seismonpath,"..","p_and_s")
 
     if ifo == "LLO":
         trainFile = os.path.join(scriptpath,'LLO_processed_USGS_global_EQ_catalogue.csv')
@@ -2236,8 +2237,8 @@ def ifotraveltimes_lookup(attributeDic,ifo,ifolat,ifolon,pred=True):
     else:
         depth = 2.0
 
-    pfile = os.path.join(scriptpath,'p.dat')
-    sfile = os.path.join(scriptpath,'s.dat')
+    pfile = os.path.join(datpath,'p.dat')
+    sfile = os.path.join(datpath,'s.dat')
     parrivals = np.loadtxt(pfile)
     sarrivals = np.loadtxt(sfile)
     depths = np.linspace(1,100,100)
