@@ -507,9 +507,9 @@ def compute_predictions(earthquake, ifo):
     Rfamp, Lockloss,Rfamp_powerLawFit, Rfamp_std = compute_amplitudes(earthquake, ifo)
     
     # make sure Rfamp etc is in float 
-    Rfamp = np.float(Rfamp)
-    Rfamp_std = np.float(Rfamp_std)
-    Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
+    Rfamp = float(Rfamp)
+    Rfamp_std = float(Rfamp_std)
+    Rfamp_powerLawFit = float(Rfamp_powerLawFit)
 
     #PRINT: only LLO/LHO
     if ifo.ifo.lower()=='llo' or ifo.ifo.lower()=='lho' :
