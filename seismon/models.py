@@ -507,9 +507,9 @@ def compute_predictions(earthquake, ifo):
     Rfamp, Lockloss,Rfamp_powerLawFit, Rfamp_std = compute_amplitudes(earthquake, ifo)
     
     # make sure Rfamp etc is in float 
-    Rfamp = np.float(Rfamp)
-    Rfamp_std = np.float(Rfamp_std)
-    Rfamp_powerLawFit = np.float(Rfamp_powerLawFit)
+    Rfamp = float(Rfamp)
+    Rfamp_std = float(Rfamp_std)
+    Rfamp_powerLawFit = float(Rfamp_powerLawFit)
 
     #PRINT: only LLO/LHO
     if ifo.ifo.lower()=='llo' or ifo.ifo.lower()=='lho' :
@@ -811,7 +811,7 @@ def run_seismon(purge=False, init_db=False):
         ingest_earthquakes(config, args.lookback)
 
     ifos = Ifo.query.all()
-    eqs = Earthquake.query.all()
+    eqs = Earthquake.query.order_by(Earthquake.date.desc()).limit(100).all()
 
     for eq in eqs:
         for det in ifos:

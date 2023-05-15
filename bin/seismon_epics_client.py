@@ -12,17 +12,25 @@
 #
 # D.Barker LHO 17nov2016
 # K. Thorne - use stdenv, allow parameter for data directory
+# E. von Reis - use environment instead of stdenv for IFO and SITE values
 
 # Setup up CDS standard environment
 import sys
-sys.path.append('/ligo/cdscfg')
-import stdenv as cds
-cds.INIT_ENV()
+import os
+from collections import namedtuple
+
+# create a named tuple to handle site info
+# replaces cdscfg object no longer used.
+# IFO and SITE come straight from the environment.
+CDS = namedtuple("CDS", "SITE IFO")
+cds = CDS(os.environ['SITE'], os.environ['IFO'])
 
 print ("Run this for site " + cds.SITE + " ifo " + cds.IFO)
 # Extract command-line parameters
 # 'data directory'
-datadir = sys.argv[1:1]
+datadir = ''
+if len(sys.argv) > 1:
+    datadir = sys.argv[1]
 if len(datadir) == 0:
     datadir = "/seisapps/seisdata/all/" + cds.IFO + "O2"
 
@@ -58,16 +66,16 @@ olddatafile = []
 while True:
     # find latest file in datadir
   searchpath = datadir + "/*"
-  print("searchpath %s" % searchpath)
+  # print("searchpath %s" % searchpath)
   sys.stdout.flush()
   globstring = glob.iglob(searchpath)
 #    print "datadir globstring %s" % globstring
   newest_datadir = max(glob.iglob(searchpath), key=os.path.getctime)
-  print("newest_datadir %s" % newest_datadir)
+  # print("newest_datadir %s" % newest_datadir)
 
 # get name os usxxxxxxxx directory under the earthquakes subdirectory
   searchpath = newest_datadir + "/earthquakes/" + DATADIRPREFIX + "*"
-  print ("searchpath %s" % searchpath)
+  # print ("searchpath %s" % searchpath)
   sys.stdout.flush()
 
 #  First, make sure this is not empty.  If it is, add to uptime, continue
@@ -80,7 +88,7 @@ while True:
 #    print "datadir globstring %s" % globstring
     newest_usdatadir = max(glob.iglob(searchpath), key=os.path.getctime)
  
-    print ("newest_usdatadir %s" % newest_usdatadir)
+    # print ("newest_usdatadir %s" % newest_usdatadir)
     
     datafile = newest_usdatadir + "/earthquakes.txt"
 
@@ -89,7 +97,7 @@ while True:
     except IOError:
         print ('cannot open', datafile)
     else:
-        print ("open datafile %s" % datafile)
+        # print ("open datafile %s" % datafile)
         olddatafile = datafile
         found_ifo_line = False
         for line in df:
