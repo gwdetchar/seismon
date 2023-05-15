@@ -44,7 +44,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 from sqlalchemy.ext.declarative import declarative_base, declared_attr
 from sqlalchemy.orm import sessionmaker, scoped_session, relationship
 from sqlalchemy.orm.exc import NoResultFound
-from sqlalchemy import func
+from sqlalchemy import func, exists
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy import create_engine  
 #from arrow.arrow import Arrow
@@ -810,42 +810,41 @@ def run_seismon(purge=False, init_db=False):
     else:
         ingest_earthquakes(config, args.lookback)
 
+    # get only those earthquakes that are big enough and don't yet have predictions
     ifos = Ifo.query.all()
-    eqs = Earthquake.query.order_by(Earthquake.date.desc()).limit(100).all()
+    min_mag = float(config['database']['min_eq_magnitude'])
+    eqs = Earthquake.query.filter(Earthquake.magnitude >= min_mag).filter(
+        ~exists().where(
+            Prediction.event_id == Earthquake.event_id
+        )
+    ).all()
 
     for eq in eqs:
         for det in ifos:
-            preds = Prediction.query.filter_by(event_id=eq.event_id,
-                                               ifo=det.ifo).all()
+            compute_predictions(eq, det)
 
-            #[print(val) for val in preds]                                              
-
-            # check if event is already processed & if the event magnitude is higher than the specified threshold(modified by NM, 01/10/21) 
-            if len(preds) == 0 and eq.magnitude >= float(config['database']['min_eq_magnitude']) :
-                compute_predictions(eq, det)
-
-                # (added by NM on 02/10/21) Sent event to Caltech machine                
-                # (added by NM on 03/10/21) KeyError for: sent = Time(attributeDic["Sent"], format='isot', scale='utc')
-                try:
-                    mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent),'created_at':str(eq.created_at),'modified':str(eq.modified)}
-                except:
-                    mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.date),'created_at':str(eq.created_at),'modified':str(eq.modified)}
+            # (added by NM on 02/10/21) Sent event to Caltech machine
+            # (added by NM on 03/10/21) KeyError for: sent = Time(attributeDic["Sent"], format='isot', scale='utc')
+            try:
+                mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.sent),'created_at':str(eq.created_at),'modified':str(eq.modified)}
+            except:
+                mydict={'event_id':eq.event_id,'lat':eq.lat,'lon':eq.lon,'magnitude':eq.magnitude,'depth':eq.depth,'event_time':str(eq.date),'sent':str(eq.date),'created_at':str(eq.created_at),'modified':str(eq.modified)}
 
 
-                
-                event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
-                pd.DataFrame([mydict]).to_csv(event_filename, index=False)    
-                syscmd='scp {0} {1}@{2}:{3}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
-                # only sent once while looping over ifos 
-                if FLAG_send_pdl_event_to_ldg == 1:
-                    if det.ifo=="LHO":
-                        try:
-                            print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
-                            os.system(syscmd)
-                            print('File sent.')
-                        except:
-                            print('unable to send the file to Caltech machine')
-                            pass
+
+            event_filename='./tests/new_events/{0}.csv'.format(eq.event_id)
+            pd.DataFrame([mydict]).to_csv(event_filename, index=False)
+            syscmd='scp {0} {1}@{2}:{3}'.format(event_filename,ldg_uname,ldg_cluster,ldg_cluster_pdl_client_event_folder)
+            # only sent once while looping over ifos
+            if FLAG_send_pdl_event_to_ldg == 1:
+                if det.ifo=="LHO":
+                    try:
+                        print('attempting to send the new event file {0} to Caltech machine'.format(event_filename))
+                        os.system(syscmd)
+                        print('File sent.')
+                    except:
+                        print('unable to send the file to Caltech machine')
+                        pass
 
 
             # Print Predictions, for debugging purpose
