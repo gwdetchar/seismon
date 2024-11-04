@@ -1686,7 +1686,10 @@ def read_quakeml(file,eventName):
 
     attributeDic["Time"] = dic["eventParameters"]["event"]["origin"]["time"]["value"]
     timeString = attributeDic["Time"].replace("T"," ").replace("Z","")
-    dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+    try:
+        dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S.%f")
+    except ValueError:
+        dt = datetime.strptime(timeString, "%Y-%m-%d %H:%M:%S")
     tm = time.struct_time(dt.timetuple())
     attributeDic['GPS'] = astropy.time.Time(dt, format='datetime', scale='utc').gps
     #attributeDic['GPS'] = float(lal.gpstime.utc_to_gps(dt))
